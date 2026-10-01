@@ -2,8 +2,8 @@
 
 **A cloud-based fashion marketplace for Hampton University students**
 
-Designed & Built by David Jackson, Elali McNair, Day Ekoi, Ryan Grimes, Kaila Roberts, and Madison Boyd
-CSC 405 — Spring 26'
+Designed & Built by Jaylen Belle, Sidney Cerami, Noah Green, Tykeara Hammond, Nicco Hill, Anthony Jackson and Ethan Williams 
+CSC 404 — Fall 26'
 
 ---
 
