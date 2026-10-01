@@ -97,13 +97,14 @@ python3 backend/tests/test_file_name
 
 | Name | Role |
 |---|---|
-| David Jackson | Project Manager, Admin backend & frontend |
-| Elali McNair | Co-PM, Wishlist & Purchase backend, Create Listing frontend |
-| Ryan Grimes | Systems & Security Lead, Auth backend, Login/Signup/Cart frontend |
-| Day Ekoi | Cloud Deployment Lead, Storefront & Listings backend & frontend, Returns system, AWS deployment |
-| Madison Boyd | Documentation Lead, User & Account Settings backend & frontend |
-| Kaila Roberts | Database & App Support, Checkout backend and frontend |
-
+| Ethan Williams | Project Manager, Admin backend & frontend |
+| Nicco Hill | Co-PM, Wishlist & Purchase backend, Create Listing frontend |
+| Nicholas Smith | Systems & Security Lead, Auth backend, Login/Signup/Cart frontend |
+| Tykeara Hammond | Cloud Deployment Lead, Storefront & Listings backend & frontend, Returns system, AWS deployment |
+| Jaylen Belle | Documentation Lead, User & Account Settings backend & frontend |
+| Anthony Jackson| Database & App Support, Checkout backend and frontend |
+| Sidney Cerami | Quality Assurance & Testing |
+| Noah Green | Front End & UI Lead |
 ---
 
 ## Notes
