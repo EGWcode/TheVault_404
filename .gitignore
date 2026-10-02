@@ -1,6 +1,24 @@
+
 .env
 **/.env
 venv/
 .venv/
 __pycache__/
 *.pyc
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Elastic Beanstalk CLI
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+
+# Logs and editor/OS files
+*.log
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
