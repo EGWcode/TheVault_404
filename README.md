@@ -9,7 +9,7 @@ CSC 404 — Fall 26'
 
 ## Live Deployment
 
-**http://the-vault-env.eba-a7vun5tm.us-east-2.elasticbeanstalk.com**
+**http://the-vault-env.eba-phqfxm9m.us-east-2.elasticbeanstalk.com**
 
 ---
 
