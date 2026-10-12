@@ -4,7 +4,7 @@ from utils.auth_utils import hash_password, verify_password
 
 class AuthService:
     def register_user(self, username, password, email, db_conn): #Stores a user's unique ID, username, password, and email into the database
-        if not email.lower().endswith("hamptonu.edu"): #Validates Hampton Assocation, added 2/19/2026 by Ryan Grimes
+        if not email.strip().lower().endswith("@hamptonu.edu") and not email.strip().lower().endswith("@my.hamptonu.edu"): #Fixed Hampton Login Credentials and added .strip() so a stray space wouldnt fail signup. Added 10/12/2026 by Tykeara Hammond
             print(f"You Must Use a Hampton University Associated Email") 
             return False, "You Must Use a Hampton University Associated Email"
 
