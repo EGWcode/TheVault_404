@@ -11,22 +11,22 @@ from services.auth_services import AuthService
 
 def test_student_email_accepted():
     fake_conn = MagicMock()
-    success, message = AuthService().register_user("tester", "Password123", "test@my.hamptonu.edu", fake_conn)
+    success, message = AuthService().register_user("tester", "Password123!", "test@my.hamptonu.edu", fake_conn)
     assert success is True
 
 def test_staff_email_accepted():
     fake_conn = MagicMock()
-    success, message = AuthService().register_user("tester", "Password321", "test@hamptonu.edu", fake_conn)
+    success, message = AuthService().register_user("tester", "Password321!", "test@hamptonu.edu", fake_conn)
     assert success is True
 
 def test_gmail_rejected():
     fake_conn = MagicMock()
-    success, message = AuthService().register_user("tester", "Password123", "test@nothamptonu.edu", fake_conn)
+    success, message = AuthService().register_user("tester", "Password123!", "test@nothamptonu.edu", fake_conn)
     assert success is False
     fake_conn.cursor.assert_not_called()
 
 def test_fake_domain_rejected():
     fake_conn = MagicMock()
-    success, message = AuthService().register_user("tester", "Password123", "test@gmail.com", fake_conn)
+    success, message = AuthService().register_user("tester", "Password123!", "test@gmail.com", fake_conn)
     assert success is False
     fake_conn.cursor.assert_not_called()
