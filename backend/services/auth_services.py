@@ -1,4 +1,5 @@
 #By Ryan Grimes 2/27/2026
+#Edited by Tykeara Hammond 10/13/2026
 #Register user and validate login
 from utils.auth_utils import hash_password, verify_password
 import re
@@ -7,7 +8,7 @@ class AuthService:
         if not email.strip().lower().endswith("@hamptonu.edu") and not email.strip().lower().endswith("@my.hamptonu.edu"): #Fixed Hampton Login Credentials and added .strip() so a stray space wouldnt fail signup. Added 10/12/2026 by Tykeara Hammond
             print(f"You Must Use a Hampton University Associated Email") 
             return False, "You Must Use a Hampton University Associated Email"
-        #password check
+        #password check - Tykeara 
         if not self.validate_password(password):
             print("Password does not meet requirements")
             return False, "Password must be atleast 8 characters and include an uppercase letter, a lowercase letter, a number, and a symbol (#?!@$%^&*_-)"
@@ -23,7 +24,7 @@ class AuthService:
             print(f"Registration Error: {e}")
             db_conn.rollback() #If connection fails, all changes are voided to prevent saving partial data
             return False, "Signup Failed"
-    def validate_password(self, password):
+    def validate_password(self, password): #Tykeara Hammond added Password Strength (10/13/2026)
         pattern = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#?!@$%^&*_-]).{8,}$'
         return bool(re.fullmatch(pattern, password))
     
