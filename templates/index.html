@@ -1,171 +1,256 @@
-<!-- Created 3/19/2026 by Ryan Grimes-->  
-
+<!--
+  The Vault: portal / landing page (home page at /). The sign-in form itself is templates/login.html
+  Originally created 3/19/2026 by Ryan Grimes
+  Hampton redesign 10/15/2026 by Nicco Hill:
+    - Hampton blue theme with vault door, moon, sailing ship and animated waves
+    - Scales to fit one browser window; "Inside the Vault" category strip below
+    - CSS and JS are kept in this one file on purpose
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Vault | Portal</title>
+    <title>The Vault — Portal</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
     <style>
-        /* Index.html was made on 3/19/2026 by Ryan Grimes */
+/* ===== Theme (Nicco Hill) ===== */
+:root {
+    --navy: #06163A;        /* page background */
+    --hampton-blue: #0033A0;
+    --deep-blue: #0B2A7A;
+    --ice: #BFD4FF;         /* accent text, dotted rings */
+    --mist: #DCE6FF;        /* soft text, moon */
+    --off-white: #F7F9FF;
+    --white: #FFFFFF;
+    --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+    --font-body: 'Instrument Sans', 'Helvetica Neue', sans-serif;
+}
 
-        
-        /* Locks the screen */
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%;
-            background: #000; overflow: hidden;
-            font-family: 'Segoe UI', sans-serif;
-            display: flex; justify-content: center; align-items: center;
-        }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--navy); }
+a { color: var(--ice); }
+a:hover { color: var(--white); }
 
-        /* Background layer */
-        .vault-wrapper {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            background: url('/static/images/background.png') no-repeat center center;
-            background-size: cover;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+@keyframes vaultTurn { from { transform: rotate(-60deg); } to { transform: rotate(0deg); } }
+@keyframes vaultFill { from { width: 0%; } to { width: 100%; } }
+@keyframes cueBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
-        /* The logo  */
-        /* Locks the logo position in place regardless if it's in full screen */
-        .logo-container {
-            position: absolute;
-            top: 43.5%;    /* Increase to move DOWN, Decrease to move UP */
-            left: 50.75%;   /* Increase to move RIGHT, Decrease to move LEFT */
-            
-            transform: translate(-53%, -50%); 
-            z-index: 1; /* Sits behind the "The Vault" text */
-        }
+/* Big Shoulders headline font, shared by the logo, title, buttons and tiles */
+.brand-mark, .brand-name, .main-title, .vault-btn, .inside-vault-title { font-family: var(--font-display); font-weight: 900; }
+/* Small spaced-out caps used for labels */
+.header-tagline, .portal-intro, .sub-title, .loading-text, .scroll-cue { text-transform: uppercase; }
 
-        .logo-container img {
-            height: 48vh; /* Scales with screen height */
-            width: auto;
-        }
+/* ===== Page shell with blueprint grid ===== */
+.portal { min-height: 100vh; display: flex; flex-direction: column; background-color: var(--navy); background-image: linear-gradient(rgba(191,212,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(191,212,255,0.06) 1px, transparent 1px); background-size: 48px 48px; color: var(--off-white); font-family: var(--font-body); }
 
-        /* 4. The text and buttons layer */
-        .bottom-section {
-            position: absolute;
-            bottom: 10vh; 
-            width: 100%;
-            text-align: center;
-            z-index: 10; /* Makes sure it always stays in front of the logo */
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+/* ===== Header: logo + tagline ===== */
+.portal-header { max-width: 1280px; width: 100%; margin: 0 auto; padding: 24px 32px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark { width: 36px; height: 36px; border-radius: 50%; border: 3px dotted var(--ice); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--white); }
+.brand-name { font-size: 22px; letter-spacing: 0.08em; }
+.header-tagline { font-size: 13px; letter-spacing: 0.14em; color: var(--ice); }
 
-        .main-title {
-            color: white; 
-            font-size: 9vh; 
-            font-weight: bold; 
-            margin: 0; 
-            line-height: 0.8;
-            text-shadow: 0 4px 15px rgba(0,0,0,0.9);
-        }
+/* ===== Hero: fills the window under the header (84px tall).
+   --wave-h and --door scale everything to the window height. (Nicco Hill) ===== */
+.hero { position: relative; flex-grow: 1; display: flex; flex-direction: column; overflow: hidden; min-height: calc(100vh - 84px); --wave-h: clamp(120px, 22vh, 300px); --door: min(340px, 80vw, 26vh); }
+.moon { position: absolute; right: 9%; top: clamp(16px, 8vh, 96px); width: clamp(44px, 7vh, 88px); height: clamp(44px, 7vh, 88px); border-radius: 50%; background: var(--mist); opacity: 0.85; box-shadow: 0 0 80px 20px rgba(191,212,255,0.25); }
+/* Waves are twice the page width; the script slides them left to loop */
+.wave { position: absolute; left: 0; bottom: 0; width: 200%; height: var(--wave-h); transform: translateX(0); }
+.ship-sail { position: absolute; left: 6%; bottom: calc(var(--wave-h) * 0.56); width: clamp(140px, 20vh, 300px); }
+.ship { display: block; width: 100%; height: auto; transform-origin: 50% 90%; }
 
-        .sub-title {
-            color: #B8860B; 
-            font-size: 3vh; 
-            margin-top: 0.5vh; 
-            letter-spacing: 4px;
-            font-weight: 500;
-        }
+.hero-content { position: relative; flex-grow: 1; max-width: 1280px; width: 100%; margin: 0 auto; padding: clamp(8px, 2vh, 24px) 32px calc(var(--wave-h) * 0.8); display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.6vh, 36px); text-align: center; }
+.portal-intro { margin: 0; font-size: 14px; font-style: italic; letter-spacing: 0.22em; color: var(--ice); }
 
-        /* 5. METALLIC BUTTONS */
-        .button-row {
-            display: flex; 
-            justify-content: center; 
-            gap: 8vw; 
-            margin-top: 4vh;
-            width: 100%;
-        }
+/* ===== Vault door: sizes are fractions of --door (designed at 340px) ===== */
+.vault-door { position: relative; width: var(--door); aspect-ratio: 1 / 1; }
+.vault-ring, .vault-face, .vault-wheel, .vault-hub { position: absolute; border-radius: 50%; }
+.vault-ring { inset: 0; border: calc(var(--door) * 0.035) dotted var(--ice); }
+.vault-face { inset: calc(var(--door) * 0.065); background: var(--hampton-blue); border: max(3px, calc(var(--door) * 0.018)) solid var(--off-white); box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 calc(var(--door) * 0.03) var(--deep-blue); }
+/* The wheel turns into place on load; each spoke gets its angle from --r */
+.vault-wheel { inset: 0; border-radius: 0; animation: vaultTurn 1.6s cubic-bezier(.2,.8,.2,1) both; }
+.vault-spoke { position: absolute; left: 50%; top: calc(50% - var(--door) * 0.0235); width: 42%; height: calc(var(--door) * 0.047); border-radius: calc(var(--door) * 0.0235); background: var(--off-white); transform-origin: 0 50%; transform: rotate(var(--r)); }
+.vault-hub { inset: 27%; background: var(--navy); border: max(3px, calc(var(--door) * 0.018)) solid var(--off-white); display: flex; align-items: center; justify-content: center; }
+.vault-hub-dot { width: 22%; aspect-ratio: 1 / 1; border-radius: 50%; background: var(--off-white); }
 
-        .metallic-btn {
-            background: none; 
-            border: none; 
-            cursor: pointer; 
-            width: 22vw; 
-            max-width: 260px; 
-            padding: 0;
-            transition: transform 0.2s ease;
-        }
+/* ===== Title ===== */
+.title-block { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.2vh, 12px); }
+.main-title { margin: 0; font-size: clamp(48px, min(11vw, 10vh), 136px); line-height: 0.9; letter-spacing: 0.02em; color: var(--white); }
+.sub-title { margin: 0; font-size: 15px; font-weight: 600; letter-spacing: 0.32em; color: var(--ice); }
+.title-blurb { margin: 4px 0 0; max-width: 520px; font-size: clamp(15px, 2vh, 18px); line-height: 1.5; color: var(--mist); text-wrap: pretty; }
 
-        .metallic-btn:hover { 
-            transform: scale(1.05); 
-            filter: brightness(1.2);
-        }
+/* ===== LOG IN / SIGN UP buttons ===== */
+.button-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; }
+.vault-btn { min-width: 200px; border-radius: 999px; text-decoration: none; font-size: clamp(18px, 2.6vh, 24px); letter-spacing: 0.1em; transition: transform .15s; }
+.vault-btn:hover { transform: translateY(-2px); }
+/* :hover is listed so the global a:hover color can't override the button text */
+.vault-btn-primary, .vault-btn-primary:hover { padding: clamp(10px, 1.8vh, 18px) 32px; background: var(--white); color: var(--navy); }
+.vault-btn-outline, .vault-btn-outline:hover { padding: clamp(8px, calc(1.8vh - 2px), 16px) 32px; border: 2px solid var(--white); color: var(--white); }
+.button-note { margin: -12px 0 0; font-size: 14px; color: var(--ice); }
 
-        .metallic-btn img { width: 100%; height: auto; }
+/* ===== Loading bar ===== */
+.loading { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 12px; }
+.loading-track { height: 6px; border-radius: 3px; background: rgba(191,212,255,0.18); overflow: hidden; }
+.vault-fill { height: 100%; background: var(--white); border-radius: 3px; animation: vaultFill 2s cubic-bezier(.4,0,.2,1) .3s both; }
+.loading-text { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; letter-spacing: 0.18em; color: var(--ice); }
 
-        /* Loading Bar */
-        .footer-area { 
-            width: 50%; 
-            margin-top: 5vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-        }
+/* ===== "Inside the Vault" scroll cue on the waves (Nicco Hill) ===== */
+html { scroll-behavior: smooth; }
+.scroll-cue { position: absolute; left: 50%; bottom: calc(var(--wave-h) * 0.2); transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 10px 14px 10px 22px; border: 1.5px solid rgba(255,255,255,0.55); border-radius: 999px; background: rgba(6,22,58,0.45); font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-decoration: none; white-space: nowrap; }
+.scroll-cue, .scroll-cue:hover { color: var(--white); }
+.scroll-cue:hover { background: rgba(6,22,58,0.7); border-color: var(--white); }
+.scroll-cue svg { width: 20px; height: 20px; animation: cueBob 1.8s ease-in-out infinite; }
 
-        progress { 
-            width: 100%; 
-            height: 8px; 
-            accent-color: #B8860B; 
-            background: #333; 
-            border-radius: 10px; 
-        }
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .scroll-cue svg { animation: none; }
+}
 
-        /* For centered progress styling */
-        progress::-webkit-progress-bar { background-color: #333; border-radius: 10px; }
-        progress::-webkit-progress-value { background-color: #B8860B; border-radius: 10px; }
-
-        .footer-text { 
-            color: rgba(204,178,128,0.5); 
-            font-size: 1.6vh; 
-            margin-top: 8px; 
-            letter-spacing: 1px;
-        }
-
-        .portal-header {
-            position: absolute;
-            top: 5vh;
-            color: rgba(204, 178, 128, 0.7);
-            font-size: 2vh;
-            font-style: italic;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
+/* ===== Inside the Vault: category photo tiles (Nicco Hill) ===== */
+.inside-vault { background: var(--hampton-blue); }
+.inside-vault-inner { max-width: 1280px; margin: 0 auto; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
+.inside-vault-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; }
+.inside-vault-title { margin: 0; font-size: 32px; letter-spacing: 0.04em; }
+.inside-vault-note { font-size: 14px; color: var(--mist); }
+.tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px; }
+.tile { position: relative; overflow: hidden; aspect-ratio: 4 / 5; border-radius: 16px; background: repeating-linear-gradient(135deg, var(--deep-blue) 0 12px, #0A2770 12px 24px); border: 1px solid rgba(255,255,255,0.18); display: flex; flex-direction: column; justify-content: flex-end; padding: 16px; text-align: left; }
+.tile-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+/* Darkens the bottom of the photo so the label stays readable */
+.tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(6,22,58,0.85) 0%, rgba(6,22,58,0) 50%); }
+.tile-label { position: relative; z-index: 1; font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1.05; color: var(--white); }
     </style>
 </head>
 <body>
-    <div class="vault-wrapper">
-        <div class="portal-header">YOU HAVE ARRIVED AT THE PORTAL TO...</div>
+<div class="portal">
 
-        <div class="logo-container">
-            <img src="/static/images/logo.png" alt="Vault Logo">
-        </div>
-
-        <div class="bottom-section">
-            <h1 class="main-title">THE VAULT</h1>
-            <div class="sub-title">FASHION MARKETPLACE</div>
-
-            <div class="button-row">
-                <a href="{{ url_for('auth.login') }}" class="metallic-btn">
-                    <img src="/static/images/login_button.png" alt="Log In">
-                </a>
-                <a href="{{ url_for('auth.signup') }}" class="metallic-btn">
-                    <img src="/static/images/signup_button.png" alt="Sign Up">
-                </a>
-            </div>
-
-            <div class="footer-area">
-                <progress value="88" max="100"></progress>
-                <div class="footer-text">LOADING SECURE MARKETS... 1868%</div>
-            </div>
-        </div>
+  <!-- Header -->
+  <header class="portal-header">
+    <div class="brand">
+      <div class="brand-mark">V</div>
+      <div class="brand-name">THE VAULT</div>
     </div>
+    <div class="header-tagline">Hampton University · Our Home by the Sea</div>
+  </header>
+
+  <!-- Hero: moon, waves and ship sit behind the main content (Nicco Hill) -->
+  <div class="hero">
+    <div aria-hidden="true" class="moon"></div>
+    <!-- Waves, back to front: (id, height, swell, wavelength, color). The ship sails between the far and mid waves -->
+    {% for id, y, swell, step, color in [('wave-far', 110, 30, 180, '#0A2468'), ('wave-mid', 180, 30, 240, '#0B2C85'), ('wave-front', 250, 25, 144, '#0033A0')] %}
+    <svg aria-hidden="true" viewBox="0 0 2880 320" preserveAspectRatio="none" class="wave" id="{{ id }}">
+      <path d="M0 {{ y }} Q{{ step // 2 }} {{ y - swell }} {{ step }} {{ y }}{% for x in range(step * 2, 2881, step) %} T{{ x }} {{ y }}{% endfor %} V320 H0Z" fill="{{ color }}"></path>
+    </svg>
+    {% if loop.first %}
+      <div aria-hidden="true" class="ship-sail" id="ship-sail">
+        <svg viewBox="0 0 260 200" class="ship" id="ship">
+          <path d="M95 20 L95 150 M165 40 L165 150" stroke="#2A5BC4" stroke-width="5" fill="none"></path>
+          <path d="M60 40 Q95 55 130 40 L126 80 Q95 92 64 80Z M64 90 Q95 105 126 90 L122 132 Q95 142 68 132Z M140 60 Q165 72 190 60 L187 94 Q165 104 143 94Z M143 102 Q165 114 187 102 L184 136 Q165 144 146 136Z" fill="#1E4BB0"></path>
+          <path d="M95 18 L122 25 L95 32Z" fill="#DCE6FF"></path>
+          <path d="M236 150 L262 124" stroke="#2A5BC4" stroke-width="4"></path>
+          <path d="M14 146 L246 146 L220 192 L42 192 Z" fill="#16409E"></path>
+          <path d="M30 160 L232 160" stroke="#2A5BC4" stroke-width="3"></path>
+        </svg>
+      </div>
+    {% endif %}
+    {% endfor %}
+
+    <main class="hero-content">
+      <p class="portal-intro">You have arrived at the portal to…</p>
+
+      <!-- Vault door: 8 spokes generated every 45 degrees -->
+      <div aria-hidden="true" class="vault-door">
+        <div class="vault-ring"></div>
+        <div class="vault-face"></div>
+        <div class="vault-wheel">
+          {% for deg in range(0, 360, 45) %}<div class="vault-spoke" style="--r: {{ deg }}deg"></div>{% endfor %}
+        </div>
+        <div class="vault-hub"><div class="vault-hub-dot"></div></div>
+      </div>
+
+      <div class="title-block">
+        <h1 class="main-title">THE VAULT</h1>
+        <p class="sub-title">Hampton's student fashion marketplace</p>
+        <p class="title-blurb">Buy, sell and swap fits with Hamptonians — homecoming looks, vintage finds and sneakers, handed off right on campus.</p>
+      </div>
+
+      <!-- Real auth routes (Nicco Hill) -->
+      <div class="button-row">
+        <a class="vault-btn vault-btn-primary" href="{{ url_for('auth.login') }}">LOG IN</a>
+        <a class="vault-btn vault-btn-outline" href="{{ url_for('auth.signup') }}">SIGN UP</a>
+      </div>
+      <p class="button-note">Sign up with your Hampton email to start selling.</p>
+
+      <div class="loading">
+        <div class="loading-track"><div class="vault-fill"></div></div>
+        <div class="loading-text">
+          <span>Unlocking campus markets…</span>
+          <span>Est. 1868</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scroll cue so people know the tiles are below -->
+    <a class="scroll-cue" href="#inside-the-vault">
+      <span>Inside the Vault</span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+    </a>
+  </div>
+
+  <!-- Inside the Vault: category tiles. To add a category, add a row to this list (Nicco Hill) -->
+  <section class="inside-vault" id="inside-the-vault">
+    <div class="inside-vault-inner">
+      <div class="inside-vault-head">
+        <h2 class="inside-vault-title">INSIDE THE VAULT</h2>
+        <span class="inside-vault-note">Log in to browse what's dropping on campus</span>
+      </div>
+      <div class="tile-grid">
+        {% for label, image, alt in [
+          ('Homecoming fits', 'vault_homecoming.jpg', 'Student in a Hampton jersey on campus stairs'),
+          ('Vintage & thrift', 'vault_vintage.jpg', 'Racks of vintage sweatshirts and tees in a thrift shop'),
+          ('Sneakers', 'vault_sneakers.jpg', 'A pile of colorful sneakers'),
+          ('Formal wear', 'vault_formal.jpg', 'Student in a gray double-breasted blazer and tie'),
+        ] %}
+        <div class="tile">
+          <img class="tile-img" src="{{ url_for('static', filename='images/' ~ image) }}" alt="{{ alt }}">
+          <span class="tile-label">{{ label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+// Ship + wave animation (Nicco Hill). Skipped for users who prefer reduced motion.
+(function () {
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var sail = document.getElementById('ship-sail'),
+      ship = document.getElementById('ship'),
+      waves = [['wave-far', 28], ['wave-mid', 18], ['wave-front', 11]].map(function (w) {
+        return { el: document.getElementById(w[0]), secs: w[1] };  // secs = time for one loop
+      }),
+      start = performance.now();
+
+  function tick(now) {
+    var t = (now - start) / 1000,
+        p = ((t + 9) / 38) % 1;  // ship crosses the screen every 38s
+
+    // Sail left to right, starting/ending off-screen
+    sail.style.left = 'calc((100% + 340px) * ' + p + ' - 340px)';
+    // Gentle bob and rock
+    ship.style.transform = 'translateY(' + (3 + 3 * Math.sin(t * 1.8)) + 'px) rotate(' + (1.2 * Math.sin(t * 1.8 + 0.8)) + 'deg)';
+    // Slide each wave half its width, then loop; closer waves move faster
+    waves.forEach(function (w) {
+      w.el.style.transform = 'translateX(' + (-50 * ((t / w.secs) % 1)) + '%)';
+    });
+
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
 </body>
 </html>
