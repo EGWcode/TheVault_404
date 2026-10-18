@@ -1,5 +1,6 @@
 import sys
 import os
+import secrets
 from flask import Flask, render_template, redirect, url_for, session
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend'))) # Updated 3/19/2026 by Ryan Grimes
@@ -12,6 +13,7 @@ from controllers.admin_controller import admin_bp
 from controllers.auth_controller import auth_bp # Updated 3/19/2026 by Ryan Grimes
 from controllers.return_controller import returns_bp
 from controllers.checkout_controller import checkout_bp
+from controllers.menu_controller import menu_api_bp, menu_pages_bp  # Added by Anthony Jackson - dropdown menu pages
 from init_db import create_vault_tables
 
 
@@ -20,7 +22,13 @@ def create_app():
                 template_folder='templates',
                 static_folder='static')
 
-    app.secret_key = 'vault_secure_key_2026'
+    # Session key now comes from the environment (SECRET_KEY), not the code
+    app.secret_key = os.environ.get('SECRET_KEY')
+    if not app.secret_key:
+        # No key set, so use a random one just so the app still runs.
+        # Logins will reset every time the app restarts until SECRET_KEY is set.
+        app.secret_key = secrets.token_hex(32)
+        print("[startup] WARNING: SECRET_KEY is not set. Set it in the environment.")
 
     # Run DB migrations on every startup so new columns are always present
     try:
@@ -85,6 +93,8 @@ def create_app():
     app.register_blueprint(admin_bp) # Updated 3/19/2026 by Ryan Grimes
     app.register_blueprint(returns_bp)
     app.register_blueprint(checkout_bp, url_prefix='/api')
+    app.register_blueprint(menu_api_bp)    # Added by Anthony Jackson - dropdown menu data
+    app.register_blueprint(menu_pages_bp)  # Added by Anthony Jackson - dropdown menu pages
 
     @app.get("/health")
     def health():
