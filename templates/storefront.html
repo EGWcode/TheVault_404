@@ -39,6 +39,9 @@ Start of Code w/ comments
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- ensures the screensize is consistent on different types of devices -->
   <title>The Vault | Storefronts</title> <!-- Simple, this is the Title of the page -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront.css') }}" /> <!-- Updated by Day E 3/22/26 -->
 </head> <!-- end of head -->
@@ -236,11 +239,10 @@ Updated nav bar
   <!-- Brand name/Logo & Search Features -->
   <section class="logo-search-section">
 
+    <!-- Updated 10/18/26: text title replaced with the ship-wheel logo from the blue redesign -->
     <h1 class="brand-title">
-      <span class="gold">The</span> Vault
+      <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Vault">
     </h1>
-
-    <p class="brand-subtitle">Fashion Marketplace</p>
 
     <!-- Search Bar input that allows users to type their search queries. As of right now there isnt any actual functionality -->
 
