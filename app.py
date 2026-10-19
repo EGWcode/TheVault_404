@@ -74,6 +74,11 @@ def create_app():
         if not session.get("user"):
             return redirect(url_for("auth.login"))
         return render_template('my_storefront.html')
+    
+    #Route to the Campus Sitemap page - By Jaylen Belle / updated 10/16/2026
+    @app.route('/sitemap')
+    def sitemap():
+        return render_template('sitemap.html')
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
