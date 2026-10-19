@@ -107,7 +107,7 @@ body {
 
 /* logo circle: overlaps bottom-left of banner halfway - Facebook style */
 .logo-circle {
-    position: absolute;
+    /*position: absolute;
     left: 2rem;
     bottom: -4rem;
 
@@ -118,6 +118,19 @@ body {
     border: 4px solid #d4af37;
     overflow: hidden;
 
+    display: flex;
+    justify-content: center;
+    align-items: center;*/
+    /*Changes Sidney Cerami Made*/
+    position: absolute;
+    left: 2rem;
+    bottom: -3rem;
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    border: 4px solid #d4af37;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -134,7 +147,11 @@ body {
 /* Profile info section - Updated by Day Ekoi 4/20/26
    Offset left to clear the overlapping logo */
 .store-info-row {
-    padding-left: calc(160px + 3rem);
+    /*padding-left: calc(160px + 3rem);
+    margin-bottom: 2rem;*/
+    /*Changes Sidney Cerami Made: remoces the large left offset and gives the logo room above the store details*/
+    padding-left: 0;
+    padding-top: 3.5rem;
     margin-bottom: 2rem;
 }
 
@@ -199,11 +216,17 @@ body {
 
 /* action buttons sit side by side on the right */
 .dashboard-actions {
-    display: flex;
+    /*display: flex;
     gap: 0.6rem;
     flex-wrap: nowrap;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: flex-end;*/
+    /*Changes Sidney Cerami Made: allows the button to wrap onto another line instead of being squeezed*/
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 
@@ -261,10 +284,16 @@ body {
 
 /* listings grid */
 .listing-grid {
-    display: grid;
+   /* display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 2rem;
+    gap: 2rem;*/
+    /*Changes sidney made*/
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
 }
+
+/*Sidney made this addition 10-18-2026*/
 
 
 /* listing card placeholder */
@@ -417,7 +446,7 @@ body {
         font-size: 2.8rem;
     }
 
-    .logo-circle {
+    /*.logo-circle {
         width: 180px;
         height: 180px;
         bottom: -4.5rem;
@@ -430,9 +459,26 @@ body {
     .store-info-row {
         padding-left: 0;
         padding-top: 4.8rem;
+    }*/
+    /*Changes sidney made */
+    .logo-circle 
+    {
+    width: 100px;
+    height: 100px;
+    bottom: -2.5rem;
+    }
+
+    .logo-circle p 
+    {
+        font-size: 1.2rem;
+    }
+
+    .store-info-row 
+    {
+        padding-left: 0;
+        padding-top: 3.5rem;
     }
 }
-
 
 /* mobile */
 @media (max-width: 600px) {
@@ -450,7 +496,7 @@ body {
         padding: 0 1rem;
     }
 
-    .logo-circle {
+   /* .logo-circle {
         width: 140px;
         height: 140px;
         left: 1rem;
@@ -459,7 +505,20 @@ body {
 
     .logo-circle p {
         font-size: 1.6rem;
+    }*/
+    /*Changes sidney made*/
+    .logo-circle 
+    {
+    width: 85px;
+    height: 85px;
+    left: 1rem;
+    bottom: -2rem;
     }
+
+.logo-circle p 
+{
+    font-size: 1rem;
+}
 
     .listing-grid {
         grid-template-columns: 1fr;
@@ -470,7 +529,13 @@ body {
         flex-wrap: wrap;
     }
 
-    .store-info-row {
+    /*.store-info-row {
         padding-top: 4.2rem;
+    }*/
+    /*Changes sidney made*/
+    .store-info-row 
+    {
+    padding-top: 2.5rem;
     }
+
 }
