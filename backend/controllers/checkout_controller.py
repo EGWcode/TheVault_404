@@ -2,10 +2,12 @@
 # CSC 405 Sp 26'
 # Updated by Day Ekoi - 4/22/26 - API-only blueprint
 
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, redirect
 import os
+from dotenv import load_dotenv
 import stripe
-stripe.api_key = os.getenv("STRIPE_API_KEY")
+load_dotenv()
+stripe.api_key = os.getenv("STRIPE_SECRET_KEY")
 
 from services.checkout_service import (
     complete_transaction_from_session,
@@ -81,6 +83,39 @@ def create_checkout_session(): # Starts a Stripe test-mode payment - Tykeara Ham
         return jsonify({"url": checkout_session.url}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+
+@checkout_bp.route("/checkout/success", methods=["GET"])
+def checkout_success(): # Confirms the Stripe payment, then creates the order - Tykeara Hammond 10/18/2026
+    user_id = session.get("user_id")
+    session_id = request.args.get("session_id")
+    if not user_id or not session_id:
+        return redirect("/checkout")
+
+    # Refresh guard: reloading this page must not create the order twice
+    if session.get("last_paid_session") == session_id:
+        return redirect(f"/order-confirmation?conf={session.get('last_confirmation', '')}")
+
+    try:
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+    except Exception:
+        return redirect("/checkout")
+
+    # Only continue if Stripe says it's paid AND it belongs to this user
+    if checkout_session.payment_status != "paid" or checkout_session.metadata.to_dict().get("user_id") != str(user_id):
+        return redirect("/checkout")
+
+    try:
+        result = complete_transaction_from_session(user_id, session.get("cart", []), session.get("pending_buyer", {}))
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+    session["cart"] = []
+    session.pop("pending_buyer", None)
+    session["last_paid_session"] = session_id
+    session["last_confirmation"] = result["confirmation_number"]
+    session.modified = True
+    return redirect(f"/order-confirmation?conf={result['confirmation_number']}")        
     
 @checkout_bp.route("/orders/by-confirmation/<confirmation_number>", methods=["GET"])
 def get_order_confirmation(confirmation_number):
