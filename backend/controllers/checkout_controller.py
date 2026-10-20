@@ -16,33 +16,7 @@ from services.checkout_service import (
 )
 
 checkout_bp = Blueprint("checkout", __name__)
-
-
-@checkout_bp.route("/checkout/complete", methods=["POST"])
-def complete_checkout():
-    user_id = session.get("user_id")
-    if not user_id:
-        return jsonify({"error": "Not logged in"}), 401
-
-    session_cart = session.get("cart", [])
-    if not session_cart:
-        return jsonify({"error": "Cart is empty"}), 400
-
-    data = request.get_json() or {}
-
-    try:
-        result = complete_transaction_from_session(user_id, session_cart, data)
-        session["cart"] = []
-        session.modified = True
-        return jsonify({
-            "success": True,
-            "confirmation_number": result["confirmation_number"],
-            "order_id": result["order"]["id"],
-            "total_amount": result["total_amount"],
-        }), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
+#Removed /checkout/complete so orders cant be created without a stripe payment - Tykeara Hammond 10/20/2026
 @checkout_bp.route("/checkout/create-session", methods=["POST"])
 def create_checkout_session(): # Starts a Stripe test-mode payment - Tykeara Hammond 10/18/2026
     user_id = session.get("user_id")
@@ -62,7 +36,7 @@ def create_checkout_session(): # Starts a Stripe test-mode payment - Tykeara Ham
 
     line_items = []
     for item in session_cart:
-        price = float(item.get("price", 0))  # TODO: swap for AJ's database price lookup
+        price = float(item.get("price", 0)) 
         line_items.append({
             "price_data": {
                 "currency": "usd",
