@@ -168,8 +168,10 @@
 <body>
     <header class="create-header">
         <div class="brand-block">
-            <h1 class="brand-title"><span class="gold">The</span> Vault</h1>
-            <p class="brand-subtitle">Fashion Marketplace</p>
+            <h1 class="brand-title">
+                <!-- Updated 10/19/26: ship-wheel logo replaces the text title -->
+                <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Vault">
+            </h1>
         </div>
         <h2 class="page-title">Edit Listing</h2>
     </header>
