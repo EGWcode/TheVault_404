@@ -1,0 +1,136 @@
+<!--
+    menu_page.html
+    Added by Anthony Jackson (back end)
+    One page used by the dropdown menu buttons: New Drops, Hot!, All Categories, About and Sitemap.
+    The "page" value sent from menu_controller.py decides what shows up.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Vault</title>
+  <style>
+    body { margin: 0; background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
+    .back { color: #B8860B; text-decoration: none; font-size: 0.95rem; }
+    .back:hover { text-decoration: underline; }
+    h1 { color: #B8860B; letter-spacing: 2px; text-transform: uppercase; margin: 18px 0 6px; }
+    .sub { color: rgba(204,178,128,0.75); margin: 0 0 28px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+    .card { display: block; background: rgba(0,0,0,0.78); border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 18px; padding: 14px; color: #fff; text-decoration: none; }
+    .card:hover { border-color: #B8860B; }
+    .card img { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; background: #222; }
+    .noimg { width: 100%; height: 220px; border-radius: 12px; background: #222; display: flex;
+             align-items: center; justify-content: center; color: #777; }
+    .title { margin: 10px 0 2px; font-weight: bold; }
+    .meta { color: rgba(204,178,128,0.85); font-size: 0.9rem; }
+    .msg { color: #c9c9c9; font-style: italic; }
+    .cat { margin-bottom: 26px; }
+    .cat h2 { margin: 0 0 8px; font-size: 1.2rem; }
+    .chip { display: inline-block; margin: 0 8px 8px 0; padding: 8px 14px; border: 1px solid #B8860B;
+            border-radius: 20px; color: #fff; text-decoration: none; }
+    .chip:hover { background: #B8860B; color: #000; }
+    p, li { line-height: 1.6; }
+    li a { color: #B8860B; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="/storefront">&larr; Back to The Vault</a>
+
+  {% if page == 'new-drops' %}
+    <h1>New Drops</h1>
+    <p class="sub">The newest listings from Hampton student brands.</p>
+    <div id="results" class="grid"></div>
+
+  {% elif page == 'hot' %}
+    <h1>Hot!</h1>
+    <p class="sub">The listings people are saving the most.</p>
+    <div id="results" class="grid"></div>
+
+  {% elif page == 'categories' %}
+    <h1>All Categories</h1>
+    <p class="sub">Pick a category to see the storefronts in it.</p>
+    <div id="results"></div>
+
+  {% elif page == 'about' %}
+    <h1>About The Vault</h1>
+    <p>The Vault is a campus marketplace for Hampton University students. Student-run clothing brands
+       can open a storefront, list their items, and sell to other students.</p>
+    <p>Everything is an in-person meetup. You pick your items, check out, and meet the seller on campus
+       to complete the exchange. No payments are taken on the site.</p>
+
+  {% elif page == 'sitemap' %}
+    <h1>Sitemap</h1>
+    <ul>
+      <li><a href="/storefront">Explore Brands (home)</a></li>
+      <li><a href="/categories">All Categories</a></li>
+      <li><a href="/new-drops">New Drops</a></li>
+      <li><a href="/hot">Hot!</a></li>
+      <li><a href="/create-storefront">Create Storefront</a></li>
+      <li><a href="/create-listing">Create Listing</a></li>
+      <li><a href="/my-storefront">My Storefront</a></li>
+      <li><a href="/cart">Cart</a></li>
+      <li><a href="/returns">Returns</a></li>
+      <li><a href="/about">About</a></li>
+    </ul>
+  {% endif %}
+</div>
+
+{% if page in ['new-drops', 'hot'] %}
+<script>
+  const results = document.getElementById("results");
+  const url = "/api/menu/{{ page }}";
+
+  function esc(text) {
+    const d = document.createElement("div");
+    d.textContent = text == null ? "" : String(text);
+    return d.innerHTML;
+  }
+
+  fetch(url)
+    .then(r => { if (!r.ok) throw new Error("bad response"); return r.json(); })
+    .then(items => {
+      if (!items.length) {
+        results.innerHTML = '<p class="msg">Nothing here yet. Check back soon.</p>';
+        return;
+      }
+      results.innerHTML = items.map(item => `
+        <a class="card" href="/storefronts/${item.storefront_id}">
+          ${item.image_url ? `<img src="${esc(item.image_url)}" alt="${esc(item.title)}">` : '<div class="noimg">No image</div>'}
+          <div class="title">${esc(item.title)}</div>
+          <div class="meta">$${Number(item.price).toFixed(2)} &middot; ${esc(item.brand_name)}</div>
+        </a>`).join("");
+    })
+    .catch(() => { results.innerHTML = '<p class="msg">Could not load listings. Please try again.</p>'; });
+</script>
+{% elif page == 'categories' %}
+<script>
+  const results = document.getElementById("results");
+
+  function esc(text) {
+    const d = document.createElement("div");
+    d.textContent = text == null ? "" : String(text);
+    return d.innerHTML;
+  }
+
+  fetch("/api/menu/categories")
+    .then(r => { if (!r.ok) throw new Error("bad response"); return r.json(); })
+    .then(groups => {
+      if (!groups.length) {
+        results.innerHTML = '<p class="msg">No categories yet.</p>';
+        return;
+      }
+      results.innerHTML = groups.map(g => `
+        <div class="cat">
+          <h2>${esc(g.category)}</h2>
+          ${g.storefronts.map(s => `<a class="chip" href="/storefronts/${s.id}">${esc(s.brand_name)}</a>`).join("")}
+        </div>`).join("");
+    })
+    .catch(() => { results.innerHTML = '<p class="msg">Could not load categories. Please try again.</p>'; });
+</script>
+{% endif %}
+</body>
+</html>
