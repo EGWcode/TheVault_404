@@ -14,6 +14,7 @@ from controllers.auth_controller import auth_bp # Updated 3/19/2026 by Ryan Grim
 from controllers.return_controller import returns_bp
 from controllers.checkout_controller import checkout_bp
 from controllers.menu_controller import menu_api_bp, menu_pages_bp  # Added by Anthony Jackson - dropdown menu pages
+from controllers.message_controller import messages_bp # Added 10/20/26 for buyer-seller messaging
 from init_db import create_vault_tables
 
 
@@ -82,6 +83,11 @@ def create_app():
         if not session.get("user"):
             return redirect(url_for("auth.login"))
         return render_template('my_storefront.html')
+    
+    #Route to the Campus Sitemap page - By Jaylen Belle / updated 10/16/2026
+    @app.route('/sitemap')
+    def sitemap():
+        return render_template('sitemap.html')
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -95,6 +101,7 @@ def create_app():
     app.register_blueprint(checkout_bp, url_prefix='/api')
     app.register_blueprint(menu_api_bp)    # Added by Anthony Jackson - dropdown menu data
     app.register_blueprint(menu_pages_bp)  # Added by Anthony Jackson - dropdown menu pages
+    app.register_blueprint(messages_bp) # Added 10/20/26 for buyer-seller messaging
 
     @app.get("/health")
     def health():

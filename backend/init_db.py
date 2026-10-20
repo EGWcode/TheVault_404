@@ -330,9 +330,76 @@ def create_vault_tables():
         """
         cur.execute(create_order_items_table)
 
+        # ________________________________________________________
+        # CONVERSATIONS TABLE (One thread per buyer + storefront + listing)
+        # Added 10/20/26 for buyer-seller messaging
+        # The seller is the storefront's owner; listing_id is optional
+        # (NULL = general question about the storefront)
+        # ________________________________________________________
+        create_conversations_table = """
+            CREATE TABLE IF NOT EXISTS conversations (
+                id SERIAL PRIMARY KEY,
+                buyer_id INTEGER NOT NULL,
+                storefront_id INTEGER NOT NULL,
+                listing_id INTEGER,
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                last_message_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+
+                CONSTRAINT fk_conversation_buyer
+                    FOREIGN KEY(buyer_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE,
+
+                CONSTRAINT fk_conversation_storefront
+                    FOREIGN KEY(storefront_id)
+                    REFERENCES storefronts(id)
+                    ON DELETE CASCADE,
+
+                CONSTRAINT fk_conversation_listing
+                    FOREIGN KEY(listing_id)
+                    REFERENCES listings(id)
+                    ON DELETE SET NULL
+            );
+        """
+        cur.execute(create_conversations_table)
+        # COALESCE so general (NULL listing) threads are also unique per buyer + storefront
+        cur.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS uq_conversation_thread
+            ON conversations (buyer_id, storefront_id, COALESCE(listing_id, 0));
+        """)
+
+        # ________________________________________________________
+        # MESSAGES TABLE (Messages inside a conversation)
+        # Added 10/20/26 for buyer-seller messaging
+        # read_at stays NULL until the other participant opens the thread
+        # TIMESTAMPTZ (with time zone) so message times display correctly in the browser on any server
+        # ________________________________________________________
+        create_messages_table = """
+            CREATE TABLE IF NOT EXISTS messages (
+                id SERIAL PRIMARY KEY,
+                conversation_id INTEGER NOT NULL,
+                sender_id INTEGER NOT NULL,
+                body TEXT NOT NULL CHECK (char_length(body) BETWEEN 1 AND 2000),
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+                read_at TIMESTAMPTZ,
+
+                CONSTRAINT fk_message_conversation
+                    FOREIGN KEY(conversation_id)
+                    REFERENCES conversations(id)
+                    ON DELETE CASCADE,
+
+                CONSTRAINT fk_message_sender
+                    FOREIGN KEY(sender_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE
+            );
+        """
+        cur.execute(create_messages_table)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages (conversation_id, id);")
+
         conn.commit()
 
-        print("DATABASE INITIALIZED: users, storefronts, listings, listing_images, listing_sizes, purchases, wishlist, orders, and order_items tables are ready.")
+        print("DATABASE INITIALIZED: users, storefronts, listings, listing_images, listing_sizes, purchases, wishlist, orders, order_items, conversations, and messages tables are ready.")
 
         cur.close()
         conn.close()

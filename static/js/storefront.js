@@ -307,3 +307,25 @@ if (searchInput) {
 fetchStorefronts(); // Updated by Day E 4/9/26 - this will now fetch real storefront data from the Flask API and then render the storefronts. If the API route is not ready or fails, it will fallback to rendering the placeholder storefronts. */
 
 /* renderStorefronts(); // Updated by Day E 3/22/26 */
+
+
+/*
+Added 10/20/26: unread message badge on the top-bar Messages icon.
+Checks once on load and every 30 seconds while the tab is visible.
+*/
+async function refreshUnreadBadge() {
+  const badge = document.getElementById("unreadBadge");
+  if (!badge || document.hidden) return;
+  try {
+    const response = await fetch("/api/messages/unread-count");
+    const data = await response.json();
+    const unread = Number(data.unread) || 0;
+    badge.textContent = unread > 99 ? "99+" : String(unread);
+    badge.hidden = unread === 0;
+  } catch (error) {
+    console.error("Could not load unread message count:", error);
+  }
+}
+
+refreshUnreadBadge();
+setInterval(refreshUnreadBadge, 30000);
