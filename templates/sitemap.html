@@ -1,0 +1,79 @@
+<!--
+    sitemap.html - Made by Jaylen Belle on 10/16/2026
+    
+    Tis page will show an interactive sitemap of Hampton University Campus, where buyers
+    and sellers can use it to find certain places that they would want to meet up at for 
+    an in-person exchange. You should be able to click a pin on the map and it will zoom
+    in on the building/location and give a description of it.-->
+
+
+   <!DOCTYPE html>
+   <html lang="en">
+    <head>
+         <meta charset="UTF-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>The Vault / Campus Sitemap</title>
+
+         <!--Fonts to match new theme-->
+         <link rel="preconnect" href="https://fonts.googleapis.com">
+         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800&family=Instrument+Sans:wght@400;600&display=swap" />
+         <link rel="stylesheet" href="{{ url_for('static',filename='css/sitemap.css')}}" />
+    </head>
+
+    <body>
+        <!--Top row, for the back button and the title page-->
+        <header class="sitemap-header">
+            <a href="{{ url_for('storefront') }}" class="back-button">&larr;Back</a>
+            <div class="sitemap-title">
+                <h1>Campus Sitemap</h1>
+                <p>Hampton University meetup spots and buildings</p>
+            </div>
+        </header>
+
+        <main class="sitemap-layout">
+            <!--Left side section for search, filters, detail panel, and list of places-->
+            <aside class="sitemap-panel">
+                <input id="placeSearch" class="search-bar" type="search" placeholder="Search for a building..." aria-label="Search buildings"/>
+                <div class="filter-row" role="group" aria-label="Filter buildings">
+                    <button class="filter-button active" data-filter="all">All</button>
+                    <button class="filter-button" data-filter="meetup">&#9733; Meetup spots</button>
+                    <button class="filter-button" data-filter="building">Buildings</button>
+                </div>
+
+                <!--Details for a selected place  is filled by the sitemap.js file-->
+                <section id="placeDetails" class="place-details" hidden></section>
+
+                <!--List of places that will be filled by the sitemap.js file-->
+                <ul id="placeList" class="place-list"></ul>
+
+                <div class="safety-tips">
+                    <p class="safety-heading">Meetup safety tips</p>
+                    <ul>
+                        <li>Meet in public, with good lighting.</li>
+                        <li>Bring a friend or let someone know where you're going.</li>
+                        <li>Check all your items before paying or leaving</li>
+                    </ul>
+                </div>
+            </aside>
+
+            <!--Right side of the layout for the campus map picture with pins-->
+            <section class="map-wrap">
+                <div id="campusMap" class="campus-map">
+                    <img src="{{ url_for('static', filename='images/campus_map.jpg')}}" alt="Hampton University Campus Map" class="campus-map-img">
+                    <!-- The pins will be added here from sitemap.js-->
+                </div>
+                <div id="pickReadout" class="pick-readout" hidden></div>
+            </section>
+
+
+        </main>
+
+        <script src="{{ url_for('static', filename='js/campus_locations.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/sitemap.js')}}"></script>
+    
+    </body>
+
+    </html>
+    
+    

@@ -1,0 +1,570 @@
+/*
+
+Sitemap.css file for The Vault 404 Project
+
+Created by: Jaylen Belle 10/17/2026
+
+Description:
+    This file is used to style the sitmap page. The colors used in the file are set in root
+    so they it is easy to change the color scheme of the page. This page styles the list/building details panel on the left,
+    the campus map picture on the right, and its made to fit different screen sizes. 
+
+    Works with: sitemap.html
+*/
+
+:root {
+    --navy: #06163A;
+    --hampton-blue: #0033A0;
+    --deep-blue: #0B2A7A;
+    --ice: #BFD4FF;
+    --mist: #DCE6FF;
+    --off-white: #F7F9FF;
+    --white: #FFFFFF;
+    --font-display: 'Big Shoulders Display','Arial Narrow',sans-serif;
+    --font-body: 'Instrument Sans','Helvetica Neue',sans-serif;
+
+    /*colors just on this page*/
+    --panel: rgba(11, 42, 122, 0.55);
+    --line: rgba(191, 212, 255, 0.25);
+    --grid: rgba(255, 255, 255, 0.035);
+    --border: rgba(255, 255, 255, 0.6);
+
+}
+
+
+
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+html, body {
+    min-height: 100%;
+}
+
+
+/* Navy background */
+body {
+    background-color: var(--navy);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 60px 60px;
+    color:var(--white);
+    font-family: var(--font-body);
+    padding:20px;
+}
+
+
+
+
+
+
+
+/* Header with back button and title */
+.sitemap-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 22px;
+
+}
+
+
+
+/* Back button styling */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    background: transparent;
+    border: 2px solid var(--white);
+    border-radius: 999px;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 6px 18px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+}
+
+
+/* Back button hover style */
+.back-button:hover {
+    background: var(--white);
+    color: var(--navy);
+}
+
+
+
+
+
+
+/* Title and subtitle styling */
+.sitemap-title h1 {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    line-height: 1;
+    color: var(--white);
+}
+
+.sitemap-title p {
+    color: var(--ice);
+    margin-top: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+}
+
+
+
+
+
+
+
+.sitemap-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+
+.sitemap-panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    max-height: calc(100vh - 130px);
+    position: sticky;
+    top: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+
+.map-wrap {
+    position: relative;
+    /*padding-bottom: 75%;  Adjust this value to change the aspect ratio */
+    border-radius: 16px;
+    border: 1px solid var(--line);
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.35);
+}
+
+
+/*Pins that are placed on the map*/
+.campus-map {
+    position: relative;
+    width: 100%;
+}
+
+
+
+.campus-map-img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+
+
+/* Search and filter buttons */
+
+.search-bar {
+    width: 100%;
+    padding: 11px 16px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--white);
+    font-size: 0.95rem;
+    font-family: inherit
+}
+
+
+.search-bar::placeholder {
+    color: rgba(220, 230, 255, 0.6);
+}
+
+.search-bar:focus {
+    outline: none;
+    border-color: var(--ice);
+}
+
+
+
+.filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+
+.filter-button {
+    padding: 6px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--white);
+    font-size: 0.8rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+
+.filter-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+
+.filter-button.active {
+    background: var(--white);
+    color: var(--navy);
+    border-color: var(--white);
+}
+
+
+
+
+
+
+
+
+
+/*List of the places */ 
+.place-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+
+
+.place-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+
+
+.place-item:hover,
+.place-item.active {
+    background: var(--hampton-blue); 
+}
+
+
+.place-item.active {
+    box-shadow:inset 3px 0 0 var(--ice)
+}
+
+
+.place-empty {
+    color: var(--mist);
+    padding: 8px 10px;
+}
+
+
+.place-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+
+.dot-meetup {
+    background: var(--white);
+    box-shadow: 0 0 0 2px var(--hampton-blue);
+}
+
+.dot-building {
+    background: var(--ice);
+    /*box-shadow: 0 0 0 2px var(--hampton-blue);*/
+}
+
+
+
+
+
+
+
+/* Building details panel */
+
+.place-details {
+    position: relative;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 14px;
+    line-height: 1.5;
+}
+
+
+
+.place-details h2 {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 6px 0 8px;
+    line-height: 1.1;
+}
+
+
+.place-details p {
+    color: var(--ice);
+    margin-bottom: 8px;
+}
+
+
+
+
+
+
+.details-close {
+    position: absolute;
+    top: -4px;
+    right: 0;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+
+.details-type {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--ice); /*!important*/
+}
+
+
+
+.details-meetup {
+    background: var(--deep-blue);
+    border-left: 3px solid var(--ice);
+    padding: 9px 12px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+}
+
+
+
+
+
+.levels-heading {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--ice); /*!important*/
+    margin-bottom: 12px;
+}
+
+
+.level-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+
+.level-tab {
+    background: transparent;
+    color: var(--white);
+    font-family: inherit;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    cursor: pointer;
+}
+
+
+.level-tab.active {
+    background: var(--white);
+    border-color: var(--white);
+    color: var(--navy);
+}
+
+
+
+
+
+.floor-plan {
+    width: 100%;
+    border-radius: 6px;
+    margin-top: 6px;
+}
+
+
+
+
+
+
+
+/*Saftey tips info*/
+
+
+.safety-tips {
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: var(--mist);
+}
+
+
+.safety-heading {
+    color: var(--ice);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+.safety-tips ul {
+    padding-left: 18px;
+}
+
+
+
+/* The map pins */
+
+.map-pin {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    padding: 0;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 3px solid var(--white);
+    transition: transform 0.15s;
+}
+
+
+
+.map-pin[hidden] {
+    display: none;
+}
+
+
+
+.map-pin:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+
+.pin-meetup {
+    background: var(--navy);
+    color: var(--white);
+}
+
+.pin-building {
+    background: var(--hampton-blue);
+    width: 20px;
+    height: 20px;
+}
+
+
+.map-pin.pin-selected {
+    transform: translate(-50%, -50%) scale(1.35);
+    z-index: 2;
+    box-shadow: 0 0 0 5px rgba(191, 212, 255, 0.7), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+
+
+.pick-readout {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    background: var(--navy);
+    color: var(--white);
+    border: 1px solid var(--ice);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-family: monospace;
+}
+
+
+
+
+
+/*display for the mobile phones*/
+
+@media (max-width: 800px) {
+    body {
+        padding: 12px;
+    }
+
+
+    .sitemap-title h1 {
+        font-size: 2.2rem;
+    }
+
+
+    .sitemap-title p {
+        letter-spacing: 2px;
+    }
+
+
+    .sitemap-layout {
+        grid-template-columns: 1fr;
+    }
+
+
+    .map-wrap {
+        order: 1;
+    }
+
+
+    .sitemap-panel {
+        position: static;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .map-pin {
+        width: 20px;
+        height: 20px;
+        font-size: 10px;
+        border-width: 2px;
+    }
+
+
+    .pin-building {
+        width: 14px;
+        height: 14px;
+    }
+}
