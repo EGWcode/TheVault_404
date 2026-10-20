@@ -343,6 +343,12 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = storefront.brand_name || storefront.name || `Storefront #${storefront.id}`;
             storefrontSelect.appendChild(option);
           });
+
+          // Added 10/20/26: each user has exactly one storefront, so pick it automatically
+          // instead of leaving "Select a storefront" chosen (easy to miss, and it blocks submitting)
+          if (storefronts.length === 1) {
+            storefrontSelect.value = String(storefronts[0].id);
+          }
         } else {
           storefrontSelect.innerHTML = '<option value="" disabled>No storefronts found - create one first</option>';
           if (listingForm) {
