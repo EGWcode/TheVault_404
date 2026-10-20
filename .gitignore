@@ -27,3 +27,6 @@ Thumbs.db
 .elasticbeanstalk/*
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+
+# Local development uploads (used when AWS_S3_BUCKET is not set) - added 10/20/26
+static/uploads/

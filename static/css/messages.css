@@ -1,0 +1,442 @@
+/*
+    messages.css
+    The Vault Campus Marketplace
+    CSC 405 Sp 26'
+    Created 10/20/26 for the buyer-seller messaging feature
+
+Styles the Messages page in the blue theme used by the storefront pages:
+blue-to-navy gradient, white outlines, navy glass panels, League Spartan.
+Your own messages are white bubbles; the other person's are navy glass bubbles.
+*/
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
+    color: white;
+    font-family: 'League Spartan', Arial, Helvetica, sans-serif;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+
+/* page frame */
+.messages-page {
+    width: min(1200px, 94%);
+    height: 100vh;
+    margin: 0 auto;
+    padding: 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.messages-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.messages-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 999px;
+    color: white;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+
+/* two-column layout */
+.messages-layout {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 18px;
+}
+
+.inbox,
+.thread {
+    background: rgba(10, 20, 90, 0.45);
+    border: 2px solid white;
+    border-radius: 26px;
+    overflow: hidden;
+    min-height: 0;
+}
+
+
+/* inbox */
+.inbox {
+    overflow-y: auto;
+}
+
+.inbox-list {
+    list-style: none;
+}
+
+.inbox-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 14px 18px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.inbox-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.inbox-item.active {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.inbox-avatar {
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: #14237a;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.inbox-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.inbox-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.inbox-name {
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inbox-time {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.inbox-about,
+.inbox-preview {
+    display: block;
+}
+
+.inbox-about {
+    font-size: 0.8rem;
+    color: #9fd0ff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inbox-preview {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inbox-item.unread .inbox-preview {
+    color: white;
+    font-weight: 700;
+}
+
+.inbox-badge {
+    flex-shrink: 0;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: white;
+    color: #1259d6;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inbox-empty {
+    padding: 28px 22px;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.4;
+}
+
+
+/* conversation */
+.thread {
+    display: flex;
+    flex-direction: column;
+}
+
+.thread-placeholder {
+    margin: auto;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+}
+
+.thread-inner {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.thread-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.thread-back {
+    display: none;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.thread-heading {
+    flex: 1;
+    min-width: 0;
+}
+
+.thread-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.thread-about {
+    font-size: 0.9rem;
+    color: #9fd0ff;
+}
+
+.thread-name,
+.thread-about {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.thread-store-link {
+    flex-shrink: 0;
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 2px solid white;
+    border-radius: 999px;
+    padding: 6px 12px;
+}
+
+.thread-store-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.link-short {
+    display: none;
+}
+
+.thread-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.thread-empty {
+    margin: auto;
+    color: rgba(255, 255, 255, 0.75);
+    text-align: center;
+}
+
+.day-divider {
+    align-self: center;
+    margin: 8px 0;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.bubble {
+    max-width: 72%;
+    padding: 10px 14px 8px;
+    border-radius: 18px;
+    line-height: 1.35;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.bubble-time {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.72rem;
+    opacity: 0.7;
+}
+
+.bubble.mine {
+    align-self: flex-end;
+    background: white;
+    color: #14237a;
+    border-bottom-right-radius: 6px;
+}
+
+.bubble.theirs {
+    align-self: flex-start;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-bottom-left-radius: 6px;
+}
+
+
+/* composer */
+.composer {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    padding: 14px 16px 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.composer-input {
+    flex: 1;
+    resize: none;
+    max-height: 140px;
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 22px;
+    padding: 10px 16px 8px;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.35;
+    outline: none;
+}
+
+.composer-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.composer-input:focus {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.composer-send {
+    background: white;
+    color: #1259d6;
+    border: 2px solid white;
+    border-radius: 999px;
+    padding: 10px 22px 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+}
+
+.composer-send:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.composer-error {
+    min-height: 1.4em;
+    padding: 0 20px 10px;
+    font-size: 0.85rem;
+    color: #ffd1d1;
+}
+
+
+/* phones: show the inbox or the open conversation, not both */
+@media (max-width: 760px) {
+    .messages-page {
+        padding: 16px 0;
+    }
+
+    .messages-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .messages-page.thread-open .inbox,
+    .messages-page:not(.thread-open) .thread {
+        display: none;
+    }
+
+    .thread-back {
+        display: inline-flex;
+    }
+
+    .thread-header {
+        padding: 14px 14px;
+        gap: 8px;
+    }
+
+    .link-long {
+        display: none;
+    }
+
+    .link-short {
+        display: inline;
+    }
+
+    .bubble {
+        max-width: 85%;
+    }
+}

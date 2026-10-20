@@ -37,7 +37,12 @@ const lightboxClose = document.getElementById("lightboxClose");
 const lightboxPrev = document.getElementById("lightboxPrev");
 const lightboxNext = document.getElementById("lightboxNext");
 
+const messageSellerBtn = document.getElementById("messageSellerBtn");
+
 const listingImagesCache = new Map();
+
+// Added 10/20/26: set once the storefront loads; false on your own storefront
+let canMessageSeller = false;
 const lightboxState = {
     images: [],
     index: 0
@@ -371,6 +376,29 @@ function createListingImageCarousel(images, title) {
     return { shell, getPrimaryImage: () => images[0] || LISTING_IMAGE_FALLBACK };
 }
 
+// Added 10/20/26: opens (or reuses) a conversation with this storefront, optionally about one listing,
+// then goes to the Messages page
+async function startConversation(listingId = null, currentUserId = null) {
+    if (!currentUserId) {
+        alert("Please log in to message sellers.");
+        window.location.href = "/auth/login";
+        return;
+    }
+    try {
+        const response = await fetch("/api/conversations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ storefront_id: Number(storefrontId), listing_id: listingId }),
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || "Could not start the conversation");
+        window.location.href = `/messages?c=${data.conversation_id}`;
+    } catch (error) {
+        console.error("Error starting conversation:", error);
+        alert(error.message);
+    }
+}
+
 async function createListingCard(item, wishlistIds, currentUserId) {
     const card = document.createElement("div");
     card.className = "listing-card";
@@ -430,6 +458,11 @@ async function createListingCard(item, wishlistIds, currentUserId) {
                 ${madeToOrderBadge}
             </div>
             <div class="listing-actions">
+                <button class="listing-message-btn" type="button" aria-label="Ask the seller about this item" title="Ask the seller about this item" ${canMessageSeller ? "" : "hidden"}>
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/>
+                    </svg>
+                </button>
                 <button class="wishlist-lock-btn ${isWishlisted ? "active" : ""}" type="button" aria-label="${isWishlisted ? "Remove from wishlist" : "Add to wishlist"}" title="${isWishlisted ? "Remove from wishlist" : "Add to wishlist"}">
                     <svg viewBox="0 0 24 24" class="wishlist-lock-icon" aria-hidden="true">
                         <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>
@@ -454,6 +487,9 @@ async function createListingCard(item, wishlistIds, currentUserId) {
     `;
 
     card.prepend(carousel.shell);
+
+    const messageBtn = card.querySelector(".listing-message-btn");
+    messageBtn.addEventListener("click", () => startConversation(listingId, currentUserId));
 
     const wishlistBtn = card.querySelector(".wishlist-lock-btn");
     wishlistBtn.addEventListener("click", async () => {
@@ -610,6 +646,13 @@ async function loadStorefrontView() {
 
     const sessionUser = await getCurrentSessionUser();
     const wishlistIds = await getWishlistIdSet(sessionUser?.id || null);
+
+    // Added 10/20/26: everyone except the owner can message this storefront
+    canMessageSeller = !sessionUser || sessionUser.id !== storefront.owner_id;
+    if (messageSellerBtn && canMessageSeller) {
+        messageSellerBtn.hidden = false;
+        messageSellerBtn.addEventListener("click", () => startConversation(null, sessionUser?.id || null));
+    }
 
     try {
         const listRes = await fetch(`/api/storefronts/${storefrontId}/listings`);
