@@ -1,205 +1,169 @@
-<!-- Created 3/21/2026 by Ryan Grimes-->
-<!doctype html>
+<!--
+  The Vault: log in page (/login)
+  Originally created 3/21/2026 by Ryan Grimes
+  Hampton redesign 10/20/2026 by Nicco Hill:
+    - Matches the portal page (templates/index.html): navy blueprint grid, Hampton blue, vault door, waves
+    - Form fields, flash messages and links are unchanged
+    - CSS is kept in this one file on purpose
+-->
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>The Vault | Secure Login</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vault — Log In</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
     <style>
-      body,
-      html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        width: 100%;
-        background: #000;
-        overflow: hidden;
-        font-family: "Segoe UI", sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+/* ===== Theme: same tokens as the portal page (Nicco Hill) ===== */
+:root {
+    --navy: #06163A;        /* page background */
+    --hampton-blue: #0033A0;
+    --deep-blue: #0B2A7A;
+    --ice: #BFD4FF;         /* accent text, dotted rings */
+    --mist: #DCE6FF;        /* soft text */
+    --off-white: #F7F9FF;
+    --white: #FFFFFF;
+    --font-display: 'Big Shoulders Display', 'Arial Narrow', sans-serif;
+    --font-body: 'Instrument Sans', 'Helvetica Neue', sans-serif;
+}
 
-      .vault-wrapper {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        background: url("/static/images/background.png") no-repeat center center;
-        background-size: cover;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--navy); }
+a { color: var(--ice); }
+a:hover { color: var(--white); }
 
-      /* Metallic Glass Form Panel */
-      .auth-card {
-        background: rgba(0, 0, 0, 0.88);
-        border: 1px solid #b8860b;
-        padding: 45px;
-        width: 360px;
-        border-radius: 2px;
-        box-shadow: 0 0 30px rgba(184, 134, 11, 0.4);
-        text-align: center;
-        z-index: 10;
-      }
+@keyframes vaultTurn { from { transform: rotate(-60deg); } to { transform: rotate(0deg); } }
 
-      .auth-card h2 {
-        color: white;
-        letter-spacing: 5px;
-        margin-bottom: 35px;
-        font-size: 2.8vh;
-        font-weight: bold;
-      }
+.brand-mark, .brand-name, .auth-title, .vault-btn { font-family: var(--font-display); font-weight: 900; }
+.header-tagline, .auth-kicker, .field label, .admin-link { text-transform: uppercase; }
 
-      .input-group {
-        margin-bottom: 25px;
-        text-align: left;
-      }
+/* ===== Page shell with blueprint grid ===== */
+.portal { min-height: 100vh; display: flex; flex-direction: column; background-color: var(--navy); background-image: linear-gradient(rgba(191,212,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(191,212,255,0.06) 1px, transparent 1px); background-size: 48px 48px; color: var(--off-white); font-family: var(--font-body); }
 
-      .input-group label {
-        color: #b8860b;
-        font-size: 1.3vh;
-        text-transform: uppercase;
-        display: block;
-        margin-bottom: 8px;
-        letter-spacing: 1px;
-      }
+/* ===== Header: logo + tagline (logo links back to the portal) ===== */
+.portal-header { max-width: 1280px; width: 100%; margin: 0 auto; padding: 24px 32px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand, .brand:hover { color: var(--off-white); }
+.brand-mark { width: 36px; height: 36px; border-radius: 50%; border: 3px dotted var(--ice); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--white); }
+.brand-name { font-size: 22px; letter-spacing: 0.08em; }
+.header-tagline { font-size: 13px; letter-spacing: 0.14em; color: var(--ice); }
 
-      .input-group input {
-        width: 100%;
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(184, 134, 11, 0.4);
-        padding: 14px;
-        color: white;
-        box-sizing: border-box;
-        outline: none;
-        font-size: 1.8vh;
-      }
+/* ===== Stage: card sits above the waves ===== */
+.stage { position: relative; flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 24px 16px calc(var(--wave-h) * 0.7); --wave-h: clamp(100px, 18vh, 220px); }
+.wave { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--wave-h); }
 
-      .input-group input:focus {
-        border-color: #b8860b;
-        background: rgba(255, 255, 255, 0.1);
-        box-shadow: inset 0 0 5px rgba(184, 134, 11, 0.2);
-      }
+/* ===== Login card ===== */
+.auth-card { position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 32px; border-radius: 24px; background: var(--hampton-blue); border: 1.5px solid rgba(255,255,255,0.22); box-shadow: 0 30px 80px rgba(0,0,0,0.45); display: flex; flex-direction: column; gap: 20px; }
+.auth-head { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 
-      /* High-Security Submit Button */
-      .submit-btn {
-        width: 100%;
-        background: linear-gradient(135deg, #b8860b, #9a7107);
-        border: none;
-        padding: 16px;
-        color: black;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 15px;
-      }
+/* Small vault door, same build as the portal's (designed at --door) */
+.vault-door { position: relative; width: var(--door); aspect-ratio: 1 / 1; --door: 72px; }
+.vault-ring, .vault-face, .vault-wheel, .vault-hub { position: absolute; border-radius: 50%; }
+.vault-ring { inset: 0; border: 3px dotted var(--ice); }
+.vault-face { inset: calc(var(--door) * 0.065); background: var(--deep-blue); border: 2px solid var(--off-white); }
+.vault-wheel { inset: 0; border-radius: 0; animation: vaultTurn 1.6s cubic-bezier(.2,.8,.2,1) both; }
+.vault-spoke { position: absolute; left: 50%; top: calc(50% - 2px); width: 42%; height: 4px; border-radius: 2px; background: var(--off-white); transform-origin: 0 50%; transform: rotate(var(--r)); }
+.vault-hub { inset: 27%; background: var(--navy); border: 2px solid var(--off-white); display: flex; align-items: center; justify-content: center; }
+.vault-hub-dot { width: 22%; aspect-ratio: 1 / 1; border-radius: 50%; background: var(--off-white); }
 
-      .submit-btn:hover {
-        filter: brightness(1.2);
-        letter-spacing: 4px;
-        box-shadow: 0 0 15px rgba(184, 134, 11, 0.6);
-      }
+.auth-kicker { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.22em; color: var(--ice); }
+.auth-title { margin: 0; font-size: clamp(40px, 7vh, 56px); line-height: 0.9; letter-spacing: 0.02em; color: var(--white); }
 
-      .footer-links {
-        margin-top: 25px;
-        display: flex;
-        justify-content: space-between;
-        font-size: 1.3vh;
-      }
+/* ===== Form ===== */
+.auth-form { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label { font-size: 12px; font-weight: 600; letter-spacing: 0.16em; color: var(--ice); }
+.field input { width: 100%; padding: 14px 18px; border-radius: 12px; border: 1.5px solid rgba(191,212,255,0.35); background: var(--navy); color: var(--white); font: 500 16px var(--font-body); outline: none; transition: border-color .15s, box-shadow .15s; }
+.field input::placeholder { color: rgba(191,212,255,0.45); }
+.field input:focus { border-color: var(--white); box-shadow: 0 0 0 3px rgba(191,212,255,0.25); }
 
-      .footer-links a {
-        color: rgba(204, 178, 128, 0.5);
-        text-decoration: none;
-        transition: 0.2s;
-      }
+/* Pill button, same as the portal's LOG IN button */
+.vault-btn { display: block; width: 100%; margin-top: 4px; padding: 14px 32px; border: 0; border-radius: 999px; background: var(--white); color: var(--navy); font-size: 22px; letter-spacing: 0.1em; cursor: pointer; transition: transform .15s; }
+.vault-btn:hover { transform: translateY(-2px); }
+.vault-btn:focus-visible { outline: 3px solid var(--ice); outline-offset: 3px; }
 
-      .footer-links a:hover {
-        color: #b8860b;
-      }
+/* ===== Links under the form ===== */
+.auth-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; font-size: 14px; }
+.auth-links a { text-decoration: none; }
+.auth-links a:hover { text-decoration: underline; }
+/* Admin login button - added by David Jackson 4/20/26, restyled to match */
+.admin-link { align-self: center; padding: 8px 18px; border: 1.5px solid rgba(255,255,255,0.45); border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-decoration: none; }
+.admin-link, .admin-link:hover { color: var(--white); }
+.admin-link:hover { border-color: var(--white); background: rgba(6,22,58,0.35); }
 
-      /* Admin Button Styling - added by David Jackson 4/20/26 */
-      .admin-btn {
-        display: inline-block;
-        margin-top: 15px;
-        padding: 10px 20px;
-        border: 1px solid #b8860b;
-        color: #b8860b;
-        text-decoration: none;
-        font-size: 1.2vh;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-      }
+/* Styles for error/success message boxes - Tykeara Hammond 10/15/2026 (recolored for the blue card) */
+.flash { padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.4; }
+.flash-error { background: rgba(255,110,110,0.16); border: 1px solid #FF9A9A; color: #FFE1E1; }
+.flash-success { background: rgba(120,230,160,0.16); border: 1px solid #8CEBB0; color: #E2FFEC; }
 
-      .admin-btn:hover {
-        background: #b8860b;
-        color: black;
-        box-shadow: 0 0 10px rgba(184, 134, 11, 0.5);
-      }
-      /* Styles for error/success message boxes - Tykeara Hammond 10/15/2026 */
-      .flash {
-        padding: 10px 14px;
-        margin-bottom: 16px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-      }
-      .flash-error {
-        background-color: rgba(200, 40, 40, 0.15);
-        border: 1px solid #c82828;
-        color: #ff8a8a;
-      }
-      .flash-success {
-        background-color: rgba(40, 160, 80, 0.15);
-        border: 1px solid #28a050;
-        color: #8affb0;
-      }
+@media (prefers-reduced-motion: reduce) {
+    .vault-wheel { animation: none; }
+}
     </style>
-  </head>
-  <body>
-    <div class="vault-wrapper">
-      <div class="auth-card">
-        <h2>DECRYPT ACCESS</h2>
-        {# Flash message box for login errors and signup success - Tykeara
-        Hammond 10/15/2026 #} {% with messages =
-        get_flashed_messages(with_categories=true) %} {% for category, message
-        in messages %}
-        <div class="flash flash-{{ category }}">{{ message }}</div>
-        {% endfor %} {% endwith %}
-        <form action="{{ url_for('auth.login') }}" method="POST">
-          <div class="input-group">
-            <label>Identity (Username)</label>
-            <input
-              type="text"
-              name="username"
-              required
-              placeholder="User_01"
-              autofocus
-            />
-          </div>
-          <div class="input-group">
-            <label>Access Cipher (Password)</label>
-            <input
-              type="password"
-              name="password"
-              required
-              placeholder="••••••••"
-            />
-          </div>
-          <button type="submit" class="submit-btn">Authorize</button>
-        </form>
-        <div class="footer-links">
-          <a href="{{ url_for('index') }}">← Portal</a>
-          <a href="{{ url_for('auth.signup') }}">Create Identity</a>
-        </div>
+</head>
+<body>
+<div class="portal">
 
-        <!-- Admin Login Button added by David Jackson 4/20/26 -->
-        <a href="{{ url_for('auth.admin_login') }}" class="admin-btn">
-          Admin Access
-        </a>
+  <!-- Header: same as the portal; the logo goes back to it -->
+  <header class="portal-header">
+    <a class="brand" href="{{ url_for('index') }}">
+      <div class="brand-mark">V</div>
+      <div class="brand-name">THE VAULT</div>
+    </a>
+    <div class="header-tagline">Hampton University · Our Home by the Sea</div>
+  </header>
+
+  <div class="stage">
+    <!-- Still waves from the portal, back to front: (height, swell, wavelength, color) -->
+    {% for y, swell, step, color in [(110, 30, 180, '#0A2468'), (180, 30, 240, '#0B2C85'), (250, 25, 144, '#0033A0')] %}
+    <svg aria-hidden="true" viewBox="0 0 1440 320" preserveAspectRatio="none" class="wave">
+      <path d="M0 {{ y }} Q{{ step // 2 }} {{ y - swell }} {{ step }} {{ y }}{% for x in range(step * 2, 1441, step) %} T{{ x }} {{ y }}{% endfor %} V320 H0Z" fill="{{ color }}"></path>
+    </svg>
+    {% endfor %}
+
+    <main class="auth-card">
+      <div class="auth-head">
+        <div aria-hidden="true" class="vault-door">
+          <div class="vault-ring"></div>
+          <div class="vault-face"></div>
+          <div class="vault-wheel">
+            {% for deg in range(0, 360, 45) %}<div class="vault-spoke" style="--r: {{ deg }}deg"></div>{% endfor %}
+          </div>
+          <div class="vault-hub"><div class="vault-hub-dot"></div></div>
+        </div>
+        <p class="auth-kicker">Welcome back</p>
+        <h1 class="auth-title">LOG IN</h1>
       </div>
-    </div>
-  </body>
+
+      {# Flash message box for login errors and signup success - Tykeara Hammond 10/15/2026 #}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form class="auth-form" action="{{ url_for('auth.login') }}" method="POST">
+        <div class="field">
+          <label for="username">Username</label>
+          <input id="username" type="text" name="username" required autocomplete="username" placeholder="Your username" autofocus>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+        </div>
+        <button type="submit" class="vault-btn">LOG IN</button>
+      </form>
+
+      <div class="auth-links">
+        <a href="{{ url_for('index') }}">← Back to portal</a>
+        <a href="{{ url_for('auth.signup') }}">New here? Sign up</a>
+      </div>
+
+      <!-- Admin Login Button added by David Jackson 4/20/26 -->
+      <a href="{{ url_for('auth.admin_login') }}" class="admin-link">Admin access</a>
+    </main>
+  </div>
+
+</div>
+</body>
 </html>
