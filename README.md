@@ -2,7 +2,7 @@
 
 **A cloud-based fashion marketplace for Hampton University students**
 
-Designed & Built by Jaylen Belle, Sidney Cerami, Noah Green, Tykeara Hammond, Nicco Hill, Anthony Jackson and Ethan Williams 
+Designed & Built by Jaylen Belle, Nicholas Smith, Sidney Cerami, Noah Green, Tykeara Hammond, Nicco Hill, Anthony Jackson and Ethan Williams 
 CSC 404 — Fall 26'
 
 ---
