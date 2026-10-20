@@ -343,6 +343,12 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = storefront.brand_name || storefront.name || `Storefront #${storefront.id}`;
             storefrontSelect.appendChild(option);
           });
+
+          // Added 10/20/26: each user has exactly one storefront, so pick it automatically
+          // instead of leaving "Select a storefront" chosen (easy to miss, and it blocks submitting)
+          if (storefronts.length === 1) {
+            storefrontSelect.value = String(storefronts[0].id);
+          }
         } else {
           storefrontSelect.innerHTML = '<option value="" disabled>No storefronts found - create one first</option>';
           if (listingForm) {
@@ -351,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
           }
           const messageDiv = document.createElement("div");
-          messageDiv.style.cssText = "color: #d4af37; margin-top: 10px; font-weight: bold; text-align:center;";
+          messageDiv.style.cssText = "color: #9fd0ff; margin-top: 10px; font-weight: bold; text-align:center;";
           messageDiv.innerHTML = `You must create a storefront before creating listings. <a href="/storefronts/create" style="color:#fff; text-decoration:underline;">Create one here</a>`;
           storefrontSelect.parentNode.appendChild(messageDiv);
         }
@@ -363,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
           });
         }
         const messageDiv = document.createElement("div");
-        messageDiv.style.cssText = "color: #d4af37; margin-top: 10px; font-weight: bold; text-align:center;";
+        messageDiv.style.cssText = "color: #9fd0ff; margin-top: 10px; font-weight: bold; text-align:center;";
         messageDiv.innerHTML = `You must create a storefront before creating listings. <a href="/storefronts/create" style="color:#fff; text-decoration:underline;">Create one here</a>`;
         storefrontSelect.parentNode.appendChild(messageDiv);
       } else {

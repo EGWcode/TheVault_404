@@ -49,24 +49,25 @@ def login():
     return render_template('login.html')
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
-def signup():
+def signup(): #Errors now show on the signup page instead of a white screen - Tykeara Hammond 10/15/2026
     if request.method == 'POST':
-        user = request.form.get('username') 
+        user = request.form.get('username')
         pw = request.form.get('password')
         email = request.form.get('email')
 
         conn = get_connection()
         if conn is None:
-            return "Database connection failed. <a href='/auth/signup'>Try again</a>"
+            flash("Something went wrong, please try again.", "error")
+            return render_template('signup.html', username=user, email=email)
 
         success, message = service.register_user(user, pw, email, conn)
         conn.close()
 
         if success:
-            flash("Signup Successful! Please login with your new credentials.", "success")
-            return redirect(url_for('auth.login'))
-        return f"Signup Failed: {message} <a href='/auth/signup'>Try again</a>"
-    
+            return redirect(url_for('auth.login')) # Removed "Signup Successful" message, user goes straight to login - Tykeara Hammond 10/15/2026
+        flash(message, "error") #Tykeara Hammond added flash for signup errors 10/15/2026
+        return render_template('signup.html', username=user, email=email)
+
     return render_template('signup.html')
 
 @auth_bp.route('/listings')

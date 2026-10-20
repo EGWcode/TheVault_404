@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700;800&display=swap');
+
 /*
     create_storefront.css
 
@@ -31,12 +33,10 @@ html, body {
 }
 
 body {
-    background:
-        linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)),
-        url("/static/images/background.png") no-repeat center center fixed;
-    background-size: cover;
+    /* Updated 10/19/26: blue theme - same gradient as the storefront page */
+    background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
     color: white;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'League Spartan', Arial, Helvetica, sans-serif;
     min-height: 100vh;
     padding: 30px 0;
 }
@@ -49,6 +49,35 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+}
+
+
+/* Added 10/20/26: back button above the header - same pill as the storefront page buttons */
+.back-row {
+    width: min(1200px, 92%);
+    margin: 1.5rem auto 0;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 999px;
+    color: white;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
 
@@ -67,9 +96,17 @@ body {
 }
 
 
+/* Added 10/19/26: ship-wheel logo in the page header */
+.brand-logo {
+    display: block;
+    width: min(260px, 60vw);
+    height: auto;
+}
+
+
 /* gold accent color */
 .gold {
-    color: #d4af37;
+    color: #9fd0ff;
 }
 
 
@@ -107,13 +144,13 @@ body {
 }
 
 
-/* form card: reusable black/gold section styling */
+/* form card: reusable section styling (Updated 10/19/26: navy glass card for the blue theme) */
 .form-card {
-    background: rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(184, 134, 11, 0.65);
-    border-radius: 2px;
+    background: rgba(10, 20, 90, 0.45);
+    border: 2px solid white;
+    border-radius: 26px;
     padding: 1.5rem;
-    box-shadow: 0 0 25px rgba(184, 134, 11, 0.18);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 
     display: flex;
     flex-direction: column;
@@ -131,7 +168,7 @@ body {
     font-weight: 800;
     text-align: center;
     margin-bottom: 24px;
-    color: #d4af37;
+    color: #9fd0ff;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -234,8 +271,8 @@ body {
 input[type="text"] {
     width: 90%;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(184, 134, 11, 0.5);
-    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
     padding: 0.9rem 1rem;
     color: white;
     font-size: 1rem;
@@ -246,8 +283,8 @@ input[type="text"] {
 select {
     width: 90%;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(184, 134, 11, 0.5);
-    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
     padding: 0.9rem 1rem;
     color: white;
     font-size: 1rem;
@@ -256,14 +293,14 @@ select {
 
 /* select focus state */
 select:focus {
-    border-color: #f0cf5a;
+    border-color: #ffffff;
     background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
 }
 
 /* improve readability of native dropdown options */
 select option {
-    background: #111111;
+    background: #14237a; /* Updated 10/19/26: navy instead of black */
     color: #ffffff;
 }
 
@@ -276,9 +313,9 @@ input[type="text"]::placeholder {
 
 /* input focus state */
 input[type="text"]:focus {
-    border-color: #f0cf5a;
+    border-color: #ffffff;
     background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
 }
 
 
@@ -286,8 +323,8 @@ input[type="text"]:focus {
 textarea {
     width: 90%;
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(184, 134, 11, 0.5);
-    border-radius: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
     padding: 1rem;
     color: white;
     font-size: 1rem;
@@ -305,9 +342,9 @@ textarea::placeholder {
 
 /* textarea focus state */
 textarea:focus {
-    border-color: #f0cf5a;
+    border-color: #ffffff;
     background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.12);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
 }
 
 
@@ -345,7 +382,7 @@ input[type="file"] {
 .category-grid input[type="checkbox"] {
     width: 18px;
     height: 18px;
-    accent-color: #d4af37;
+    accent-color: #9fd0ff;
 }
 
 
@@ -374,7 +411,8 @@ input[type="file"] {
 .danger-btn,
 .reactivate-btn {
     min-width: 240px;
-    border-radius: 2px;
+    border-radius: 999px; /* Updated 10/19/26: pill buttons like the storefront page */
+    font-family: inherit;
     padding: 0.95rem 1.5rem;
     font-size: 1.1rem;
     font-weight: 800;
@@ -387,17 +425,18 @@ input[type="file"] {
 
 /* primary button */
 .primary-btn {
-    background: linear-gradient(145deg, #B8860B, #8B6508);
-    color: black;
-    border: none;
+    /* Updated 10/19/26: solid white with blue text (was a gold gradient) */
+    background: white;
+    color: #1259d6;
+    border: 2px solid white;
 }
 
 
 /* secondary button */
 .secondary-btn {
     background: transparent;
-    color: #d4af37;
-    border: 1px solid #d4af37;
+    color: white; /* Updated 10/19/26: white outline (was gold) */
+    border: 2px solid white;
 }
 
 .danger-btn {

@@ -371,6 +371,33 @@ body {
 }
 */
 
+/* Messages button + unread badge - Added 10/20/26 */
+.messages-btn {
+    position: relative;
+    text-decoration: none;
+}
+
+.unread-badge {
+    position: absolute;
+    top: -2px;
+    right: -6px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: white;
+    color: #1259d6;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.unread-badge[hidden] {
+    display: none;
+}
+
 .topbar-svg {
     width: 48px; /* Updated by Day E 3/22/26 */
     height: 48px; /* Updated by Day E 3/22/26 */
