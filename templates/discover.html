@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<!-- Browse pages added by Noah Green 10/17/2026 -->
+<!-- Hampton home-page theme applied by Noah Green 10/17/2026 -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }} | The Vault</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/discover.css') }}">
+  <script defer src="{{ url_for('static', filename='js/discover.js') }}"></script>
+</head>
+<body data-page="{{ page }}">
+  <div class="browse-shell">
+    <header class="browse-header">
+      <a class="brand" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}" aria-label="The Vault marketplace home">
+        <span class="brand-mark">V</span>
+        <span class="brand-name">THE VAULT</span>
+      </a>
+      <div class="header-right">
+        <span class="header-tagline">Hampton University · Our Home by the Sea</span>
+        <nav class="browse-nav" aria-label="Marketplace sections">
+          <a href="{{ url_for('storefront_pages_bp.storefront_home_page') }}">Marketplace</a>
+          <a href="{{ url_for('browse_brands') }}" {% if page == 'brands' %}aria-current="page"{% endif %}>Brands</a>
+          <a href="{{ url_for('browse_categories') }}" {% if page == 'categories' %}aria-current="page"{% endif %}>Categories</a>
+          <a href="{{ url_for('browse_new_drops') }}" {% if page == 'new' %}aria-current="page"{% endif %}>New Drops</a>
+          <a href="{{ url_for('browse_hot') }}" {% if page == 'hot' %}aria-current="page"{% endif %}>Hot!</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="browse-main">
+      <a class="back-link" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}">← Back to marketplace</a>
+
+      <section class="browse-intro">
+        <div class="eyebrow">THE VAULT / DISCOVER</div>
+        <h1>{{ title }}</h1>
+        <p>{{ subtitle }}</p>
+      </section>
+
+      {% if page in ('brands', 'categories') %}
+      <div class="controls">
+        <label class="sr-only" for="browseSearch">Search {{ title }}</label>
+        <input id="browseSearch" type="search" autocomplete="off" placeholder="{% if page == 'brands' %}Search brands...{% else %}Search categories or storefronts...{% endif %}">
+      </div>
+      {% endif %}
+
+      {% if page == 'categories' %}
+        <div id="categoryFilters" class="category-filters" aria-label="Available categories"></div>
+        <h2 id="resultsHeading" class="section-title">Storefronts</h2>
+      {% endif %}
+
+      <div id="results" class="results-grid" aria-live="polite">
+        <p class="state-message">Loading...</p>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
