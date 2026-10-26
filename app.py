@@ -1,7 +1,8 @@
 import sys
 import os
 import secrets
-from flask import Flask, render_template, redirect, url_for, session
+from flask import Flask, render_template, redirect, url_for, session, request, jsonify, make_response
+import time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend'))) # Updated 3/19/2026 by Ryan Grimes
 
@@ -30,6 +31,49 @@ def create_app():
         # Logins will reset every time the app restarts until SECRET_KEY is set.
         app.secret_key = secrets.token_hex(32)
         print("[startup] WARNING: SECRET_KEY is not set. Set it in the environment.")
+
+    # Session inactivity protection - added by Nicholas Smith, 10/25/2026.
+    # Only browser keyboard/mouse activity refreshes the server-side idle timestamp.
+    IDLE_SECONDS = 5 * 60
+
+    @app.before_request
+    def enforce_idle_timeout():
+        if 'user' not in session:
+            return None
+        last_activity = session.get('last_activity')
+        if last_activity is None or time.time() - last_activity >= IDLE_SECONDS:
+            session.clear()
+            if request.path.startswith('/api/') or request.path.startswith('/auth/api/') or request.path == '/auth/activity':
+                return jsonify({'error': 'Session expired due to inactivity.'}), 401
+            return redirect(url_for('auth.login', timeout='1'))
+        return None
+        # Browser activity heartbeat
+    # Added by Nicholas Smith - 10/25/2026
+    @app.route('/auth/activity', methods=['POST'])
+    def update_activity():
+        if 'user' not in session:
+            return jsonify({'error': 'Not logged in'}), 401
+
+        session['last_activity'] = time.time()
+        return jsonify({'status': 'active'}), 200
+
+    
+
+    @app.after_request
+    def load_idle_script(response):
+        # Reuse existing templates without changing their appearance.
+        if ('user' in session and response.status_code == 200 and
+                response.mimetype == 'text/html' and not response.direct_passthrough):
+            html = response.get_data(as_text=True)
+            if '</body>' in html.lower():
+                import re
+                reset = session.pop('client_idle_reset', False)
+                bootstrap = '<script>localStorage.setItem("thevault_last_input", String(Date.now()));</script>' if reset else ''
+                html = re.sub(r'</body>',
+                    bootstrap + '<script src="/static/js/idle_timeout.js" defer></script></body>',
+                    html, count=1, flags=re.IGNORECASE)
+                response.set_data(html)
+        return response
 
     # Run DB migrations on every startup so new columns are always present
     try:
