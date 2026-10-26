@@ -1,7 +1,16 @@
 # By Ryan Grimes - Updated 3/19/2026
+import time  # Added by Nicholas Smith - 10/25/2026
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, jsonify
 from services.auth_services import AuthService 
 from config.db import get_connection
+
+# Login attempt protection - Added by Nicholas Smith 10/25/2026
+from services.login_security import (
+    initialize_login_security,
+    get_remaining_lock,
+    record_failed_login,
+    reset_login_attempts
+)
 
 auth_bp = Blueprint('auth', __name__)
 service = AuthService()
@@ -12,16 +21,44 @@ def login():
         user = request.form.get('username')
         pw = request.form.get('password')
 
+        
         conn = get_connection()
         if conn is None:
             return "Database connection failed. <a href='/auth/login'>Try again</a>"
 
+        # Login attempt protection - Nicholas Smith 10/25/2026
+        try:
+            initialize_login_security(conn)
+
+            # Reject login attempts during the 60-second lockout.
+            remaining = get_remaining_lock(conn, user or "")
+
+            if remaining > 0:
+                conn.close()
+                return (
+                    f"Too many failed attempts. "
+                    f"Please wait {remaining} seconds before trying again."
+                ), 429
+
+        except Exception as e:
+            conn.rollback()
+            conn.close()
+            print(f"Login security error: {e}")
+            return "Login security temporarily unavailable.", 503
+
         success, role = service.validate_login(user, pw, conn)
+
         # conn.close()
         
         if success:
+
+            reset_login_attempts(conn, user)
             session['user'] = user
             session['role'] = role
+            # Session timeout initialization
+            # Added by Nicholas Smith - 10/25/2026
+            session['last_activity'] = time.time()
+            session['client_idle_reset'] = True
 
             #store user_id in sesion for storefront ownership checks - added by Day E 4/9/26
             try:
@@ -44,7 +81,29 @@ def login():
             else:
                 return redirect(url_for('auth.listings'))
         
-        return "Invalid Credentials. <a href='/auth/login'>Try again</a>"
+
+        # Failed login handling - Added by Nicholas Smith 10/25/2026
+        try:
+            attempts_left = record_failed_login(conn, user or "")
+        except Exception as e:
+            conn.rollback()
+            print(f"Login security error: {e}")
+            return "Login security temporarily unavailable.", 503
+        finally:
+            conn.close()
+
+        if attempts_left == 0:
+            return (
+                "Too many incorrect login attempts. "
+                "Your login is locked for 60 seconds."
+            ), 429
+
+        return (
+            f"Invalid credentials. "
+            f"You have {attempts_left} attempt(s) remaining. "
+            "<a href='/auth/login'>Try again</a>"
+        )
+
     
     return render_template('login.html')
 
