@@ -47,7 +47,22 @@ def create_vault_tables():
             );
         """
         cur.execute(create_users_table)
+# Update made by Sidney Cerami 10/15/2026- Table for forgot passwords and usernames
+        create_password_reset_table = """
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                reset_token TEXT UNIQUE NOT NULL,
+                expires_at TIMESTAMP NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+                CONSTRAINT fk_reset_user
+                    FOREIGN KEY(user_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE
+            );
+        """
+        cur.execute(create_password_reset_table)
         # ________________________________________________________
         # STOREFRONTS TABLE (One storefront per user)
         # Added by Day Ekoi 2/26/26
