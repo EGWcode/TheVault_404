@@ -395,3 +395,32 @@ img.card-media { display: block; }
   .header-tagline { display: none; }
   .results-grid { grid-template-columns: 1fr; }
 }
+
+/* Loading, empty, and error states */
+
+.state-message {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 45px 20px;
+  text-align: center;
+  border-radius: 14px;
+  border: 1px solid rgba(191, 212, 255, 0.25);
+  background: rgba(11, 42, 122, 0.25);
+}
+
+.state-message p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.state-loading {
+  color: #dce6ff;
+}
+
+.state-empty {
+  color: #bfd4ff;
+}
+
+.state-error {
+  color: #ffb7b7;
+}

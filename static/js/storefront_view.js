@@ -1,14 +1,6 @@
 /*
     storefront_view.js
 
-    The Vault Campus Marketplace
-    CSC 405 Sp 26'
-    Created by Day Ekoi - Iteration 4
-    3/22/2026
-    Updated by Day Ekoi - Iteration 5 4/9/26
-    Updated by Day Ekoi - Iteration 5 - 4/20/26 - fixed wishlistIds undefined crash and isWishlisted undefined in createListingCard
-    Updated by Day E - April 22nd - multi-image listing display, lightbox preview, and contain-based image handling
-
 Description:
 This file handles the functionality for the public storefront view page.
 Fetches real storefront and listing data from the Flask API using the
@@ -535,9 +527,18 @@ async function createListingCard(item, wishlistIds, currentUserId) {
                 wishlistIds.delete(String(listingId));
                 removeLocalWishlistItem(listingId);
             }
+            // show feedback after wishlist is updated
+            showFeedback(
+            nextState ? "Added to wishlist" : "Removed from wishlist",
+            "success"
+        );
         } catch (error) {
-            console.error("Wishlist update failed:", error);
-            alert(error.message || "Unable to update wishlist right now.");
+        console.error("Wishlist update failed:", error);
+        // show error
+        showFeedback(
+            error.message || "Unable to update wishlist right now.",
+            "error"
+        );
         } finally {
             wishlistBtn.disabled = false;
         }
