@@ -1,4 +1,4 @@
-# The Vault Campus Marketplace
+# Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Created 10/20/26 for the buyer-seller messaging feature
 

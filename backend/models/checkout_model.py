@@ -1,4 +1,4 @@
-# The Vault Campus Marketplace
+# Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Updated by Day Ekoi - 4/22/26 - rewrote to match orders/order_items schema
 
