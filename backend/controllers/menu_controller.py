@@ -37,20 +37,30 @@ def categories_route():
 
 
 # ---------- Pages ----------
+# Brands, Categories, New Drops and Hot! use Noah Green's themed discover.html page.
+
+@menu_pages_bp.route("/brands")
+def brands_page():
+    return render_template("discover.html", page="brands", title="Brands",
+                           subtitle="Every student brand open in Pirate Cove right now.")
+
 
 @menu_pages_bp.route("/new-drops")
 def new_drops_page():
-    return render_template("menu_page.html", page="new-drops")
+    return render_template("discover.html", page="new", title="New Drops",
+                           subtitle="The newest listings from Hampton student brands.")
 
 
 @menu_pages_bp.route("/hot")
 def hot_page():
-    return render_template("menu_page.html", page="hot")
+    return render_template("discover.html", page="hot", title="Hot!",
+                           subtitle="The listings people are saving the most.")
 
 
 @menu_pages_bp.route("/categories")
 def categories_page():
-    return render_template("menu_page.html", page="categories")
+    return render_template("discover.html", page="categories", title="All Categories",
+                           subtitle="Pick a category to see the storefronts in it.")
 
 
 @menu_pages_bp.route("/about")
