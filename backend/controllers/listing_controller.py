@@ -1,4 +1,4 @@
-# Pirate Cove Campus Marketplace
+# The Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Created by Day Ekoi - Iteration 3 
 # Dates: 2/25-2/26

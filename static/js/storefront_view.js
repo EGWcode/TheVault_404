@@ -1,7 +1,7 @@
 /*
     storefront_view.js
 
-    Pirate Cove Campus Marketplace
+    The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
     Created by Day Ekoi - Iteration 4
     3/22/2026
