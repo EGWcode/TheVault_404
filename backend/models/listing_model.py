@@ -1,4 +1,4 @@
-# The Vault Campus Marketplace
+# Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Created by Day Ekoi - Iteration 3
 # Updated by Day Ekoi - Iteration 5 - 4/20/26 - added primary image JOIN to get_listings_by_storefront_id

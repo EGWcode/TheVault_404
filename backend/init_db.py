@@ -2,7 +2,7 @@
 init_db.py
 
 Purpose:
-This file initializes the PostgreSQL database schema for The Vault.
+This file initializes the PostgreSQL database schema for Pirate Cove.
 It creates all required database tables if they do not already exist.
 
 Run this file manually when:
@@ -11,7 +11,7 @@ Run this file manually when:
 - Ensuring the database schema is properly initialized
 """
 
-# The Vault Campus Marketplace
+# Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Updated by Day Ekoi - Iteration 5 - 4/20/26 - added contact_info, preview_image_1-4, categories columns to storefronts; added ALTER TABLE migrations
 

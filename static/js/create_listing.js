@@ -1,7 +1,7 @@
 /*
 create_listing.js
 
-The Vault Campus Marketplace
+Pirate Cove Campus Marketplace
 CSC 405 Sp 26
 Created by Elali McNair - Iteration 4
 Updated by Day Ekoi - Iteration 5 4/9/26
