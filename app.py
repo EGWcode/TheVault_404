@@ -15,6 +15,8 @@ from controllers.return_controller import returns_bp
 from controllers.checkout_controller import checkout_bp
 from controllers.menu_controller import menu_api_bp, menu_pages_bp  # Added by Anthony Jackson - dropdown menu pages
 from controllers.message_controller import messages_bp # Added 10/20/26 for buyer-seller messaging
+from controllers.rating_controller import ratings_bp  # Added by Anthony Jackson 10/21/26 - storefront ratings
+from controllers.profile_controller import profile_bp  # Added by Anthony Jackson 10/21/26 - optional user profile
 from init_db import create_vault_tables
 
 
@@ -102,6 +104,8 @@ def create_app():
     app.register_blueprint(menu_api_bp)    # Added by Anthony Jackson - dropdown menu data
     app.register_blueprint(menu_pages_bp)  # Added by Anthony Jackson - dropdown menu pages
     app.register_blueprint(messages_bp) # Added 10/20/26 for buyer-seller messaging
+    app.register_blueprint(ratings_bp)  # Added by Anthony Jackson 10/21/26 - storefront ratings
+    app.register_blueprint(profile_bp)  # Added by Anthony Jackson 10/21/26 - optional user profile
 
     @app.get("/health")
     def health():

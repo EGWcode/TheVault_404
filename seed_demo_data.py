@@ -20,6 +20,36 @@ from utils.auth_utils import hash_password
 DEMO_PASSWORD = "DemoPass123"
 
 
+def add_demo_ratings(cur):
+    """Adds sample star ratings (only if there are none yet) so Top Rated has something to show."""
+    cur.execute("SELECT COUNT(*) FROM storefront_ratings")
+    if cur.fetchone()[0] > 0:
+        return False
+    cur.execute("SELECT id FROM users WHERE username IN ('demo_seller1', 'demo_seller2', 'demo_buyer') ORDER BY username")
+    ids = {}
+    for name in ("demo_buyer", "demo_seller1", "demo_seller2"):
+        cur.execute("SELECT id FROM users WHERE username = %s", (name,))
+        row = cur.fetchone()
+        if not row:
+            return False
+        ids[name] = row[0]
+    cur.execute("SELECT id, owner_id FROM storefronts WHERE owner_id IN (%s, %s) ORDER BY id", (ids["demo_seller1"], ids["demo_seller2"]))
+    stores = {owner: sid for sid, owner in cur.fetchall()}
+    if len(stores) < 2:
+        return False
+    # Von Dutch Vault (seller1): 5, 4, 5 from the buyer and seller2.  Essentials Co (seller2): 3, 4 from the buyer and seller1.
+    sample = [
+        (stores[ids["demo_seller1"]], ids["demo_buyer"], 5),
+        (stores[ids["demo_seller1"]], ids["demo_seller2"], 4),
+        (stores[ids["demo_seller1"]], ids["demo_buyer"], 5),
+        (stores[ids["demo_seller2"]], ids["demo_buyer"], 3),
+        (stores[ids["demo_seller2"]], ids["demo_seller1"], 4),
+    ]
+    for store_id, user_id, stars in sample:
+        cur.execute("INSERT INTO storefront_ratings (storefront_id, user_id, stars) VALUES (%s, %s, %s)", (store_id, user_id, stars))
+    return True
+
+
 def main():
     host = (os.getenv("DB_HOST") or "").strip().lower()
     if host not in ("localhost", "127.0.0.1", "::1"):
@@ -36,7 +66,11 @@ def main():
         cur = conn.cursor()
         cur.execute("SELECT 1 FROM users WHERE username = 'demo_seller1'")
         if cur.fetchone():
-            print("Demo data is already there. Nothing to do.")
+            if add_demo_ratings(cur):
+                conn.commit()
+                print("Demo data was already there. Added sample ratings.")
+            else:
+                print("Demo data is already there. Nothing to do.")
             return
 
         pw = hash_password(DEMO_PASSWORD)
@@ -79,6 +113,7 @@ def main():
         cur.execute("INSERT INTO wishlist (user_id, listing_id) VALUES (%s, %s), (%s, %s), (%s, %s)",
                     (user_ids[2], listing_ids[2], user_ids[0], listing_ids[2], user_ids[2], listing_ids[0]))
 
+        add_demo_ratings(cur)
         conn.commit()
         print("Done. Sample data added.")
         print(f"You can log in as demo_seller1, demo_seller2 or demo_buyer with password {DEMO_PASSWORD}")
