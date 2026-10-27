@@ -1,20 +1,22 @@
 <!--
-  The Vault: sign up page (/auth/signup)
+  Pirate Cove: sign up page (/auth/signup)
   Originally created 3/21/2026 by Ryan Grimes
   Hampton redesign 10/20/2026 by Nicco Hill:
-    - Matches the portal and log in pages: navy blueprint grid, Hampton blue, vault door, waves
+    - Matches the portal and log in pages: navy blueprint grid, Hampton blue, vault door, moving waves and ship
     - Form fields, flash messages and links are unchanged
-    - CSS is kept in this one file on purpose
+    - CSS and JS are kept in this one file on purpose
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Vault — Sign Up</title>
+    <title>Pirate Cove — Sign Up</title>
+    <!-- Loads the two Google Fonts: Big Shoulders Display (headings, buttons) and Instrument Sans (body text) -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
     <style>
 /* ===== Theme: same tokens as the portal and log in pages (Nicco Hill) ===== */
+/* Color + font variables. Everything below uses var(--name), so changing a value here updates the whole page */
 :root {
     --navy: #06163A;        /* page background */
     --hampton-blue: #0033A0;
@@ -27,20 +29,25 @@
     --font-body: 'Instrument Sans', 'Helvetica Neue', sans-serif;
 }
 
+/* Basic resets: sizes include padding/borders, no default page margin, link colors */
 *, *::before, *::after { box-sizing: border-box; }
 body { margin: 0; background: var(--navy); }
 a { color: var(--ice); }
 a:hover { color: var(--white); }
 
+/* Vault wheel spin: turns from -60deg back to 0deg once when the page loads */
 @keyframes vaultTurn { from { transform: rotate(-60deg); } to { transform: rotate(0deg); } }
 
+/* Shared text styles: bold display font for the logo, title and button; all caps for small labels */
 .brand-mark, .brand-name, .auth-title, .vault-btn { font-family: var(--font-display); font-weight: 900; }
 .header-tagline, .auth-kicker, .field label { text-transform: uppercase; }
 
 /* ===== Page shell with blueprint grid ===== */
+/* Full-height column. The two faint 1px line gradients repeat every 48px to draw the blueprint grid */
 .portal { min-height: 100vh; display: flex; flex-direction: column; background-color: var(--navy); background-image: linear-gradient(rgba(191,212,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(191,212,255,0.06) 1px, transparent 1px); background-size: 48px 48px; color: var(--off-white); font-family: var(--font-body); }
 
 /* ===== Header: logo + tagline (logo links back to the portal) ===== */
+/* Logo on the left, tagline on the right; wraps onto two lines on small screens */
 .portal-header { max-width: 1280px; width: 100%; margin: 0 auto; padding: 24px 32px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
 .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
 .brand, .brand:hover { color: var(--off-white); }
@@ -49,14 +56,22 @@ a:hover { color: var(--white); }
 .header-tagline { font-size: 13px; letter-spacing: 0.14em; color: var(--ice); }
 
 /* ===== Stage: card sits above the waves ===== */
+/* Fills the space under the header and centers the card. overflow: hidden cuts off waves that slide off-screen.
+   --wave-h is the wave height: 18% of the screen height, but never under 100px or over 220px */
 .stage { position: relative; flex-grow: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 24px 16px calc(var(--wave-h) * 0.7); --wave-h: clamp(100px, 18vh, 220px); }
-.wave { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--wave-h); }
+/* Waves are twice the page width; the script slides them left to loop (same as the portal) */
+.wave { position: absolute; left: 0; bottom: 0; width: 200%; height: var(--wave-h); transform: translateX(0); }
+/* .ship-sail is moved left to right by the script; .ship inside it bobs and rocks around its bottom-center */
+.ship-sail { position: absolute; left: 6%; bottom: calc(var(--wave-h) * 0.56); width: clamp(120px, 16vh, 240px); }
+.ship { display: block; width: 100%; height: auto; transform-origin: 50% 90%; }
 
 /* ===== Login card ===== */
+/* Blue rounded card holding the vault icon, messages, form and links. z-index keeps it in front of the waves */
 .auth-card { position: relative; z-index: 1; width: 100%; max-width: 420px; padding: 32px; border-radius: 24px; background: var(--hampton-blue); border: 1.5px solid rgba(255,255,255,0.22); box-shadow: 0 30px 80px rgba(0,0,0,0.45); display: flex; flex-direction: column; gap: 20px; }
 .auth-head { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
 
 /* Small vault door, same build as the portal's (designed at --door) */
+/* Layers stacked in one circle: dotted ring, blue face, wheel with 8 spokes, center hub. --door sets the size */
 .vault-door { position: relative; width: var(--door); aspect-ratio: 1 / 1; --door: 72px; }
 .vault-ring, .vault-face, .vault-wheel, .vault-hub { position: absolute; border-radius: 50%; }
 .vault-ring { inset: 0; border: 3px dotted var(--ice); }
@@ -66,10 +81,12 @@ a:hover { color: var(--white); }
 .vault-hub { inset: 27%; background: var(--navy); border: 2px solid var(--off-white); display: flex; align-items: center; justify-content: center; }
 .vault-hub-dot { width: 22%; aspect-ratio: 1 / 1; border-radius: 50%; background: var(--off-white); }
 
+/* Small label above the title, then the big page title */
 .auth-kicker { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.22em; color: var(--ice); }
 .auth-title { margin: 0; font-size: clamp(40px, 7vh, 56px); line-height: 0.9; letter-spacing: 0.02em; color: var(--white); }
 
 /* ===== Form ===== */
+/* Fields stack top to bottom; an input gets a white border and glow when clicked into (focus) */
 .auth-form { display: flex; flex-direction: column; gap: 16px; }
 .field { display: flex; flex-direction: column; gap: 8px; }
 .field label { font-size: 12px; font-weight: 600; letter-spacing: 0.16em; color: var(--ice); }
@@ -87,10 +104,12 @@ a:hover { color: var(--white); }
 .auth-links a { text-decoration: none; }
 .auth-links a:hover { text-decoration: underline; }
 /* Styles for error/success message boxes - Tykeara Hammond 10/15/2026 (recolored for the blue card) */
+/* .flash-error = red box, .flash-success = green box. The category given to flash() in auth_controller.py picks which */
 .flash { padding: 10px 14px; border-radius: 10px; font-size: 14px; line-height: 1.4; }
 .flash-error { background: rgba(255,110,110,0.16); border: 1px solid #FF9A9A; color: #FFE1E1; }
 .flash-success { background: rgba(120,230,160,0.16); border: 1px solid #8CEBB0; color: #E2FFEC; }
 
+/* If the user's device is set to reduce motion, don't spin the vault wheel */
 @media (prefers-reduced-motion: reduce) {
     .vault-wheel { animation: none; }
 }
@@ -102,22 +121,42 @@ a:hover { color: var(--white); }
   <!-- Header: same as the portal; the logo goes back to it -->
   <header class="portal-header">
     <a class="brand" href="{{ url_for('index') }}">
-      <div class="brand-mark">V</div>
-      <div class="brand-name">THE VAULT</div>
+      <div class="brand-mark">P</div>
+      <div class="brand-name">PIRATE COVE</div>
     </a>
     <div class="header-tagline">Hampton University · Our Home by the Sea</div>
   </header>
 
+  <!-- Stage: everything below the header. Waves and ship in the back, the form card in front -->
   <div class="stage">
-    <!-- Still waves from the portal, back to front: (height, swell, wavelength, color) -->
-    {% for y, swell, step, color in [(110, 30, 180, '#0A2468'), (180, 30, 240, '#0B2C85'), (250, 25, 144, '#0033A0')] %}
-    <svg aria-hidden="true" viewBox="0 0 1440 320" preserveAspectRatio="none" class="wave">
-      <path d="M0 {{ y }} Q{{ step // 2 }} {{ y - swell }} {{ step }} {{ y }}{% for x in range(step * 2, 1441, step) %} T{{ x }} {{ y }}{% endfor %} V320 H0Z" fill="{{ color }}"></path>
+    <!-- Moving waves and ship from the portal, back to front: (id, height, swell, wavelength, color). The ship sails between the far and mid waves -->
+    {# The loop draws 3 wave SVGs. Each path starts at height y, curves up by swell, then T repeats that curve
+       every step px across 2880px (twice the screen width) and fills down to the bottom (V320 H0Z) #}
+    {% for id, y, swell, step, color in [('wave-far', 110, 30, 180, '#0A2468'), ('wave-mid', 180, 30, 240, '#0B2C85'), ('wave-front', 250, 25, 144, '#0033A0')] %}
+    <svg aria-hidden="true" viewBox="0 0 2880 320" preserveAspectRatio="none" class="wave" id="{{ id }}">
+      <path d="M0 {{ y }} Q{{ step // 2 }} {{ y - swell }} {{ step }} {{ y }}{% for x in range(step * 2, 2881, step) %} T{{ x }} {{ y }}{% endfor %} V320 H0Z" fill="{{ color }}"></path>
     </svg>
+    {# Right after the first (farthest) wave, add the ship so the mid and front waves cover its hull #}
+    {% if loop.first %}
+      <div aria-hidden="true" class="ship-sail" id="ship-sail">
+        <!-- Ship drawing, in order: 2 masts, 4 sails, flag, bowsprit, hull, hull stripe -->
+        <svg viewBox="0 0 260 200" class="ship" id="ship">
+          <path d="M95 20 L95 150 M165 40 L165 150" stroke="#2A5BC4" stroke-width="5" fill="none"></path>
+          <path d="M60 40 Q95 55 130 40 L126 80 Q95 92 64 80Z M64 90 Q95 105 126 90 L122 132 Q95 142 68 132Z M140 60 Q165 72 190 60 L187 94 Q165 104 143 94Z M143 102 Q165 114 187 102 L184 136 Q165 144 146 136Z" fill="#1E4BB0"></path>
+          <path d="M95 18 L122 25 L95 32Z" fill="#DCE6FF"></path>
+          <path d="M236 150 L262 124" stroke="#2A5BC4" stroke-width="4"></path>
+          <path d="M14 146 L246 146 L220 192 L42 192 Z" fill="#16409E"></path>
+          <path d="M30 160 L232 160" stroke="#2A5BC4" stroke-width="3"></path>
+        </svg>
+      </div>
+    {% endif %}
     {% endfor %}
 
+    <!-- Card: vault icon + title, error messages, form, then links -->
     <main class="auth-card">
       <div class="auth-head">
+        <!-- Vault door icon. aria-hidden means screen readers skip it (it's decoration).
+             The loop makes 8 spokes, one every 45 degrees; --r tells the CSS how far to rotate each one -->
         <div aria-hidden="true" class="vault-door">
           <div class="vault-ring"></div>
           <div class="vault-face"></div>
@@ -131,12 +170,15 @@ a:hover { color: var(--white); }
       </div>
 
       {# Flash message box for signup errors - Tykeara Hammond 10/15/2026 #}
+      {# get_flashed_messages() collects the flash() messages from auth_controller.py and shows each in a colored box #}
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
         <div class="flash flash-{{ category }}">{{ message }}</div>
         {% endfor %}
       {% endwith %}
 
+      <!-- Sign up form: sends username, Hampton email and password to signup() in auth_controller.py (POST).
+           The email must end in hamptonu.edu, which auth_services.py checks -->
       <form class="auth-form" action="{{ url_for('auth.signup') }}" method="POST">
         {# Username/email stay filled in after a failed signup so users don't retype them - Tykeara Hammond 10/15/2026 #}
         <div class="field">
@@ -154,6 +196,7 @@ a:hover { color: var(--white); }
         <button type="submit" class="vault-btn">CREATE ACCOUNT</button>
       </form>
 
+      <!-- Links to the other account pages and back to the portal -->
       <div class="auth-links">
         <a href="{{ url_for('index') }}">← Back to portal</a>
         <a href="{{ url_for('auth.login') }}">Have an account? Log in</a>
@@ -162,5 +205,42 @@ a:hover { color: var(--white); }
   </div>
 
 </div>
+
+<script>
+// Ship + wave animation (Nicco Hill). Skipped for users who prefer reduced motion.
+(function () {
+  // Stop here (no animation) if the user's device is set to reduce motion
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Grab the ship and the 3 waves. Each wave gets its loop time in seconds; closer waves loop faster, which adds depth
+  var sail = document.getElementById('ship-sail'),
+      ship = document.getElementById('ship'),
+      waves = [['wave-far', 28], ['wave-mid', 18], ['wave-front', 11]].map(function (w) {
+        return { el: document.getElementById(w[0]), secs: w[1] };  // secs = time for one loop
+      }),
+      start = performance.now();
+
+  // tick runs on every screen refresh (about 60 times a second). t = seconds since the page opened,
+  // p = how far across the screen the ship is (0 = off the left edge, 1 = off the right edge)
+  function tick(now) {
+    var t = (now - start) / 1000,
+        p = ((t + 9) / 38) % 1;  // ship crosses the screen every 38s
+
+    // Sail left to right, starting/ending off-screen
+    sail.style.left = 'calc((100% + 340px) * ' + p + ' - 340px)';
+    // Gentle bob and rock
+    ship.style.transform = 'translateY(' + (3 + 3 * Math.sin(t * 1.8)) + 'px) rotate(' + (1.2 * Math.sin(t * 1.8 + 0.8)) + 'deg)';
+    // Slide each wave half its width, then loop; closer waves move faster
+    waves.forEach(function (w) {
+      w.el.style.transform = 'translateX(' + (-50 * ((t / w.secs) % 1)) + '%)';
+    });
+
+    // Ask the browser to run tick again on the next frame
+    requestAnimationFrame(tick);
+  }
+  // Start the animation
+  requestAnimationFrame(tick);
+})();
+</script>
 </body>
 </html>
