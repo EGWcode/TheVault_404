@@ -42,7 +42,7 @@ def categories_route():
 @menu_pages_bp.route("/brands")
 def brands_page():
     return render_template("discover.html", page="brands", title="Brands",
-                           subtitle="Every student brand open in Pirate Cove right now.")
+                           subtitle="Every student brand open in The Pirate Cove right now.")
 
 
 @menu_pages_bp.route("/new-drops")

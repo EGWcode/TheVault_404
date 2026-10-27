@@ -1,6 +1,6 @@
 /*
     checkout.js
-    Pirate Cove Campus Marketplace
+    The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
     Updated by Day Ekoi - 4/22/26
     - Reads cart from session via /auth/cart/json

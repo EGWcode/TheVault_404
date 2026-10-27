@@ -1,7 +1,7 @@
 /*
     edit_storefront.js
 
-    Pirate Cove Campus Marketplace
+    The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
     Created by Day Ekoi - Iteration 5 4/16/2026
     Updated by Day Ekoi - Iteration 5 - 4/20/26 - drag-drop zones, image preview thumbnails, preview_image_1-4 upload + pre-fill, existing preview image display

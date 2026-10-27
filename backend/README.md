@@ -1,7 +1,7 @@
 
-# Pirate Cove – Backend (Flask)
+# The Pirate Cove – Backend (Flask)
 
-This folder contains the backend implementation for Pirate Cove marketplace. The backend manages data storage, business rules, authentication, and API endpoints.
+This folder contains the backend implementation for The Pirate Cove marketplace. The backend manages data storage, business rules, authentication, and API endpoints.
 
 ---
 

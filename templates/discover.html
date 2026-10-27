@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ title }} | Pirate Cove</title>
+  <title>{{ title }} | The Pirate Cove</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/discover.css') }}">
   <script defer src="{{ url_for('static', filename='js/discover.js') }}"></script>
@@ -13,9 +13,9 @@
 <body data-page="{{ page }}">
   <div class="browse-shell">
     <header class="browse-header">
-      <a class="brand" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}" aria-label="Pirate Cove marketplace home">
+      <a class="brand" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}" aria-label="The Pirate Cove marketplace home">
         <span class="brand-mark">P</span>
-        <span class="brand-name">PIRATE COVE</span>
+        <span class="brand-name">THE PIRATE COVE</span>
       </a>
       <div class="header-right">
         <span class="header-tagline">Hampton University · Our Home by the Sea</span>
@@ -33,7 +33,7 @@
       <a class="back-link" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}">← Back to marketplace</a>
 
       <section class="browse-intro">
-        <div class="eyebrow">PIRATE COVE / DISCOVER</div>
+        <div class="eyebrow">THE PIRATE COVE / DISCOVER</div>
         <h1>{{ title }}</h1>
         <p>{{ subtitle }}</p>
       </section>

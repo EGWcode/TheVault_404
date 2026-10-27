@@ -1,4 +1,4 @@
-# Pirate Cove — Campus Marketplace
+# The Pirate Cove — Campus Marketplace
 
 **A cloud-based fashion marketplace for Hampton University students**
 
@@ -13,9 +13,9 @@ CSC 404 — Fall 26'
 
 ---
 
-## What is Pirate Cove?
+## What is The Pirate Cove?
 
-Pirate Cove is a web-based campus marketplace exclusively for Hampton University students. It allows student brand owners to create storefronts, publish clothing listings, and manage inventory, while other students can browse, wishlist, and purchase items.
+The Pirate Cove is a web-based campus marketplace exclusively for Hampton University students. It allows student brand owners to create storefronts, publish clothing listings, and manage inventory, while other students can browse, wishlist, and purchase items.
 
 ---
 
