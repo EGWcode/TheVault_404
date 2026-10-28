@@ -1,4 +1,4 @@
-# The Vault Campus Marketplace
+# The Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Created by Day Ekoi - Iteration 3
 
