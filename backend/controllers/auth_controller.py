@@ -3,6 +3,7 @@
 # Account routes: log in, sign up, admin log in and log out, plus the shopping bag (cart) routes.
 # app.py registers this with url_prefix='/auth', so every route here starts with /auth (e.g. /auth/login).
 
+import time  # Added by Nicholas Smith - 10/25/2026
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, jsonify
 from services.auth_services import AuthService 
 from config.db import get_connection
@@ -10,6 +11,14 @@ from config.db import get_connection
 import os
 import smtplib
 from email.message import EmailMessage
+
+# Login attempt protection - Added by Nicholas Smith 10/25/2026
+from services.login_security import (
+    initialize_login_security,
+    get_remaining_lock,
+    record_failed_login,
+    reset_login_attempts
+)
 
 # auth_bp groups these routes. service (AuthService) does the real work: checking passwords, saving users, loading carts.
 auth_bp = Blueprint('auth', __name__)
@@ -25,20 +34,44 @@ def login():
         user = request.form.get('username')
         pw = request.form.get('password')
 
+        
         conn = get_connection()
         if conn is None:
             # Show errors on the styled login page instead of a plain white page - Nicco Hill 10/20/2026
             flash("Can't reach the database right now. Please try again.", "error")
             return render_template('login.html', username=user)
 
+        # Login attempt protection - Nicholas Smith 10/25/2026
+        # 3 wrong passwords lock the username for 60 seconds; errors show in the red box on the login page
+        try:
+            initialize_login_security(conn)
+            remaining = get_remaining_lock(conn, user or "")
+            if remaining > 0:
+                conn.close()
+                flash(f"Too many failed attempts. Please wait {remaining} seconds before trying again.", "error")
+                return render_template('login.html', username=user), 429
+        except Exception as e:
+            conn.rollback()
+            conn.close()
+            print(f"Login security error: {e}")
+            flash("Log in is temporarily unavailable. Please try again in a moment.", "error")
+            return render_template('login.html', username=user), 503
+
         # Ask AuthService if the password matches the hashed one in the database. Returns (True/False, 'user'/'admin')
         success, role = service.validate_login(user, pw, conn)
+
         # conn.close()
         
         # Correct password: save who they are in the session (Flask's login cookie)
         if success:
+
+            reset_login_attempts(conn, user)
             session['user'] = user
             session['role'] = role
+            # Session timeout initialization
+            # Added by Nicholas Smith - 10/25/2026
+            session['last_activity'] = time.time()
+            session['client_idle_reset'] = True
 
             #store user_id in sesion for storefront ownership checks - added by Day E 4/9/26
             try:
@@ -61,10 +94,23 @@ def login():
             else:
                 return redirect(url_for('auth.listings'))
         
-        # Wrong username or password: close the database connection, then show the log in page again
-        # with a red error box and the username still filled in (only the password needs retyping)
-        conn.close()
-        flash("That username and password don't match. Please try again.", "error")
+        # Wrong username or password: record the failed attempt (Nicholas Smith 10/25/2026), close the connection,
+        # then show the log in page again with a red error box and the username still filled in
+        try:
+            attempts_left = record_failed_login(conn, user or "")
+        except Exception as e:
+            conn.rollback()
+            print(f"Login security error: {e}")
+            flash("Log in is temporarily unavailable. Please try again in a moment.", "error")
+            return render_template('login.html', username=user), 503
+        finally:
+            conn.close()
+
+        if attempts_left == 0:
+            flash("Too many incorrect login attempts. Your login is locked for 60 seconds.", "error")
+            return render_template('login.html', username=user), 429
+
+        flash(f"That username and password don't match. You have {attempts_left} attempt(s) left.", "error")
         return render_template('login.html', username=user)
     
     # GET = just visiting the page, so show the empty form
