@@ -95,12 +95,22 @@ Start of Code w/ comments
 
   <!-- Main navigation -->
   <div class="nav-section">
-    <!-- Links added by Anthony Jackson: these used to do nothing when clicked -->
-    <a href="/storefront" class="nav-item" style="text-decoration:none;">Explore Brands <span>→</span></a>
-    <a href="/categories" class="nav-item" style="text-decoration:none;">All Categories <span>→</span></a>
-    <a href="/new-drops" class="nav-item" style="text-decoration:none;">New Drops <span>→</span></a>
-    <a href="/hot" class="nav-item" style="text-decoration:none;">Hot! <span>→</span></a>
-  </div>
+  <a href="{{ url_for('browse_brands') }}" class="nav-item" style="text-decoration:none;">
+    Explore Brands <span>→</span>
+  </a>
+
+  <a href="{{ url_for('browse_categories') }}" class="nav-item" style="text-decoration:none;">
+    All Categories <span>→</span>
+  </a>
+
+  <a href="{{ url_for('browse_new_drops') }}" class="nav-item" style="text-decoration:none;">
+    New Drops <span>→</span>
+  </a>
+
+  <a href="{{ url_for('browse_hot') }}" class="nav-item" style="text-decoration:none;">
+    Hot! <span>→</span>
+  </a>
+</div>
 
   <!-- extras -->
   <div class="nav-section more">

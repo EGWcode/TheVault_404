@@ -1,0 +1,25 @@
+{
+  "name": "thevault_404",
+  "version": "1.0.0",
+  "description": "**A cloud-based fashion marketplace for Hampton University students**",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EGWcode/TheVault_404.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/EGWcode/TheVault_404/issues"
+  },
+  "homepage": "https://github.com/EGWcode/TheVault_404#readme",
+  "devDependencies": {
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2"
+  }
+}

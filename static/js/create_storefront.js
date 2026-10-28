@@ -1,12 +1,6 @@
 /*
     create_storefront.js
 
-    The Pirate Cove Campus Marketplace
-    CSC 405 Sp 26'
-    Created by Day Ekoi - Iteration 4 - 3/22/2026
-    Updated by Day Ekoi - Iteration 5 4/9/26
-    Updated by Day Ekoi - Iteration 5 4/16/26 - S3 image upload integration
-    Updated by Day Ekoi - Iteration 5 - 4/20/26 - drag-drop zones, image preview thumbnails, preview_image_1-4 upload support
 */
 
 const form = document.getElementById("storefrontForm");
@@ -233,14 +227,32 @@ form.addEventListener("submit", async (event) => {
         const data = await res.json();
 
         if (!res.ok) {
-            alert(data.error || "Failed to create storefront.");
-            return;
+        // show feedback if storefront creation fails
+        showFeedback(
+            data.error || "Failed to create storefront.",
+            "error"
+        );
+        return;
         }
+        
+        // show confirmation before returning to the dashboard
+        showFeedback(
+            "Storefront created successfully",
+            "success"
+        );
+
+        setTimeout(() => {
+            window.location.href = "/storefronts/dashboard";
+        }, 800);
 
         window.location.href = "/storefronts/dashboard";
 
     } catch (err) {
         console.error("Error creating storefront:", err);
-        alert("Something went wrong. Please try again.");
-    }
+
+        showFeedback(
+            "Something went wrong. Please try again.",
+            "error"
+        );
+    }   
 });
