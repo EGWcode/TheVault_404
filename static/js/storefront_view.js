@@ -1,7 +1,6 @@
 /*
     storefront_view.js
 
-Description:
 This file handles the functionality for the public storefront view page.
 Fetches real storefront and listing data from the Flask API using the
 storefront ID from the URL. Renders storefront banner, logo, description,

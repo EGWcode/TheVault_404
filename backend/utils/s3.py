@@ -1,5 +1,5 @@
 # utils/s3.py
-# The Vault Campus Marketplace
+# The Pirate Cove Campus Marketplace
 # Created by Day Ekoi - Iteration 5 4/10/26
 # Handles all S3 image upload functionality
 

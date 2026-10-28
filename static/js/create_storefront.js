@@ -1,7 +1,6 @@
 /*
     create_storefront.js
 
-
 */
 
 const form = document.getElementById("storefrontForm");
