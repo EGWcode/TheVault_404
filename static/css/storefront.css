@@ -39,8 +39,8 @@ html, body {
 }
 
 body {
-    /* Updated 10/18/26: blue redesign - vault image replaced with a bright-to-navy gradient */
-    background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
+    /* Updated 10/27/26: the Pirate Cove underwater background is in cove.css (shared) */
+    background-color: #1c1a6e;
     color: white;
     font-family: 'League Spartan', Arial, Helvetica, sans-serif;
 }
@@ -67,21 +67,21 @@ body {
 .nav-pane {
     position: fixed;
     top: 0;
-    left: -320px;
+    right: -320px; /* Updated 10/27/26: slides in from the right, where the menu button now is */
     width: 300px;
     height: 100vh;
     /* Updated 10/18/26: same blue-to-navy gradient as the page, white edge instead of gold */
     background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%);
-    border-right: 2px solid white;
-    box-shadow: 6px 0 24px rgba(0, 0, 0, 0.35);
+    border-left: 2px solid white;
+    box-shadow: -6px 0 24px rgba(0, 0, 0, 0.35);
     padding: 30px 22px 24px 22px; /* Updated by Day E 3/22/26 */
     z-index: 30;
-    transition: left 0.3s ease;
+    transition: right 0.3s ease;
     overflow-y: auto; /* Updated by Day E 3/22/26 */
 }
 
 .nav-pane.active {
-    left: 0;
+    right: 0;
 }
 
 
@@ -486,6 +486,106 @@ body {
 }
 
 
+/* Added 10/27/26: quick filter chips under the search bar */
+.filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    max-width: 780px;
+    margin: 18px auto 0;
+}
+
+.chip {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 999px;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 7px 16px 5px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+}
+
+.chip:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.chip.active {
+    background: white;
+    border-color: white;
+    color: #1259d6;
+}
+
+.chip-link::after {
+    content: " \2192"; /* arrow: these chips open another page */
+}
+
+/* phones: one swipeable row instead of several wrapped rows */
+@media (max-width: 600px) {
+    .filter-chips {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+    }
+
+    .filter-chips::-webkit-scrollbar {
+        display: none;
+    }
+
+    .chip {
+        flex-shrink: 0;
+    }
+}
+
+
+/* Added 10/27/26: shown in the grid when there are no stores, or none match the filters */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 48px 20px;
+    border: 2px dashed rgba(255, 255, 255, 0.5);
+    border-radius: 26px;
+    background: rgba(10, 20, 90, 0.3);
+}
+
+.empty-state h2 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    font-size: 1.15rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin-bottom: 22px;
+}
+
+.empty-state-btn {
+    display: inline-block;
+    background: white;
+    color: #1259d6;
+    border: 2px solid white;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 12px 26px 10px;
+    cursor: pointer;
+}
+
+.empty-state-btn:hover {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+
 /* Main page content */
 .page-content {
     max-width: 1280px;
@@ -612,6 +712,17 @@ body {
     margin: 0 24px; /* Updated 10/18/26: wider gap like the blue redesign */
 }
 
+/* Added 10/27/26: dimmed Previous/Next at the first/last page; row hidden when there is one page */
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+    background: transparent;
+}
+
+.pagination[hidden] {
+    display: none;
+}
+
 
 /* Lightbox overlay - Added by Day Ekoi 4/20/26 */
 .lightbox-overlay {
@@ -656,5 +767,58 @@ body {
 
     .carousel-image {
         height: 320px;
+    }
+}
+
+
+/* ________________________________________________________
+   PIRATE COVE REDESIGN - Added 10/27/26
+   The header row, category bar, side menu and underwater background are shared
+   with the Create pages and live in cove.css. Only storefront-page layout is here.
+   ________________________________________________________ */
+
+/* page content sits a little away from the screen edges */
+.page-content {
+    padding: 0 40px 60px;
+}
+
+/* thinner Previous / Next pills */
+.page-btn {
+    border-width: 2px;
+    font-weight: 400;
+    font-size: 1.5rem;
+    letter-spacing: 0.5px;
+    min-width: 190px;
+    padding: 9px 26px 6px;
+}
+
+.page-indicator {
+    font-size: 1.8rem;
+    margin: 0 70px;
+}
+
+.pagination {
+    margin-top: 60px;
+}
+
+@media (max-width: 1100px) {
+    .page-indicator {
+        margin: 0 30px;
+    }
+}
+
+@media (max-width: 700px) {
+    .page-content {
+        padding: 0 16px 40px;
+    }
+
+    .page-btn {
+        min-width: 0;
+        font-size: 1.1rem;
+    }
+
+    .page-indicator {
+        font-size: 1.3rem;
+        margin: 0 8px;
     }
 }

@@ -38,12 +38,13 @@ Start of Code w/ comments
 <!-- stores info that isnt actually shown on the page itself. Includes metadata, browser tab title, and links to the css file -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- ensures the screensize is consistent on different types of devices -->
-  <title>The Vault | Storefronts</title> <!-- Simple, this is the Title of the page -->
+  <title>Pirate Cove | Storefronts</title> <!-- Simple, this is the Title of the page -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront.css') }}" /> <!-- Updated by Day E 3/22/26 -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}" /> <!-- Added 10/27/26: shared Pirate Cove header + background -->
 </head> <!-- end of head -->
 
 
@@ -52,225 +53,9 @@ Start of Code w/ comments
 
 <body>
 
-<!-- Side navigation pane/menu (the 3 lines)
- -allows users to press create storefront button that now allows them to be a seller by creating a storefront and then creating listings
- -explore brands, all categories, new drops, and hot! sections included
- - About, FAQs, and sitemap sections (probably wont be functional for the full scale of the product but included for design purposes)
--->
-<div id="navOverlay" class="nav-overlay"></div>
-
-<aside id="navPane" class="nav-pane">
-  
-
-  <!-- Top half button and actions -->
-
- 
- <!--  -- OLD VERSION --
-  
- <div class="nav-top">
-    -- <button class="create-btn">Create Storefront</button> --
-     <a href="{{ url_for('storefront_pages_bp.create_storefront_page') }}">
-  <button class="create-btn">Create Storefront</button>
-</a>
-     <a href="{{ url_for('create_listing') }}">
-  <button class="create-btn">Create Listing</button>
-</a>
-  </div>
--->
-
-<!-- UPDATED VERSION : Day E 4/9/26 -->
-
-<div class="nav-top">
-    <a href="{{ url_for('storefront_pages_bp.create_storefront_page') }}">
-        <button class="create-btn">Create Storefront</button>
-    </a>
-    <a href="{{ url_for('create_listing') }}">
-        <button class="create-btn">Create Listing</button>
-    </a>
-    <a href="/my-storefront">
-        <button class="create-btn my-storefront-btn">My Storefront</button>
-</a>
-    <hr class="nav-divider">
-</div>
-
-  <!-- Main navigation -->
-  <div class="nav-section">
-    <!-- Links added by Anthony Jackson: these used to do nothing when clicked -->
-    <a href="/storefront" class="nav-item" style="text-decoration:none;">Explore Brands <span>→</span></a>
-    <a href="/categories" class="nav-item" style="text-decoration:none;">All Categories <span>→</span></a>
-    <a href="/new-drops" class="nav-item" style="text-decoration:none;">New Drops <span>→</span></a>
-    <a href="/hot" class="nav-item" style="text-decoration:none;">Hot! <span>→</span></a>
-  </div>
-
-  <!-- extras -->
-  <div class="nav-section more">
-    <p class="nav-heading">More from The Vault</p>
-    <a href="/about" class="nav-subitem">About</a>
-    <a href="/messages" class="nav-subitem">Messages</a> <!-- Added 10/20/26 -->
-    <a href="/returns" class="nav-subitem">Returns</a>
-    <a href="/sitemap" class="nav-subitem">Sitemap</a>
-  </div>
-
-</aside>
-
-  <!-- 
-    Original top nav bar
-    This version used emoji placeholders for:
-    - menu
-    - cart
-    - profile
-
-    It has been replaced below with a version using SVG icons.
--->
-
-
-<!---
-  <header class="topbar">
-    <button class="icon-btn">☰</button>
-
-    <div class="topbar-actions">
-      <button class="icon-btn">🛒</button>
-      <button class="icon-btn">👤</button>
-    </div>
-  </header>
--->
-
-<!----
-Updated nav bar
-
-
-    Improvements:
-    - Replaced emojis with SVG icons 
-    - Added custom menu button (3-line hamburger)
-    - Styled profile button to match storefront logo design
-    - Added better spacing 
-
-    Future functionality:
-    - Menu button → opens navigation pane
-    - Bag icon → routes to cart
-    - Profile icon → routes to user account page
-  -->
-
-  <header class="topbar">
-
-    <!-- Menu button (custom hamburger icon) -->
-    <button class="icon-btn menu-btn" aria-label="Open navigation menu">
-      <span class="menu-line"></span>
-      <span class="menu-line"></span>
-      <span class="menu-line"></span>
-    </button>
-
-    <!-- Right-side actions -->
-    <div class="topbar-actions">
-    
-    <!--Shopping bag button -->
-      <a href="{{ url_for('auth.view_cart') }}" class="icon-btn bag-btn" aria-label="View shopping bag" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
-        <svg viewBox="0 0 24 24" class="topbar-svg" aria-hidden="true">
-          <path
-            d="M6 8h12l-1 11H7L6 8Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M9 8V6a3 3 0 0 1 6 0v2"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </a>
-
-      <!-- Messages button with unread badge - Added 10/20/26 -->
-      <a href="/messages" class="icon-btn bag-btn messages-btn" aria-label="Messages">
-        <svg viewBox="0 0 24 24" class="topbar-svg" aria-hidden="true">
-          <path
-            d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <span class="unread-badge" id="unreadBadge" hidden></span>
-      </a>
-
-      <!-- Shopping bag button 
-      <button class="icon-btn bag-btn" aria-label="View shopping bag">
-        <svg viewBox="0 0 24 24" class="topbar-svg" aria-hidden="true">
-          <path
-            d="M6 8h12l-1 11H7L6 8Z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M9 8V6a3 3 0 0 1 6 0v2"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-          />
-        </svg>
-      </button> -->
-
-      <!-- Profile button 
-      <button class="profile-btn" aria-label="View account">
-        <div class="profile-avatar">
-          <svg viewBox="0 0 24 24" class="profile-svg" aria-hidden="true">
-            <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path
-              d="M5 19a7 7 0 0 1 14 0"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-        </div>
-      </button> -->
-
-      <a href="{{ url_for('auth.account') }}" class="profile-btn" aria-label="View account" style="text-decoration: none; display: flex; align-items: center; justify-content: center;">
-        <div class="profile-avatar">
-          <svg viewBox="0 0 24 24" class="profile-svg" aria-hidden="true">
-            <circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
-            <path
-              d="M5 19a7 7 0 0 1 14 0"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-            />
-          </svg>
-        </div>
-      </a>
-
-    </div>
-  </header>
-
-
-  <!-- Brand name/Logo & Search Features -->
-  <section class="logo-search-section">
-
-    <!-- Updated 10/18/26: text title replaced with the ship-wheel logo from the blue redesign -->
-    <h1 class="brand-title">
-      <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Vault">
-    </h1>
-
-    <!-- Search Bar input that allows users to type their search queries. As of right now there isnt any actual functionality -->
-
-    <div class="search-wrap">
-      <input
-        type="text"
-        id="searchInput"
-        class="search-input"
-        placeholder="Explore The Vault"
-      />
-    </div>
-  </section>
+<!-- Updated 10/27/26: the side menu, header row and category bar now live in a shared file
+     so Create Storefront and Create Listing use the same header. Earlier versions are in git history. -->
+{% include 'partials/cove_header.html' %}
 
   <!-- Main page content: Holds the storefrotn cards and pagination -->
   <main class="page-content">
@@ -280,10 +65,11 @@ Updated nav bar
 
     <!-- Page controls that live at the bottom of the page under the grids where users can go back and forth from page to page. 
      Currently only placeholders as page buttons are not functional-->
-    <div class="pagination">
-      <button class="page-btn">Previous</button> <!-- Previous button -->
-      <span class="page-indicator">Page 1</span> <!-- displays page number  -->
-      <button class="page-btn">Next</button> <!-- Next button -->
+    <!-- Updated 10/27/26: buttons now work (see storefront.js); the whole row hides when there's only one page -->
+    <div class="pagination" id="pagination" hidden>
+      <button type="button" class="page-btn" id="prevPageBtn">Previous</button> <!-- Previous button -->
+      <span class="page-indicator" id="pageIndicator">Page 1</span> <!-- displays page number  -->
+      <button type="button" class="page-btn" id="nextPageBtn">Next</button> <!-- Next button -->
     </div> <!-- end pagination class -->
 
   </main> <!-- end of main page content -->
@@ -293,6 +79,7 @@ Updated nav bar
     <img id="lightboxImg" class="lightbox-img" src="" alt="Preview">
   </div>
 
+  <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26: side menu + unread badge -->
   <script src="{{ url_for('static', filename='js/storefront.js') }}"></script> <!-- Updated by Day E 3/22/26 -->
   <!-- This line links this file to storefront.js 
    Placed at the bottom so that all HTML loads correctly first and then JS. This ensures everything runs correctly -->

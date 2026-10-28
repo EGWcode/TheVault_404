@@ -1,0 +1,569 @@
+/*
+    cove.css
+    The Vault Campus Marketplace
+    CSC 405 Sp 26'
+    Created 10/27/26 for the Pirate Cove redesign
+
+Shared look for pages that use templates/partials/cove_header.html
+(Storefronts, Create Storefront, Create Listing):
+- underwater page background
+- header row: Pirate Cove wordmark, square search box, menu/profile/messages/cart icons
+- category bar under the header
+- slide-in side menu (from the right)
+
+Load this AFTER the page's own stylesheet so these rules win.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700;800&display=swap');
+
+
+/* ________________________________________________________
+   PAGE BACKGROUND
+   Light ripples at the top (cove_caustics.svg), faint floating specks,
+   and a deep-water gradient. background-color is what shows when you
+   scroll past the top or bottom of the page.
+   ________________________________________________________ */
+
+body {
+    background-color: #1c1a6e;
+    background-image:
+        url("/static/images/cove_caustics.svg"),
+        radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 1px, transparent 1.6px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.14) 0 1.2px, transparent 2px),
+        linear-gradient(to bottom, #2b8cff 0%, #2765dc 22%, #2443b9 55%, #1c1a6e 100%);
+    background-size: 100% 520px, 190px 210px, 330px 290px, 100% 100%;
+    background-position: top center, 37px 61px, 120px 15px, top left;
+    background-repeat: no-repeat, repeat, repeat, no-repeat;
+    background-attachment: fixed;
+    color: white;
+    font-family: 'League Spartan', Arial, Helvetica, sans-serif;
+}
+
+
+/* ________________________________________________________
+   HEADER ROW
+   ________________________________________________________ */
+
+.cove-header,
+.cove-header *,
+.category-nav,
+.category-nav *,
+.nav-pane,
+.nav-pane * {
+    box-sizing: border-box;
+}
+
+.cove-header {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 28px 40px 30px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+}
+
+.cove-wordmark {
+    flex-shrink: 0;
+    display: block;
+}
+
+.cove-wordmark img {
+    display: block;
+    height: 56px;
+    width: auto;
+}
+
+.cove-header .search-wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.cove-header .search-input {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;               /* square box like the mockup */
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 18px 20px 15px;
+    color: white;
+    font-family: inherit;
+    font-size: 1.7rem;
+    font-weight: 400;
+    text-align: left;
+    box-shadow: none;
+}
+
+.cove-header .search-input::placeholder {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.cove-header .search-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cove-header .topbar-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 34px;
+}
+
+/* hamburger menu button */
+.cove-header .menu-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    width: 64px;
+    height: 56px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.cove-header .menu-line {
+    display: block;
+    width: 62px;
+    height: 6px;
+    border-radius: 1px;
+    background: white;
+}
+
+/* profile, messages and cart icons */
+.header-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-decoration: none;
+}
+
+.header-icon svg {
+    width: 56px;
+    height: 56px;
+}
+
+.cart-btn svg {
+    width: 72px;
+}
+
+.header-icon:hover,
+.cove-header .menu-btn:hover {
+    opacity: 0.8;
+}
+
+/* unread messages badge on the messages icon */
+.unread-badge {
+    position: absolute;
+    top: -2px;
+    right: -6px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: white;
+    color: #1259d6;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.unread-badge[hidden] {
+    display: none;
+}
+
+
+/* ________________________________________________________
+   CATEGORY BAR
+   ________________________________________________________ */
+
+.category-nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 12px;
+    padding: 0 60px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.7);
+    margin-bottom: 48px;
+}
+
+.category-nav .chip {
+    flex: 0 0 auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    border-bottom: 3px solid transparent;
+    color: white;
+    font-family: inherit;
+    font-size: 1.75rem;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    padding: 22px 6px 15px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.category-nav .chip:hover {
+    background: transparent;
+    border-bottom-color: rgba(255, 255, 255, 0.5);
+}
+
+/* selected category: underlined */
+.category-nav .chip.active {
+    background: transparent;
+    color: white;
+    border-bottom-color: white;
+    font-weight: 700;
+}
+
+
+/* ________________________________________________________
+   SIDE MENU (slides in from the right)
+   ________________________________________________________ */
+
+.nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 12, 60, 0.55);
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.25s ease;
+    z-index: 20;
+}
+
+.nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.nav-pane {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    height: 100vh;
+    background: linear-gradient(to bottom, #2b8cff 0%, #2443b9 55%, #1c1a6e 100%);
+    border-left: 2px solid white;
+    box-shadow: -6px 0 24px rgba(0, 0, 0, 0.35);
+    padding: 30px 22px 24px 22px;
+    z-index: 30;
+    transition: right 0.3s ease;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.nav-pane.active {
+    right: 0;
+}
+
+.nav-top {
+    margin-bottom: 28px;
+}
+
+.nav-top a {
+    text-decoration: none;
+}
+
+.create-btn {
+    width: 100%;
+    padding: 14px 16px;
+    margin: 0 0 10px;
+    background: transparent;
+    color: white;
+    border: 2px solid white;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 999px;
+    min-width: 0;
+}
+
+.create-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.my-storefront-btn {
+    background: white;
+    border-color: white;
+    color: #1259d6;
+}
+
+.my-storefront-btn:hover {
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.nav-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+    margin: 18px 0;
+}
+
+.nav-section {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.nav-item {
+    color: white;
+    font-size: 1.05rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    text-decoration: none;
+}
+
+.nav-item:hover,
+.nav-subitem:hover {
+    color: #9fd0ff;
+}
+
+.nav-heading {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.95rem;
+    margin: 0 0 12px;
+}
+
+.nav-subitem {
+    color: white;
+    margin-bottom: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+
+/* ________________________________________________________
+   SMALLER SCREENS
+   ________________________________________________________ */
+
+/* smaller laptops */
+@media (max-width: 1100px) {
+    .cove-header {
+        gap: 20px;
+        padding: 22px 24px;
+    }
+
+    .cove-wordmark img {
+        height: 44px;
+    }
+
+    .cove-header .search-input {
+        font-size: 1.3rem;
+        padding: 14px 16px 11px;
+    }
+
+    .cove-header .topbar-actions {
+        gap: 20px;
+    }
+
+    .header-icon svg {
+        width: 44px;
+        height: 44px;
+    }
+
+    .cart-btn svg {
+        width: 56px;
+    }
+
+    .cove-header .menu-line {
+        width: 44px;
+        height: 5px;
+    }
+
+    .category-nav .chip {
+        font-size: 1.4rem;
+    }
+}
+
+/* phones: wordmark and icons on one row, search below, category bar scrolls sideways */
+@media (max-width: 700px) {
+    .cove-header {
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .cove-wordmark img {
+        height: 32px;
+    }
+
+    .cove-header .topbar-actions {
+        margin-left: auto;
+        gap: 14px;
+    }
+
+    .cove-header .search-wrap {
+        order: 3;
+        flex-basis: 100%;
+    }
+
+    .cove-header .search-input {
+        font-size: 1.1rem;
+    }
+
+    .header-icon svg {
+        width: 32px;
+        height: 32px;
+    }
+
+    .cart-btn svg {
+        width: 40px;
+    }
+
+    .cove-header .menu-btn {
+        width: 36px;
+        height: 32px;
+        gap: 5px;
+    }
+
+    .cove-header .menu-line {
+        width: 30px;
+        height: 4px;
+    }
+
+    .category-nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding: 0 16px;
+        gap: 22px;
+        scrollbar-width: none;
+        margin-bottom: 28px;
+    }
+
+    .category-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category-nav .chip {
+        font-size: 1.15rem;
+        padding: 14px 2px 10px;
+    }
+}
+
+
+/* ________________________________________________________
+   FORM PAGES (Create Storefront, Create Listing)
+   Only applies to pages with <body class="cove-page">, so Edit Storefront,
+   Edit Listing and Returns (which share create_storefront.css) keep their look.
+   Square boxes and thin white lines to match the header's search box,
+   thin outlined pills to match Previous / Next.
+   ________________________________________________________ */
+
+.cove-page .back-row {
+    margin-top: 0;
+}
+
+.cove-page .back-btn {
+    border-width: 2px;
+    font-weight: 400;
+    font-size: 1rem;
+    padding: 7px 18px 5px;
+}
+
+.cove-page .create-header {
+    margin: 1.2rem auto 1.6rem;
+}
+
+.cove-page .page-title {
+    font-size: 2.6rem;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+/* section boxes: square with a thin white line, like the search box */
+.cove-page .form-card {
+    background: rgba(12, 24, 100, 0.35);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.cove-page .section-label {
+    color: white;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
+.cove-page .helper-text,
+.cove-page .category-limit-copy {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* text boxes, dropdowns and the description box: square */
+.cove-page .create-page input[type="text"],
+.cove-page .create-page input[type="number"],
+.cove-page .create-page select,
+.cove-page .create-page textarea {
+    border-radius: 0;
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.04);
+    font-family: inherit;
+    font-size: 1.05rem;
+}
+
+.cove-page .create-page input[type="text"]:focus,
+.cove-page .create-page input[type="number"]:focus,
+.cove-page .create-page select:focus,
+.cove-page .create-page textarea:focus {
+    border-color: white;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: none;
+}
+
+/* image upload boxes */
+.cove-page .drop-zone {
+    border-radius: 0;
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* Create / Cancel: thin outlined pills like Previous / Next */
+.cove-page .primary-btn,
+.cove-page .secondary-btn {
+    border-width: 2px;
+    font-weight: 400;
+    font-size: 1.3rem;
+    letter-spacing: 1px;
+    padding: 10px 30px 7px;
+}
+
+.cove-page .primary-btn {
+    background: white;
+    border-color: white;
+    color: #1c3fae;
+    font-weight: 700;
+}
+
+.cove-page .secondary-btn {
+    background: transparent;
+    border-color: white;
+    color: white;
+}
+
+@media (max-width: 700px) {
+    .cove-page .page-title {
+        font-size: 2rem;
+    }
+
+    .cove-page .primary-btn,
+    .cove-page .secondary-btn {
+        font-size: 1.1rem;
+        min-width: 0;
+    }
+}
