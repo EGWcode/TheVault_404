@@ -21,10 +21,10 @@
         <span class="header-tagline">Hampton University · Our Home by the Sea</span>
         <nav class="browse-nav" aria-label="Marketplace sections">
           <a href="{{ url_for('storefront_pages_bp.storefront_home_page') }}">Marketplace</a>
-          <a href="{{ url_for('menu_pages_bp.brands_page') }}" {% if page == 'brands' %}aria-current="page"{% endif %}>Brands</a>
-          <a href="{{ url_for('menu_pages_bp.categories_page') }}" {% if page == 'categories' %}aria-current="page"{% endif %}>Categories</a>
-          <a href="{{ url_for('menu_pages_bp.new_drops_page') }}" {% if page == 'new' %}aria-current="page"{% endif %}>New Drops</a>
-          <a href="{{ url_for('menu_pages_bp.hot_page') }}" {% if page == 'hot' %}aria-current="page"{% endif %}>Hot!</a>
+          <a href="{{ url_for('browse_brands') }}" {% if page == 'brands' %}aria-current="page"{% endif %}>Brands</a>
+          <a href="{{ url_for('browse_categories') }}" {% if page == 'categories' %}aria-current="page"{% endif %}>Categories</a>
+          <a href="{{ url_for('browse_new_drops') }}" {% if page == 'new' %}aria-current="page"{% endif %}>New Drops</a>
+          <a href="{{ url_for('browse_hot') }}" {% if page == 'hot' %}aria-current="page"{% endif %}>Hot!</a>
         </nav>
       </div>
     </header>

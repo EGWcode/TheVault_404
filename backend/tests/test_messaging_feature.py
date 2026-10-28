@@ -3,6 +3,7 @@
 # and listing, and deletes them (and their conversations/messages) afterwards.
 import os
 import sys
+import time
 import unittest
 import uuid
 
@@ -78,6 +79,7 @@ class TestMessagingFeature(unittest.TestCase):
             with client.session_transaction() as sess:
                 sess["user_id"] = user_id
                 sess["user"] = f"user{user_id}"
+                sess["last_activity"] = time.time()  # pass the idle-timeout check
         return client
 
     def start_thread(self, client=None, listing_id="default"):

@@ -1,6 +1,6 @@
 
 /*
- * THE VAULT - Automatic Session Timeout
+ * THE PIRATE COVE - Automatic Session Timeout
  * Security Enhancement Added by Nicholas Smith
  * Date: October 25, 2026
  *

@@ -4,6 +4,7 @@
 
 import os
 import sys
+import time
 import uuid
 
 import pytest
@@ -34,12 +35,14 @@ def set_admin_session(client):
     with client.session_transaction() as session:
         session["user"] = "admin"
         session["role"] = "admin"
+        session["last_activity"] = time.time()  # pass the idle-timeout check
 
 
 def set_user_session(client):
     with client.session_transaction() as session:
         session["user"] = "student"
         session["role"] = "user"
+        session["last_activity"] = time.time()  # pass the idle-timeout check
 
 
 # Tests that logged-out users cannot access the admin dashboard

@@ -1,4 +1,4 @@
-/* The Vault browse page functionality - Noah Green 10/17/2026 */
+/* The Pirate Cove browse page functionality - Noah Green 10/17/2026 */
 'use strict';
 const PAGE = document.body.dataset.page;
 const results = document.getElementById('results');
@@ -32,10 +32,10 @@ function safeImage(url, alt) {
     img.src = url;
     img.alt = alt;
     img.loading = 'lazy';
-    img.addEventListener('error', () => img.replaceWith(element('div', 'card-media card-placeholder', 'THE VAULT')), {once:true});
+    img.addEventListener('error', () => img.replaceWith(element('div', 'card-media card-placeholder', 'THE PIRATE COVE')), {once:true});
     return img;
   }
-  return element('div', 'card-media card-placeholder', 'THE VAULT');
+  return element('div', 'card-media card-placeholder', 'THE PIRATE COVE');
 }
 function parseCategories(raw) {
   if (Array.isArray(raw)) return raw.map(x => String(x).trim()).filter(Boolean);

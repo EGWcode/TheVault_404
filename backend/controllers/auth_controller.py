@@ -181,11 +181,11 @@ def forgot_username():
 
         if user:
             message = EmailMessage()
-            message["Subject"] = "Your Vault username"
+            message["Subject"] = "Your username for The Pirate Cove"
             message["From"] = sender
             message["To"] = email
             message.set_content(
-                f"Your Vault username is: {user[0]}\n\n"
+                f"Your username for The Pirate Cove is: {user[0]}\n\n"
                 "If you didn't request this, you can ignore this email."
             )
 

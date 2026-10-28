@@ -41,6 +41,16 @@ def fake_service():
         yield service
 
 
+@pytest.fixture(autouse=True)
+def lockout():
+    # Fake Nicholas Smith's login attempt protection: not locked, 2 tries left after a miss
+    with patch("controllers.auth_controller.initialize_login_security"), \
+         patch("controllers.auth_controller.get_remaining_lock", return_value=0) as remaining, \
+         patch("controllers.auth_controller.record_failed_login", return_value=2) as record, \
+         patch("controllers.auth_controller.reset_login_attempts") as reset:
+        yield {"remaining": remaining, "record": record, "reset": reset}
+
+
 # ---------- Log in ----------
 
 def test_login_page_loads(client):
@@ -96,6 +106,37 @@ def test_login_admin_role_redirects_to_dashboard(client, fake_conn, fake_service
 
     assert res.status_code == 302
     assert "/admin" in res.headers["Location"]
+
+
+def test_login_wrong_password_shows_attempts_left(client, fake_conn, fake_service, lockout):
+    fake_service.validate_login.return_value = (False, None)
+
+    res = client.post("/auth/login", data={"username": "demo_buyer", "password": "wrong"})
+
+    assert b"You have 2 attempt(s) left." in res.data
+    lockout["record"].assert_called_once_with(fake_conn, "demo_buyer")
+
+
+def test_login_third_miss_locks_on_page(client, fake_conn, fake_service, lockout):
+    fake_service.validate_login.return_value = (False, None)
+    lockout["record"].return_value = 0
+
+    res = client.post("/auth/login", data={"username": "demo_buyer", "password": "wrong"})
+
+    assert res.status_code == 429
+    assert b"Your login is locked for 60 seconds." in res.data
+    assert b'class="flash flash-error"' in res.data
+
+
+def test_login_while_locked_shows_wait_on_page(client, fake_conn, fake_service, lockout):
+    lockout["remaining"].return_value = 42
+
+    res = client.post("/auth/login", data={"username": "demo_buyer", "password": "DemoPass123"})
+
+    assert res.status_code == 429
+    assert b"Please wait 42 seconds" in res.data
+    assert b'value="demo_buyer"' in res.data
+    fake_service.validate_login.assert_not_called()
 
 
 def test_login_username_is_escaped(client, fake_conn, fake_service):

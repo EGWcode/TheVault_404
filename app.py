@@ -142,7 +142,7 @@ def create_app():
             'discover.html',
             page='brands',
             title='Explore Brands',
-            subtitle='Find independent brands on The Vault.'
+            subtitle='Find independent brands on The Pirate Cove.'
         )
 
     @app.get('/categories')
@@ -160,7 +160,7 @@ def create_app():
             'discover.html',
             page='new',
             title='New Drops',
-            subtitle='See the latest active listings across The Vault.'
+            subtitle='See the latest active listings across The Pirate Cove.'
         )
 
     @app.get('/hot')
@@ -169,7 +169,7 @@ def create_app():
             'discover.html',
             page='hot',
             title='Hot!',
-            subtitle='Discover the most ordered listings on The Vault.'
+            subtitle='Discover the most ordered listings on The Pirate Cove.'
         )
 
     # Register Blueprints

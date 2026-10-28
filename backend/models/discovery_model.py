@@ -2,7 +2,7 @@
 
 Browse page update by Noah Green, 10/17/2026.
 Hot! ranks current active/sold-out listings by the quantity ordered through
-The Vault checkout, rather than making up a popularity score.
+The Pirate Cove checkout, rather than making up a popularity score.
 """
 
 from db import get_connection

@@ -1,5 +1,5 @@
 
-# THE VAULT - Login Attempt Protection
+# THE PIRATE COVE - Login Attempt Protection
 # Added by Nicholas Smith - October 25, 2026
 # Limits failed logins to 3 attempts, then locks for 60 seconds.
 
