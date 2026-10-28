@@ -1,0 +1,117 @@
+<!--
+    partials/cove_header.html
+    The Vault Campus Marketplace
+    Created 10/27/26 for the Pirate Cove redesign
+
+Shared header used by Storefronts, Create Storefront and Create Listing:
+side menu, header row (wordmark, search, icons) and category bar.
+Include it right after the body tag with Jinja's include tag (see storefront.html),
+load css/cove.css after the page's own stylesheet, and js/cove_header.js.
+(Don't write a real include tag in this comment: Jinja runs tags inside HTML comments too.)
+
+On the Storefronts page the search box and categories filter the stores in place
+(storefront.js). On other pages they open the Storefronts page with that search
+or category applied (cove_header.js).
+-->
+
+<!-- Side menu (opened by the menu button) -->
+<div id="navOverlay" class="nav-overlay"></div>
+
+<aside id="navPane" class="nav-pane" aria-label="Site menu">
+  <div class="nav-top">
+    <a href="{{ url_for('storefront_pages_bp.create_storefront_page') }}">
+      <button type="button" class="create-btn">Create Storefront</button>
+    </a>
+    <a href="{{ url_for('create_listing') }}">
+      <button type="button" class="create-btn">Create Listing</button>
+    </a>
+    <a href="/my-storefront">
+      <button type="button" class="create-btn my-storefront-btn">My Storefront</button>
+    </a>
+    <hr class="nav-divider">
+  </div>
+
+  <!-- Links added by Anthony Jackson -->
+  <div class="nav-section">
+    <a href="/storefronts" class="nav-item">Explore Brands <span>→</span></a>
+    <a href="/categories" class="nav-item">All Categories <span>→</span></a>
+    <a href="/new-drops" class="nav-item">New Drops <span>→</span></a>
+    <a href="/hot" class="nav-item">Hot! <span>→</span></a>
+  </div>
+
+  <div class="nav-section more">
+    <p class="nav-heading">More from The Vault</p>
+    <a href="/about" class="nav-subitem">About</a>
+    <a href="/messages" class="nav-subitem">Messages</a>
+    <a href="/returns" class="nav-subitem">Returns</a>
+    <a href="/sitemap" class="nav-subitem">Sitemap</a>
+  </div>
+</aside>
+
+<!-- Header row -->
+<header class="cove-header">
+
+  <a class="cove-wordmark" href="/storefronts" aria-label="Pirate Cove home">
+    <img src="{{ url_for('static', filename='images/pirate_cove_wordmark.png') }}" alt="Pirate Cove">
+  </a>
+
+  <div class="search-wrap">
+    <input
+      type="text"
+      id="searchInput"
+      class="search-input"
+      placeholder="Explore The Cove"
+      aria-label="Search storefronts"
+      enterkeyhint="search"
+    />
+  </div>
+
+  <div class="topbar-actions">
+    <!-- Menu button: opens the side menu -->
+    <button type="button" class="icon-btn menu-btn" aria-label="Open navigation menu">
+      <span class="menu-line"></span>
+      <span class="menu-line"></span>
+      <span class="menu-line"></span>
+    </button>
+
+    <!-- Account -->
+    <a href="{{ url_for('auth.account') }}" class="icon-btn header-icon" aria-label="View account">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="21" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="24" cy="19" r="7.5" fill="currentColor"/>
+        <path d="M10.5 38.5c2.6-6 7.6-9 13.5-9s10.9 3 13.5 9A20.8 20.8 0 0 1 24 45a20.8 20.8 0 0 1-13.5-6.5Z" fill="currentColor"/>
+      </svg>
+    </a>
+
+    <!-- Messages with unread badge (filled in by cove_header.js) -->
+    <a href="/messages" class="icon-btn header-icon messages-btn" aria-label="Messages">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <path d="M24 6C13 6 4.5 13.3 4.5 22.3c0 4.6 2.2 8.7 5.8 11.7L8.5 42l9-4.6c2 .5 4.2.8 6.5.8 11 0 19.5-7.3 19.5-15.9S35 6 24 6Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="16" cy="22.5" r="2.4" fill="currentColor"/>
+        <circle cx="24" cy="22.5" r="2.4" fill="currentColor"/>
+        <circle cx="32" cy="22.5" r="2.4" fill="currentColor"/>
+      </svg>
+      <span class="unread-badge" id="unreadBadge" hidden></span>
+    </a>
+
+    <!-- Cart -->
+    <a href="{{ url_for('auth.view_cart') }}" class="icon-btn header-icon cart-btn" aria-label="View cart">
+      <svg viewBox="0 0 56 48" aria-hidden="true">
+        <path d="M2 4h7l6.5 26.5h30L52 11H12.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M15.5 30.5 14 36h33" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="19" cy="42" r="3" fill="none" stroke="currentColor" stroke-width="2.5"/>
+        <circle cx="42" cy="42" r="3" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      </svg>
+    </a>
+  </div>
+</header>
+
+<!-- Category bar. New Drops and Trending open their own pages. The rest filter stores by the
+     categories sellers pick on Create/Edit Storefront (click again to clear). -->
+<nav class="category-nav" id="filterChips" aria-label="Browse categories">
+  <a class="chip" href="/new-drops">New Drops</a>
+  <a class="chip" href="/hot">Trending</a>
+  <button type="button" class="chip" data-category="Vintage" aria-pressed="false">Vintage</button>
+  <button type="button" class="chip" data-category="Womenswear" aria-pressed="false">Womenswear</button>
+  <button type="button" class="chip" data-category="Menswear" aria-pressed="false">Menswear</button>
+</nav>
