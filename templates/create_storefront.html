@@ -33,7 +33,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/create_storefront.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}"> <!-- Added 10/27/26: shared The Pirate Cove header + look -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}"> <!-- Added by Ethan Williams 10/27/26 -->
     <!-- Drag-drop zone styles - Added by Day Ekoi 4/20/26 -->
     <style>
         .drop-zone {
@@ -86,7 +86,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
         }
         .preview-slot { display: flex; flex-direction: column; gap: 6px; }
         .slot-label { font-size: 0.8rem; color: #9fd0ff; font-weight: 700; margin: 0; }
-        /* Added 10/27/26: one preview slot per row on phones */
+        /* stack on phones */
         @media (max-width: 600px) {
             .preview-grid-4 { grid-template-columns: 1fr; }
         }
@@ -99,11 +99,11 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
 
 
 <body class="cove-page">
-<!-- Added 10/27/26: shared The Pirate Cove header (side menu, header row, category bar) -->
+<!-- Added by Ethan Williams 10/27/26: shared header -->
 {% include 'partials/cove_header.html' %}
 <!-- Start of main body code -->
 
-    <!-- Added 10/20/26: back button - returns to the previous page on this site, otherwise to the storefronts page -->
+    <!-- back button - added by Ethan Williams 10/20/26 -->
     <div class="back-row">
         <button type="button" class="back-btn" onclick="if (document.referrer.startsWith(window.location.origin)) { history.back(); } else { window.location.href = '/storefronts'; }">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -114,7 +114,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
     </div>
 
     <!-- Header -->
-    <!-- Updated 10/27/26: the logo moved into the shared The Pirate Cove header above -->
+    <!-- Updated by Ethan Williams 10/27/26: logo is in the shared header -->
     <header class="create-header">
         <h1 class="page-title">Create Storefront</h1>
     </header>
@@ -217,8 +217,8 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
                         <label><input type="checkbox" name="categories" value="Earthy"> Earthy</label>
                         <label><input type="checkbox" name="categories" value="Athleisure"> Athleisure</label>
                         <label><input type="checkbox" name="categories" value="Retro"> Retro</label>
-                        <label><input type="checkbox" name="categories" value="Womenswear"> Womenswear</label> <!-- Added 10/27/26 for the Pirate Cove category bar -->
-                        <label><input type="checkbox" name="categories" value="Menswear"> Menswear</label> <!-- Added 10/27/26 -->
+                        <label><input type="checkbox" name="categories" value="Womenswear"> Womenswear</label> <!-- Added by Ethan Williams 10/27/26 -->
+                        <label><input type="checkbox" name="categories" value="Menswear"> Menswear</label> <!-- Added by Ethan Williams 10/27/26 -->
                         <label><input type="checkbox" name="categories" value="Accessories"> Accessories</label>
                         <label><input type="checkbox" name="categories" value="Other"> Other</label>
                     </div>
@@ -291,7 +291,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
 
     <!-- flask version (for later use) -->
     <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26 -->
+    <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added by Ethan Williams 10/27/26 -->
     <script src="{{ url_for('static', filename='js/create_storefront.js') }}"></script>
 
 

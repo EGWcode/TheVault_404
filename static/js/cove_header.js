@@ -3,15 +3,9 @@
 
     The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
-    Created 10/27/26 for the Pirate Cove redesign
+    Created by Ethan Williams 10/27/26
 
-Description:
-Runs the shared header from templates/partials/cove_header.html:
-- opens and closes the side menu
-- keeps the unread-messages badge up to date (every 30 seconds while the tab is visible)
-- on pages without the storefront grid (Create Storefront, Create Listing), the search box
-  and category links open the Storefronts page with that search or category applied.
-  On the Storefronts page itself, storefront.js filters the stores in place instead.
+Side menu, unread badge, and header search/categories for partials/cove_header.html.
 */
 
 (function () {
@@ -19,7 +13,7 @@ Runs the shared header from templates/partials/cove_header.html:
   const navOverlay = document.getElementById("navOverlay");
   const menuBtn = document.querySelector(".cove-header .menu-btn");
 
-  // ---------- side menu ----------
+  // side menu
   function setMenuOpen(open) {
     if (!navPane || !navOverlay) return;
     navPane.classList.toggle("active", open);
@@ -37,7 +31,7 @@ Runs the shared header from templates/partials/cove_header.html:
     if (event.key === "Escape") setMenuOpen(false);
   });
 
-  // ---------- unread messages badge ----------
+  // unread badge
   async function refreshUnreadBadge() {
     const badge = document.getElementById("unreadBadge");
     if (!badge || document.hidden) return;
@@ -55,7 +49,7 @@ Runs the shared header from templates/partials/cove_header.html:
   refreshUnreadBadge();
   setInterval(refreshUnreadBadge, 30000);
 
-  // ---------- search and categories on pages other than Storefronts ----------
+  // on other pages, search and categories go to /storefronts
   const onStorefrontsPage = Boolean(document.getElementById("storefrontGrid"));
   if (onStorefrontsPage) return;
 

@@ -1,6 +1,6 @@
 # The Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
-# Created 10/20/26 for the buyer-seller messaging feature
+# Created by Ethan Williams 10/20/26
 
 """
 controllers/message_controller.py
@@ -47,9 +47,7 @@ def _parse_optional_int(value):
     return int(value)
 
 
-# ________________________________________________________
-# PAGE
-# ________________________________________________________
+# page
 
 @messages_bp.route('/messages')
 def messages_page():
@@ -58,9 +56,7 @@ def messages_page():
     return render_template('messages.html')
 
 
-# ________________________________________________________
-# API
-# ________________________________________________________
+# api
 
 @messages_bp.route('/api/conversations', methods=['POST'])
 def start_conversation():

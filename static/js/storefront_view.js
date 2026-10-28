@@ -32,7 +32,7 @@ const messageSellerBtn = document.getElementById("messageSellerBtn");
 
 const listingImagesCache = new Map();
 
-// Added 10/20/26: set once the storefront loads; false on your own storefront
+// false on your own storefront
 let canMessageSeller = false;
 const lightboxState = {
     images: [],
@@ -367,8 +367,7 @@ function createListingImageCarousel(images, title) {
     return { shell, getPrimaryImage: () => images[0] || LISTING_IMAGE_FALLBACK };
 }
 
-// Added 10/20/26: opens (or reuses) a conversation with this storefront, optionally about one listing,
-// then goes to the Messages page
+// opens a conversation and goes to Messages
 async function startConversation(listingId = null, currentUserId = null) {
     if (!currentUserId) {
         alert("Please log in to message sellers.");
@@ -647,7 +646,7 @@ async function loadStorefrontView() {
     const sessionUser = await getCurrentSessionUser();
     const wishlistIds = await getWishlistIdSet(sessionUser?.id || null);
 
-    // Added 10/20/26: everyone except the owner can message this storefront
+    // hide for the owner
     canMessageSeller = !sessionUser || sessionUser.id !== storefront.owner_id;
     if (messageSellerBtn && canMessageSeller) {
         messageSellerBtn.hidden = false;

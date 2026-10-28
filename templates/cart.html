@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Pirate Cove | Your Bag</title>
-    <!-- Updated 10/27/26: The Pirate Cove redesign - shared header, underwater background, square boxes and pill buttons
-         (the old black and gold styles are in git history) -->
+    <!-- Updated by Ethan Williams 10/27/26: Pirate Cove redesign -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}">
     <style>
         * { box-sizing: border-box; }
@@ -27,7 +26,7 @@
 
         .cart-header h1 { margin: 0; font-size: 2.6rem; font-weight: 700; letter-spacing: 0.5px; }
 
-        /* thin outlined pill, like Previous / Next */
+        /* outlined pill */
         .back-link {
             display: inline-block;
             color: white; text-decoration: none;
@@ -69,7 +68,7 @@
         .cart-summary { display: flex; justify-content: flex-end; align-items: center; gap: 28px; flex-wrap: wrap; }
         .total-row { font-size: 1.8rem; font-weight: 700; }
 
-        /* filled white pill, like the Create buttons */
+        /* filled pill */
         .checkout-btn {
             display: inline-block;
             background: white; color: #1c3fae;
@@ -84,7 +83,7 @@
         .empty-msg { text-align: center; padding: 50px 20px 30px; }
         .empty-msg p { font-size: 1.4rem; margin: 0 0 22px; }
 
-        /* phones: each item becomes a stacked block instead of a wide table row */
+        /* phones: stack each item */
         @media (max-width: 640px) {
             .cart-container { padding: 22px 18px; }
             .cart-header { flex-wrap: wrap; }
@@ -100,7 +99,7 @@
     </style>
 </head>
 <body>
-<!-- Added 10/27/26: shared The Pirate Cove header (side menu, header row, category bar) -->
+<!-- Added by Ethan Williams 10/27/26: shared header -->
 {% include 'partials/cove_header.html' %}
 
 <div class="cart-container">
@@ -169,6 +168,6 @@
     {% endif %}
 </div>
 
-<script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26 -->
+<script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added by Ethan Williams 10/27/26 -->
 </body>
 </html>

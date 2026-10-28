@@ -1,6 +1,5 @@
-# Created 10/20/26 for the buyer-seller messaging feature
-# Runs against the database in .env. Creates its own temporary users, storefront
-# and listing, and deletes them (and their conversations/messages) afterwards.
+# Created by Ethan Williams 10/20/26
+# Uses the database in .env and cleans up its test data.
 import os
 import sys
 import time
@@ -62,7 +61,7 @@ class TestMessagingFeature(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # Deleting the users cascades to their storefront, listing, conversations and messages
+        # cascades to everything else
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(
@@ -91,7 +90,7 @@ class TestMessagingFeature(unittest.TestCase):
             payload["listing_id"] = listing_id
         return client.post("/api/conversations", json=payload)
 
-    # ---------- starting conversations ----------
+    # starting conversations
 
     def test_requires_login(self):
         client = self.client_as(None)
@@ -124,7 +123,7 @@ class TestMessagingFeature(unittest.TestCase):
         response = client.post("/api/conversations", json={"storefront_id": 999999999})
         self.assertEqual(response.status_code, 404)
 
-    # ---------- sending and reading ----------
+    # sending and reading
 
     def test_full_exchange_with_unread_counts(self):
         buyer = self.client_as(self.buyer_id)
@@ -139,7 +138,7 @@ class TestMessagingFeature(unittest.TestCase):
         message = sent.get_json()["message"]
         self.assertEqual(message["body"], "Is the hoodie still available in M?")
 
-        # Seller sees it as unread, in their inbox, labeled with the buyer's name
+        # seller sees it as unread
         self.assertGreaterEqual(seller.get("/api/messages/unread-count").get_json()["unread"], 1)
         inbox = seller.get("/api/conversations").get_json()["conversations"]
         thread = next(c for c in inbox if c["id"] == conversation_id)
@@ -148,14 +147,14 @@ class TestMessagingFeature(unittest.TestCase):
         self.assertTrue(thread["other_name"].startswith("msgtest_buyer_"))
         self.assertEqual(thread["unread"], 1)
 
-        # Opening the thread returns the message and marks it read
+        # opening marks it read
         messages = seller.get(f"/api/conversations/{conversation_id}/messages").get_json()["messages"]
         self.assertEqual([m["id"] for m in messages], [message["id"]])
         thread = next(c for c in seller.get("/api/conversations").get_json()["conversations"]
                       if c["id"] == conversation_id)
         self.assertEqual(thread["unread"], 0)
 
-        # Seller replies; buyer polls with ?after= and gets only the new message
+        # buyer only gets new messages
         reply = seller.post(f"/api/conversations/{conversation_id}/messages", json={"body": "Yes! 2 left."})
         self.assertEqual(reply.status_code, 201)
         newer = buyer.get(

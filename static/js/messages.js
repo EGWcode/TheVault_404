@@ -3,22 +3,9 @@
 
     The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
-    Created 10/20/26 for the buyer-seller messaging feature
+    Created by Ethan Williams 10/20/26
 
-Description:
-Runs the Messages page. Loads the inbox, opens a conversation (from a click or
-from ?c=<id> in the URL), sends messages, and polls for new ones:
-- the open conversation every 3 seconds, asking only for messages newer than the last one shown
-- the inbox every 10 seconds
-Polling pauses while the browser tab is hidden.
-
-Everything users type is inserted with textContent (never innerHTML), so a
-message can't inject HTML or scripts into the page.
-
-Works with:
-- templates/messages.html
-- static/css/messages.css
-- backend/controllers/message_controller.py
+Messages page: inbox, conversations, sending, and polling for new messages.
 */
 
 const THREAD_POLL_MS = 3000;
@@ -44,13 +31,13 @@ const state = {
     active: null,          // details of the open conversation
     myId: null,            // current user's id, from the open conversation
     lastMessageId: 0,      // newest message id shown, used for ?after=
-    shownIds: new Set(),   // avoids showing a message twice (send + poll race)
-    lastDayShown: null,    // for "Today" / date dividers
+    shownIds: new Set(),   // prevents duplicates
+    lastDayShown: null,    // for date dividers
     loadingThread: false,
 };
 
 
-// ---------- helpers ----------
+// helpers
 
 async function api(url, options = {}) {
     const response = await fetch(url, {
@@ -111,7 +98,7 @@ function setUrlConversation(id) {
 }
 
 
-// ---------- inbox ----------
+// inbox
 
 function renderInbox() {
     inboxList.textContent = "";
@@ -124,7 +111,7 @@ function renderInbox() {
         if (state.active && state.active.id === conversation.id) button.classList.add("active");
         if (conversation.unread > 0) button.classList.add("unread");
 
-        // Buyers see the storefront logo; sellers see the buyer's initial
+        // logo for buyers, initial for sellers
         let avatar;
         if (conversation.role === "buyer" && conversation.logo_url) {
             avatar = el("img", "inbox-avatar");
@@ -162,7 +149,7 @@ async function loadInbox() {
     try {
         const data = await api("/api/conversations");
         state.conversations = data.conversations || [];
-        // the open conversation's messages are already read on screen
+        // open conversation is already read
         if (state.active) {
             const open = state.conversations.find((c) => c.id === state.active.id);
             if (open) open.unread = 0;
@@ -174,7 +161,7 @@ async function loadInbox() {
 }
 
 
-// ---------- conversation ----------
+// conversation
 
 function appendMessages(messages) {
     if (!messages.length) return;
@@ -265,7 +252,7 @@ async function pollThread() {
 }
 
 
-// ---------- sending ----------
+// sending
 
 async function sendMessage(event) {
     event.preventDefault();
@@ -301,7 +288,7 @@ function resizeComposer() {
 }
 
 
-// ---------- start ----------
+// start
 
 composer.addEventListener("submit", sendMessage);
 composerInput.addEventListener("input", resizeComposer);

@@ -21,10 +21,7 @@ s3_client = boto3.client(
 BUCKET_NAME = os.getenv("AWS_S3_BUCKET")
 REGION = os.getenv("AWS_REGION", "us-east-2")
 
-# Added 10/20/26: local development fallback.
-# When AWS_S3_BUCKET is not set (e.g. a laptop without AWS access), uploads are saved
-# to static/uploads/ and served by Flask instead of going to S3. The live site sets
-# AWS_S3_BUCKET in .ebextensions/env.config, so it keeps using S3.
+# Added by Ethan Williams 10/20/26: save to static/uploads/ when AWS_S3_BUCKET isn't set (local dev)
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 LOCAL_UPLOAD_ROOT = os.path.join(PROJECT_ROOT, "static", "uploads")
 

@@ -30,7 +30,7 @@ body {
     background:
         linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)),
         url("/static/images/background.png") no-repeat center center fixed;
-    background-color: #000; /* Added 10/27/26: solid color behind the background so scrolling past the top/bottom (overscroll bounce) shows this instead of white */
+    background-color: #000; /* stops white showing on overscroll */
     background-size: cover;
     color: white;
     font-family: Arial, Helvetica, sans-serif;
@@ -570,7 +570,7 @@ body {
         bottom: -3.2rem;
     }
 
-    /* Added 10/20/26: match the indent to the smaller logo */
+    /* Added by Ethan Williams 10/20/26: match the indent to the smaller logo */
     .profile-info-row {
         padding-left: calc(120px + 2.5rem);
     }
@@ -595,8 +595,7 @@ body {
         width: 95%;
     }
 
-    /* Added 10/20/26: on phones, put the bio and Message seller button below the logo
-       instead of beside it, so they aren't squeezed off the screen */
+    /* stack below the logo on phones */
     .profile-info-row {
         padding-left: 0.5rem;
         padding-top: 3.8rem;
@@ -622,7 +621,7 @@ body {
 }
 
 
-/* Added 10/20/26: messaging buttons */
+/* Added by Ethan Williams 10/20/26: messaging buttons */
 .message-seller-btn {
     display: inline-flex;
     align-items: center;

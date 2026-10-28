@@ -1,10 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520">
-  <!-- Pirate Cove storefronts background (added 10/27/26): soft underwater light ripples
-       that fade out toward the bottom. Drawn by the browser from noise, so the file stays tiny. -->
+  <!-- storefronts background ripples - Created by Ethan Williams 10/27/26 -->
   <defs>
     <filter id="ripples" x="0" y="0" width="100%" height="100%">
       <feTurbulence type="turbulence" baseFrequency="0.0045 0.016" numOctaves="2" seed="11"/>
-      <!-- keep only the brightest swirls, as white -->
       <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  3.2 0 0 0 -1.15"/>
       <feGaussianBlur stdDeviation="1.2"/>
     </filter>

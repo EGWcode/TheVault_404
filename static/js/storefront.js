@@ -183,8 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 this function loops through all storefrotn objects in the storefronts array, creates a card for each, and then inserts the cards into the storefront grid 
 */
-// Updated 10/27/26: renders only the current page of stores that match the search box
-// and the selected category chip, plus an empty state when nothing matches
+// Updated by Ethan Williams 10/27/26: search, category filter and pagination
 const STORES_PER_PAGE = 6;
 const browseState = {
   query: "",      // search box text
@@ -213,7 +212,7 @@ function renderEmptyState() {
   action.className = "empty-state-btn";
 
   if (filtersOn) {
-    // built with textContent so a search can't inject HTML into the page
+    // textContent, not innerHTML
     title.textContent = "No matches";
     const parts = [];
     if (browseState.query) parts.push(`"${browseState.query}"`);
@@ -270,7 +269,7 @@ function setCategory(category) {
     const active = chip.dataset.category === category;
     chip.classList.toggle("active", active);
     chip.setAttribute("aria-pressed", String(active));
-    // on phones the chips are one sideways-scrolling row, so keep the selected one in view
+    // keep the selected chip in view
     if (active) chip.scrollIntoView({ block: "nearest", inline: "nearest" });
   });
   renderStorefronts();
@@ -331,7 +330,7 @@ async function fetchStorefronts() {
   }
 }
 
-// Navigation pane functionality: moved to cove_header.js on 10/27/26 (shared with the Create pages)
+// side menu is in cove_header.js
 
 console.log(storefronts); // logs the storefronts array to the console for debugging purposes
 console.log(grid); // logs the storefront grid element to the console for debugging purposes
@@ -342,8 +341,7 @@ console.log(grid); // logs the storefront grid element to the console for debugg
 
 const searchInput = document.getElementById("searchInput");
 
-// Updated 10/27/26: search now works together with the category chips and pagination
-// (see renderStorefronts above) instead of rendering its own list
+// search
 if (searchInput) {
     searchInput.addEventListener("input", () => {
         browseState.query = searchInput.value.trim();
@@ -352,15 +350,15 @@ if (searchInput) {
     });
 }
 
-// category chips (Added 10/27/26)
+// category chips
 document.querySelectorAll("#filterChips .chip[data-category]").forEach(chip => {
-    // clicking the selected category again clears it (there's no "All" link in the category bar)
+    // click again to clear
     chip.addEventListener("click", () => {
         setCategory(browseState.category === chip.dataset.category ? "" : chip.dataset.category);
     });
 });
 
-// Previous / Next buttons (Added 10/27/26)
+// Previous / Next
 const prevPageBtn = document.getElementById("prevPageBtn");
 const nextPageBtn = document.getElementById("nextPageBtn");
 if (prevPageBtn && nextPageBtn) {
@@ -376,7 +374,7 @@ if (prevPageBtn && nextPageBtn) {
     });
 }
 
-// Added 10/27/26: the header on the Create pages links here with ?q=... or ?category=...
+// apply ?q= and ?category= from the URL
 const startParams = new URLSearchParams(window.location.search);
 if (startParams.get("q") && searchInput) {
     searchInput.value = startParams.get("q");
@@ -391,4 +389,4 @@ fetchStorefronts(); // Updated by Day E 4/9/26 - this will now fetch real storef
 
 /* renderStorefronts(); // Updated by Day E 3/22/26 */
 
-// Unread message badge: moved to cove_header.js on 10/27/26 (shared with the Create pages)
+// unread badge is in cove_header.js

@@ -344,8 +344,7 @@ document.addEventListener('DOMContentLoaded', function() {
             storefrontSelect.appendChild(option);
           });
 
-          // Added 10/20/26: each user has exactly one storefront, so pick it automatically
-          // instead of leaving "Select a storefront" chosen (easy to miss, and it blocks submitting)
+          // users have one storefront, so select it
           if (storefronts.length === 1) {
             storefrontSelect.value = String(storefronts[0].id);
           }

@@ -39,7 +39,7 @@ html, body {
 }
 
 body {
-    /* Updated 10/27/26: the Pirate Cove underwater background is in cove.css (shared) */
+    /* background is in cove.css */
     background-color: #1c1a6e;
     color: white;
     font-family: 'League Spartan', Arial, Helvetica, sans-serif;
@@ -50,7 +50,7 @@ body {
 .nav-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(8, 12, 60, 0.55); /* Updated 10/18/26: navy dim for the blue redesign */
+    background: rgba(8, 12, 60, 0.55); /* Updated by Ethan Williams 10/18/26: navy dim for the blue redesign */
     opacity: 0;
     visibility: hidden;
     transition: 0.25s ease;
@@ -67,10 +67,10 @@ body {
 .nav-pane {
     position: fixed;
     top: 0;
-    right: 0; /* Updated 10/27/26: opens from the right; hiding/sliding is in cove.css */
+    right: 0;
     width: 300px;
     height: 100vh;
-    /* Updated 10/18/26: same blue-to-navy gradient as the page, white edge instead of gold */
+    /* Updated by Ethan Williams 10/18/26: blue gradient */
     background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%);
     border-left: 2px solid white;
     box-shadow: -6px 0 24px rgba(0, 0, 0, 0.35);
@@ -170,7 +170,7 @@ body {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    /* Updated 10/18/26: blue redesign - white outlined pills */
+    /* Updated by Ethan Williams 10/18/26: blue redesign - white outlined pills */
     background: transparent;
     border: 2px solid white;
     border-radius: 999px;
@@ -204,7 +204,7 @@ body {
     margin-bottom: 10px;
     background: transparent;
     color: white;
-    border: 2px solid white; /* Updated 10/18/26: white outlined pills like the page buttons */
+    border: 2px solid white; /* Updated by Ethan Williams 10/18/26: white outlined pills like the page buttons */
     font-family: inherit;
     font-weight: bold;
     text-transform: uppercase;
@@ -219,7 +219,7 @@ body {
     transform: translateY(-2px);
 }
 
-/* Updated 10/18/26: solid white instead of gold so My Storefront still stands out */
+/* Updated by Ethan Williams 10/18/26: solid white */
 .my-storefront-btn {
     background: white;
     border-color: white;
@@ -255,11 +255,11 @@ body {
 }
 
 .nav-item:hover {
-    color: #9fd0ff; /* Updated 10/18/26: light blue instead of gold */
+    color: #9fd0ff; /* Updated by Ethan Williams 10/18/26: light blue instead of gold */
 }
 
 .nav-heading {
-    color: rgba(255, 255, 255, 0.65); /* Updated 10/18/26: was muted gold */
+    color: rgba(255, 255, 255, 0.65); /* Updated by Ethan Williams 10/18/26: was muted gold */
     font-size: 0.95rem; /* Updated by Day E 3/22/26 */
     margin-bottom: 12px; /* Updated by Day E 3/22/26 */
 }
@@ -273,7 +273,7 @@ body {
 }
 
 .nav-subitem:hover {
-    color: #9fd0ff; /* Updated 10/18/26: light blue instead of gold */
+    color: #9fd0ff; /* Updated by Ethan Williams 10/18/26: light blue instead of gold */
 }
 
 
@@ -371,7 +371,7 @@ body {
 }
 */
 
-/* Messages button + unread badge - Added 10/20/26 */
+/* Messages button + unread badge - Added by Ethan Williams 10/20/26 */
 .messages-btn {
     position: relative;
     text-decoration: none;
@@ -402,7 +402,7 @@ body {
     width: 48px; /* Updated by Day E 3/22/26 */
     height: 48px; /* Updated by Day E 3/22/26 */
     stroke: white; /* Updated by Day E 3/22/26 */
-    fill: none; /* Updated 10/18/26: outline-only bag for the blue redesign */
+    fill: none; /* Updated by Ethan Williams 10/18/26: outline-only bag for the blue redesign */
     color: white;
 }
 
@@ -418,7 +418,7 @@ body {
     width: 54px;
     height: 54px;
     border-radius: 50%;
-    border: 3px solid white; /* Updated 10/18/26: white ring for the blue redesign */
+    border: 3px solid white; /* Updated by Ethan Williams 10/18/26: white ring for the blue redesign */
     background: transparent;
     display: flex; /* Updated by Day E 3/22/26 */
     align-items: center; /* Updated by Day E 3/22/26 */
@@ -428,8 +428,8 @@ body {
 .profile-svg {
     width: 28px; /* Updated by Day E 3/22/26 */
     height: 28px; /* Updated by Day E 3/22/26 */
-    stroke: white; /* Updated 10/18/26: was #4d4d4d on a white avatar */
-    color: white; /* the paths use stroke="currentColor", which otherwise picks up the link color */
+    stroke: white; /* Updated by Ethan Williams 10/18/26: was #4d4d4d on a white avatar */
+    color: white;
 }
 
 
@@ -442,10 +442,10 @@ body {
 .brand-title {
     font-size: 4rem;
     font-weight: 800;
-    margin-bottom: 36px; /* Updated 10/18/26: spacing below the logo */
+    margin-bottom: 36px; /* Updated by Ethan Williams 10/18/26: spacing below the logo */
 }
 
-/* Added 10/18/26: ship-wheel logo that replaced the text title */
+/* Added by Ethan Williams 10/18/26: ship-wheel logo that replaced the text title */
 .brand-logo {
     display: block;
     width: min(520px, 80vw);
@@ -465,7 +465,7 @@ body {
 .search-input {
     width: 100%;
     max-width: 780px;
-    /* Updated 10/18/26: blue redesign - transparent pill with a white outline, left-aligned text */
+    /* Updated by Ethan Williams 10/18/26: outlined pill */
     background: transparent;
     border: 2px solid white;
     padding: 16px 28px 14px;
@@ -486,7 +486,7 @@ body {
 }
 
 
-/* Added 10/27/26: quick filter chips under the search bar */
+/* Added by Ethan Williams 10/27/26: quick filter chips under the search bar */
 .filter-chips {
     display: flex;
     flex-wrap: wrap;
@@ -524,7 +524,7 @@ body {
     content: " \2192"; /* arrow: these chips open another page */
 }
 
-/* phones: one swipeable row instead of several wrapped rows */
+/* phones */
 @media (max-width: 600px) {
     .filter-chips {
         flex-wrap: nowrap;
@@ -544,7 +544,7 @@ body {
 }
 
 
-/* Added 10/27/26: shown in the grid when there are no stores, or none match the filters */
+/* empty state - added by Ethan Williams 10/27/26 */
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -605,7 +605,7 @@ body {
 
 /* Individual storefront card */
 .storefront-card {
-    background: rgba(10, 20, 90, 0.45); /* Updated 10/18/26: navy glass card for the blue redesign */
+    background: rgba(10, 20, 90, 0.45); /* Updated by Ethan Williams 10/18/26: navy glass card for the blue redesign */
     border: 2px solid white;
     border-radius: 26px;
     padding: 22px;
@@ -636,7 +636,7 @@ body {
     width: 84px;
     height: 84px;
     border-radius: 50%;
-    border: 2px solid white; /* Updated 10/18/26: was gold */
+    border: 2px solid white; /* Updated by Ethan Williams 10/18/26: was gold */
 }
 
 .storefront-name {
@@ -709,10 +709,10 @@ body {
 .page-indicator {
     font-size: 1.4rem;
     color: white;
-    margin: 0 24px; /* Updated 10/18/26: wider gap like the blue redesign */
+    margin: 0 24px; /* Updated by Ethan Williams 10/18/26: wider gap like the blue redesign */
 }
 
-/* Added 10/27/26: dimmed Previous/Next at the first/last page; row hidden when there is one page */
+/* pagination states - added by Ethan Williams 10/27/26 */
 .page-btn:disabled {
     opacity: 0.4;
     cursor: default;
@@ -771,13 +771,9 @@ body {
 }
 
 
-/* ________________________________________________________
-   THE PIRATE COVE REDESIGN - Added 10/27/26
-   The header row, category bar, side menu and underwater background are shared
-   with the Create pages and live in cove.css. Only storefront-page layout is here.
-   ________________________________________________________ */
+/* Pirate Cove redesign - added by Ethan Williams 10/27/26 (shared parts are in cove.css) */
 
-/* page content sits a little away from the screen edges */
+/* page padding */
 .page-content {
     padding: 0 40px 60px;
 }

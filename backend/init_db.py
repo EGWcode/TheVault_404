@@ -345,12 +345,8 @@ def create_vault_tables():
         """
         cur.execute(create_order_items_table)
 
-        # ________________________________________________________
-        # CONVERSATIONS TABLE (One thread per buyer + storefront + listing)
-        # Added 10/20/26 for buyer-seller messaging
-        # The seller is the storefront's owner; listing_id is optional
-        # (NULL = general question about the storefront)
-        # ________________________________________________________
+        # CONVERSATIONS TABLE - added by Ethan Williams 10/20/26
+        # listing_id is NULL for general questions
         create_conversations_table = """
             CREATE TABLE IF NOT EXISTS conversations (
                 id SERIAL PRIMARY KEY,
@@ -377,18 +373,14 @@ def create_vault_tables():
             );
         """
         cur.execute(create_conversations_table)
-        # COALESCE so general (NULL listing) threads are also unique per buyer + storefront
+        # one thread per buyer + storefront + listing
         cur.execute("""
             CREATE UNIQUE INDEX IF NOT EXISTS uq_conversation_thread
             ON conversations (buyer_id, storefront_id, COALESCE(listing_id, 0));
         """)
 
-        # ________________________________________________________
-        # MESSAGES TABLE (Messages inside a conversation)
-        # Added 10/20/26 for buyer-seller messaging
-        # read_at stays NULL until the other participant opens the thread
-        # TIMESTAMPTZ (with time zone) so message times display correctly in the browser on any server
-        # ________________________________________________________
+        # MESSAGES TABLE - added by Ethan Williams 10/20/26
+        # read_at is NULL until read
         create_messages_table = """
             CREATE TABLE IF NOT EXISTS messages (
                 id SERIAL PRIMARY KEY,

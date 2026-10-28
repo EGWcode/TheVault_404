@@ -2,27 +2,16 @@
     cove.css
     The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
-    Created 10/27/26 for the Pirate Cove redesign
+    Created by Ethan Williams 10/27/26
 
-Shared look for pages that use templates/partials/cove_header.html
-(Storefronts, Create Storefront, Create Listing):
-- underwater page background
-- header row: The Pirate Cove wordmark, square search box, menu/profile/messages/cart icons
-- category bar under the header
-- slide-in side menu (from the right)
-
-Load this AFTER the page's own stylesheet so these rules win.
+Shared styles for the header, side menu and background.
+Load after the page's own stylesheet.
 */
 
 @import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700;800&display=swap');
 
 
-/* ________________________________________________________
-   PAGE BACKGROUND
-   Light ripples at the top (cove_caustics.svg), faint floating specks,
-   and a deep-water gradient. background-color is what shows when you
-   scroll past the top or bottom of the page.
-   ________________________________________________________ */
+/* background */
 
 body {
     background-color: #1c1a6e;
@@ -40,9 +29,7 @@ body {
 }
 
 
-/* ________________________________________________________
-   HEADER ROW
-   ________________________________________________________ */
+/* header */
 
 .cove-header,
 .cove-header *,
@@ -81,7 +68,7 @@ body {
     width: 100%;
     max-width: none;
     margin: 0;
-    border-radius: 0;               /* square box like the mockup */
+    border-radius: 0;
     border: 2px solid rgba(255, 255, 255, 0.85);
     background: rgba(255, 255, 255, 0.04);
     padding: 18px 20px 15px;
@@ -179,9 +166,7 @@ body {
 }
 
 
-/* ________________________________________________________
-   CATEGORY BAR
-   ________________________________________________________ */
+/* category bar */
 
 .category-nav {
     display: flex;
@@ -223,9 +208,7 @@ body {
 }
 
 
-/* ________________________________________________________
-   SIDE MENU (slides in from the right)
-   ________________________________________________________ */
+/* side menu */
 
 .nav-overlay {
     position: fixed;
@@ -246,8 +229,7 @@ body {
     position: fixed;
     top: 0;
     right: 0;
-    /* closed: slid out of view and hidden. (Parking it past the right edge with right: -320px
-       made phones treat the page as wider than the screen and zoom everything out.) */
+    /* hidden until opened */
     transform: translateX(calc(100% + 12px));
     visibility: hidden;
     width: 300px;
@@ -353,9 +335,7 @@ body {
 }
 
 
-/* ________________________________________________________
-   SMALLER SCREENS
-   ________________________________________________________ */
+/* smaller screens */
 
 /* smaller laptops */
 @media (max-width: 1100px) {
@@ -396,7 +376,7 @@ body {
     }
 }
 
-/* phones: wordmark and icons on one row, search below, category bar scrolls sideways */
+/* phones */
 @media (max-width: 700px) {
     .cove-header {
         flex-wrap: wrap;
@@ -462,13 +442,7 @@ body {
 }
 
 
-/* ________________________________________________________
-   FORM PAGES (Create Storefront, Create Listing)
-   Only applies to pages with <body class="cove-page">, so Edit Storefront,
-   Edit Listing and Returns (which share create_storefront.css) keep their look.
-   Square boxes and thin white lines to match the header's search box,
-   thin outlined pills to match Previous / Next.
-   ________________________________________________________ */
+/* form pages (body class="cove-page") */
 
 .cove-page .back-row {
     margin-top: 0;
@@ -493,7 +467,7 @@ body {
     margin: 0;
 }
 
-/* section boxes: square with a thin white line, like the search box */
+/* section boxes */
 .cove-page .form-card {
     background: rgba(12, 24, 100, 0.35);
     border: 2px solid rgba(255, 255, 255, 0.7);
@@ -512,7 +486,7 @@ body {
     color: rgba(255, 255, 255, 0.8);
 }
 
-/* text boxes, dropdowns and the description box: square */
+/* inputs */
 .cove-page .create-page input[type="text"],
 .cove-page .create-page input[type="number"],
 .cove-page .create-page select,
@@ -539,7 +513,7 @@ body {
     border-color: rgba(255, 255, 255, 0.7);
 }
 
-/* Create / Cancel: thin outlined pills like Previous / Next */
+/* buttons */
 .cove-page .primary-btn,
 .cove-page .secondary-btn {
     border-width: 2px;

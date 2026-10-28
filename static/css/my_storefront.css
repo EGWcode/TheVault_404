@@ -29,9 +29,9 @@ Works with:
 
 /* page base - Updated by Day Ekoi 4/20/26 - vault background to match other pages */
 body {
-    /* Updated 10/19/26: blue theme - same gradient as the storefront page */
+    /* Updated by Ethan Williams 10/19/26: blue theme - same gradient as the storefront page */
     background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
-    background-color: #1a146a; /* Added 10/27/26: solid color behind the background so scrolling past the top/bottom (overscroll bounce) shows this instead of white */
+    background-color: #1a146a; /* stops white showing on overscroll */
     color: white;
     font-family: 'League Spartan', Arial, Helvetica, sans-serif;
     min-height: 100vh;
@@ -56,7 +56,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: transparent; /* Updated 10/19/26: white outlined pill */
+    background: transparent; /* Updated by Ethan Williams 10/19/26: white outlined pill */
     border: 2px solid white;
     border-radius: 999px;
     color: white;
@@ -94,7 +94,7 @@ body {
 .banner-box {
     width: 100%;
     min-height: 240px;
-    background: rgba(10, 20, 90, 0.45); /* Updated 10/19/26: navy until a banner image loads */
+    background: rgba(10, 20, 90, 0.45); /* Updated by Ethan Williams 10/19/26: navy until a banner image loads */
     border: 2px solid white;
     border-radius: 8px;
     background-size: cover;
@@ -116,7 +116,7 @@ body {
     width: 160px;
     height: 160px;
     border-radius: 50%;
-    background: #14237a; /* Updated 10/19/26: navy with white ring */
+    background: #14237a; /* Updated by Ethan Williams 10/19/26: navy with white ring */
     border: 4px solid white;
     overflow: hidden;
 
@@ -237,7 +237,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: transparent; /* Updated 10/19/26: white outlined pill */
+    background: transparent; /* Updated by Ethan Williams 10/19/26: white outlined pill */
     border: 2px solid white;
     border-radius: 999px;
     color: white;
@@ -302,7 +302,7 @@ body {
 /* listing card placeholder */
 .listing-card {
     min-height: 320px;
-    background: rgba(10, 20, 90, 0.45); /* Updated 10/19/26: navy glass card */
+    background: rgba(10, 20, 90, 0.45); /* Updated by Ethan Williams 10/19/26: navy glass card */
     border: 2px solid white;
     border-radius: 26px;
     overflow: hidden;
@@ -369,7 +369,7 @@ body {
     right: 0;
     bottom: calc(100% + 8px);
     min-width: 180px;
-    background: #14237a; /* Updated 10/19/26: solid navy menu */
+    background: #14237a; /* Updated by Ethan Williams 10/19/26: solid navy menu */
     border: 1px solid rgba(255, 255, 255,0.35);
     border-radius: 10px;
     box-shadow: 0 10px 26px rgba(0, 0, 0, 0.34);

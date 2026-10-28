@@ -10,7 +10,7 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background-color: #000; /* Added 10/27/26: solid color behind the background so scrolling past the top/bottom (overscroll bounce) shows this instead of white */
+    background-color: #000; /* stops white showing on overscroll */
     background-attachment: fixed;
 }
 

@@ -44,7 +44,7 @@ Start of Code w/ comments
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront.css') }}" /> <!-- Updated by Day E 3/22/26 -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}" /> <!-- Added 10/27/26: shared The Pirate Cove header + background -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}" /> <!-- Added by Ethan Williams 10/27/26 -->
 </head> <!-- end of head -->
 
 
@@ -53,8 +53,7 @@ Start of Code w/ comments
 
 <body>
 
-<!-- Updated 10/27/26: the side menu, header row and category bar now live in a shared file
-     so Create Storefront and Create Listing use the same header. Earlier versions are in git history. -->
+<!-- Updated by Ethan Williams 10/27/26: shared header -->
 {% include 'partials/cove_header.html' %}
 
   <!-- Main page content: Holds the storefrotn cards and pagination -->
@@ -65,7 +64,7 @@ Start of Code w/ comments
 
     <!-- Page controls that live at the bottom of the page under the grids where users can go back and forth from page to page. 
      Currently only placeholders as page buttons are not functional-->
-    <!-- Updated 10/27/26: buttons now work (see storefront.js); the whole row hides when there's only one page -->
+    <!-- Updated by Ethan Williams 10/27/26: working pagination -->
     <div class="pagination" id="pagination" hidden>
       <button type="button" class="page-btn" id="prevPageBtn">Previous</button> <!-- Previous button -->
       <span class="page-indicator" id="pageIndicator">Page 1</span> <!-- displays page number  -->
@@ -79,7 +78,7 @@ Start of Code w/ comments
     <img id="lightboxImg" class="lightbox-img" src="" alt="Preview">
   </div>
 
-  <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26: side menu + unread badge -->
+  <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added by Ethan Williams 10/27/26 -->
   <script src="{{ url_for('static', filename='js/storefront.js') }}"></script> <!-- Updated by Day E 3/22/26 -->
   <script src="{{ url_for('static', filename='js/ratings.js') }}"></script> <!-- Added by Anthony Jackson 10/21/26: storefront ratings on the cards -->
   <!-- This line links this file to storefront.js 

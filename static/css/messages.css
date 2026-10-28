@@ -2,11 +2,9 @@
     messages.css
     The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
-    Created 10/20/26 for the buyer-seller messaging feature
+    Created by Ethan Williams 10/20/26
 
-Styles the Messages page in the blue theme used by the storefront pages:
-blue-to-navy gradient, white outlines, navy glass panels, League Spartan.
-Your own messages are white bubbles; the other person's are navy glass bubbles.
+Messages page styles.
 */
 
 * {
@@ -21,7 +19,7 @@ html, body {
 
 body {
     background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
-    background-color: #1a146a; /* Added 10/27/26: solid color behind the background so scrolling past the top/bottom (overscroll bounce) shows this instead of white */
+    background-color: #1a146a; /* stops white showing on overscroll */
     color: white;
     font-family: 'League Spartan', Arial, Helvetica, sans-serif;
 }
@@ -405,7 +403,7 @@ body {
 }
 
 
-/* phones: show the inbox or the open conversation, not both */
+/* phones */
 @media (max-width: 760px) {
     .messages-page {
         padding: 16px 0;

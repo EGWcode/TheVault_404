@@ -12,7 +12,7 @@ body {
     /* Uses the specific background gradient and image path from the project */
     background: linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)),
                 url("/static/images/background.png") no-repeat center center fixed;
-    background-color: #000; /* Added 10/27/26: solid color behind the background so scrolling past the top/bottom (overscroll bounce) shows this instead of white */
+    background-color: #000; /* stops white showing on overscroll */
     background-size: cover;
     color: white;
     font-family: Arial, Helvetica, sans-serif;

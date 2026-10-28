@@ -33,9 +33,9 @@ html, body {
 }
 
 body {
-    /* Updated 10/19/26: blue theme - same gradient as the storefront page */
+    /* Updated by Ethan Williams 10/19/26: blue theme - same gradient as the storefront page */
     background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
-    background-color: #1a146a; /* Added 10/27/26: solid color behind the background so scrolling past the top/bottom (overscroll bounce) shows this instead of white */
+    background-color: #1a146a; /* stops white showing on overscroll */
     color: white;
     font-family: 'League Spartan', Arial, Helvetica, sans-serif;
     min-height: 100vh;
@@ -53,7 +53,7 @@ body {
 }
 
 
-/* Added 10/20/26: back button above the header - same pill as the storefront page buttons */
+/* back button - added by Ethan Williams 10/20/26 */
 .back-row {
     width: min(1200px, 92%);
     margin: 1.5rem auto 0;
@@ -97,7 +97,7 @@ body {
 }
 
 
-/* Added 10/19/26: ship-wheel logo in the page header */
+/* Added by Ethan Williams 10/19/26: ship-wheel logo in the page header */
 .brand-logo {
     display: block;
     width: min(260px, 60vw);
@@ -145,7 +145,7 @@ body {
 }
 
 
-/* form card: reusable section styling (Updated 10/19/26: navy glass card for the blue theme) */
+/* form card: reusable section styling (Updated by Ethan Williams 10/19/26: navy glass card for the blue theme) */
 .form-card {
     background: rgba(10, 20, 90, 0.45);
     border: 2px solid white;
@@ -301,7 +301,7 @@ select:focus {
 
 /* improve readability of native dropdown options */
 select option {
-    background: #14237a; /* Updated 10/19/26: navy instead of black */
+    background: #14237a; /* Updated by Ethan Williams 10/19/26: navy instead of black */
     color: #ffffff;
 }
 
@@ -357,15 +357,12 @@ input[type="file"] {
     font-size: 0.95rem;
 }
 
-/* Added 10/27/26: inputs marked hidden stay hidden (the display: block above was overriding
-   the hidden attribute, so "Choose File" showed inside the drag & drop boxes). Clicking the
-   box still opens the file picker. */
+/* keep hidden file inputs hidden */
 input[type="file"][hidden] {
     display: none;
 }
 
-/* Added 10/27/26: let boxes inside the two-column rows shrink on small screens instead of
-   pushing the page wider than the phone (which made phones zoom the whole page out) */
+/* let grid items shrink on phones */
 .middle-row > *,
 .bottom-row > *,
 .preview-grid-4 > * {
@@ -427,7 +424,7 @@ input[type="file"][hidden] {
 .danger-btn,
 .reactivate-btn {
     min-width: 240px;
-    border-radius: 999px; /* Updated 10/19/26: pill buttons like the storefront page */
+    border-radius: 999px; /* Updated by Ethan Williams 10/19/26: pill buttons like the storefront page */
     font-family: inherit;
     padding: 0.95rem 1.5rem;
     font-size: 1.1rem;
@@ -441,7 +438,7 @@ input[type="file"][hidden] {
 
 /* primary button */
 .primary-btn {
-    /* Updated 10/19/26: solid white with blue text (was a gold gradient) */
+    /* Updated by Ethan Williams 10/19/26: solid white with blue text (was a gold gradient) */
     background: white;
     color: #1259d6;
     border: 2px solid white;
@@ -451,7 +448,7 @@ input[type="file"][hidden] {
 /* secondary button */
 .secondary-btn {
     background: transparent;
-    color: white; /* Updated 10/19/26: white outline (was gold) */
+    color: white; /* Updated by Ethan Williams 10/19/26: white outline (was gold) */
     border: 2px solid white;
 }
 

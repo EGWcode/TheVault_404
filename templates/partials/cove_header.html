@@ -1,20 +1,12 @@
 <!--
     partials/cove_header.html
     The Pirate Cove Campus Marketplace
-    Created 10/27/26 for the Pirate Cove redesign
+    Created by Ethan Williams 10/27/26
 
-Shared header used by Storefronts, Create Storefront and Create Listing:
-side menu, header row (wordmark, search, icons) and category bar.
-Include it right after the body tag with Jinja's include tag (see storefront.html),
-load css/cove.css after the page's own stylesheet, and js/cove_header.js.
-(Don't write a real include tag in this comment: Jinja runs tags inside HTML comments too.)
-
-On the Storefronts page the search box and categories filter the stores in place
-(storefront.js). On other pages they open the Storefronts page with that search
-or category applied (cove_header.js).
+Shared header: side menu, header row and category bar.
 -->
 
-<!-- Side menu (opened by the menu button) -->
+<!-- Side menu -->
 <div id="navOverlay" class="nav-overlay"></div>
 
 <aside id="navPane" class="nav-pane" aria-label="Site menu">
@@ -31,7 +23,7 @@ or category applied (cove_header.js).
     <hr class="nav-divider">
   </div>
 
-  <!-- Links added by Anthony Jackson; pointed at Noah Green's browse pages 10/27/26 -->
+  <!-- Links added by Anthony Jackson -->
   <div class="nav-section">
     <a href="{{ url_for('browse_brands') }}" class="nav-item">Explore Brands <span>→</span></a>
     <a href="{{ url_for('browse_categories') }}" class="nav-item">All Categories <span>→</span></a>
@@ -68,7 +60,7 @@ or category applied (cove_header.js).
   </div>
 
   <div class="topbar-actions">
-    <!-- Menu button: opens the side menu -->
+    <!-- Menu -->
     <button type="button" class="icon-btn menu-btn" aria-label="Open navigation menu">
       <span class="menu-line"></span>
       <span class="menu-line"></span>
@@ -84,7 +76,7 @@ or category applied (cove_header.js).
       </svg>
     </a>
 
-    <!-- Messages with unread badge (filled in by cove_header.js) -->
+    <!-- Messages -->
     <a href="/messages" class="icon-btn header-icon messages-btn" aria-label="Messages">
       <svg viewBox="0 0 48 48" aria-hidden="true">
         <path d="M24 6C13 6 4.5 13.3 4.5 22.3c0 4.6 2.2 8.7 5.8 11.7L8.5 42l9-4.6c2 .5 4.2.8 6.5.8 11 0 19.5-7.3 19.5-15.9S35 6 24 6Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/>
@@ -107,8 +99,7 @@ or category applied (cove_header.js).
   </div>
 </header>
 
-<!-- Category bar. New Drops and Trending open their own pages. The rest filter stores by the
-     categories sellers pick on Create/Edit Storefront (click again to clear). -->
+<!-- Category bar -->
 <nav class="category-nav" id="filterChips" aria-label="Browse categories">
   <a class="chip" href="/new-drops">New Drops</a>
   <a class="chip" href="/hot">Trending</a>
