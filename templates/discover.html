@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ title }} | The Vault</title>
+  <title>{{ title }} | The Pirate Cove</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/discover.css') }}">
   <script defer src="{{ url_for('static', filename='js/discover.js') }}"></script>
@@ -13,18 +13,18 @@
 <body data-page="{{ page }}">
   <div class="browse-shell">
     <header class="browse-header">
-      <a class="brand" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}" aria-label="The Vault marketplace home">
-        <span class="brand-mark">V</span>
-        <span class="brand-name">THE VAULT</span>
+      <a class="brand" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}" aria-label="The Pirate Cove marketplace home">
+        <span class="brand-mark">P</span>
+        <span class="brand-name">THE PIRATE COVE</span>
       </a>
       <div class="header-right">
         <span class="header-tagline">Hampton University · Our Home by the Sea</span>
         <nav class="browse-nav" aria-label="Marketplace sections">
           <a href="{{ url_for('storefront_pages_bp.storefront_home_page') }}">Marketplace</a>
-          <a href="{{ url_for('browse_brands') }}" {% if page == 'brands' %}aria-current="page"{% endif %}>Brands</a>
-          <a href="{{ url_for('browse_categories') }}" {% if page == 'categories' %}aria-current="page"{% endif %}>Categories</a>
-          <a href="{{ url_for('browse_new_drops') }}" {% if page == 'new' %}aria-current="page"{% endif %}>New Drops</a>
-          <a href="{{ url_for('browse_hot') }}" {% if page == 'hot' %}aria-current="page"{% endif %}>Hot!</a>
+          <a href="{{ url_for('menu_pages_bp.brands_page') }}" {% if page == 'brands' %}aria-current="page"{% endif %}>Brands</a>
+          <a href="{{ url_for('menu_pages_bp.categories_page') }}" {% if page == 'categories' %}aria-current="page"{% endif %}>Categories</a>
+          <a href="{{ url_for('menu_pages_bp.new_drops_page') }}" {% if page == 'new' %}aria-current="page"{% endif %}>New Drops</a>
+          <a href="{{ url_for('menu_pages_bp.hot_page') }}" {% if page == 'hot' %}aria-current="page"{% endif %}>Hot!</a>
         </nav>
       </div>
     </header>
@@ -33,7 +33,7 @@
       <a class="back-link" href="{{ url_for('storefront_pages_bp.storefront_home_page') }}">← Back to marketplace</a>
 
       <section class="browse-intro">
-        <div class="eyebrow">THE VAULT / DISCOVER</div>
+        <div class="eyebrow">THE PIRATE COVE / DISCOVER</div>
         <h1>{{ title }}</h1>
         <p>{{ subtitle }}</p>
       </section>

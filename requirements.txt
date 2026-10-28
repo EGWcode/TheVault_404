@@ -9,3 +9,4 @@ psycopg2-binary==2.9.11
 python-dotenv==1.2.2
 Werkzeug==3.1.6
 gunicorn
+stripe==16.0.0

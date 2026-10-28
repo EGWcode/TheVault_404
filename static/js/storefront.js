@@ -1,7 +1,7 @@
 /* 
 storefront.js
 
-  The Vault Campus Marketplace
+  The Pirate Cove Campus Marketplace
   CSC 405 Sp 26
   Created by Day Ekoi - Iteration 4
   Date: 3/18/2026 - 3/22/2026
