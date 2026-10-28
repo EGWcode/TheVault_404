@@ -182,13 +182,103 @@ document.addEventListener("DOMContentLoaded", () => {
 
 this function loops through all storefrotn objects in the storefronts array, creates a card for each, and then inserts the cards into the storefront grid 
 */
+// Updated 10/27/26: renders only the current page of stores that match the search box
+// and the selected category chip, plus an empty state when nothing matches
+const STORES_PER_PAGE = 6;
+const browseState = {
+  query: "",      // search box text
+  category: "",   // selected chip ("" = All)
+  page: 1,
+};
+
+function getVisibleStorefronts() {
+  const query = browseState.query.toLowerCase();
+  const category = browseState.category.toLowerCase();
+  return storefronts.filter(store => {
+    const matchesQuery = !query || store.name.toLowerCase().includes(query);
+    const matchesCategory = !category || store.categories.some(c => c.toLowerCase() === category);
+    return matchesQuery && matchesCategory;
+  });
+}
+
+function renderEmptyState() {
+  const filtersOn = browseState.query || browseState.category;
+  const box = document.createElement("div");
+  box.className = "empty-state";
+
+  const title = document.createElement("h2");
+  const text = document.createElement("p");
+  const action = document.createElement(filtersOn ? "button" : "a");
+  action.className = "empty-state-btn";
+
+  if (filtersOn) {
+    // built with textContent so a search can't inject HTML into the page
+    title.textContent = "No matches";
+    const parts = [];
+    if (browseState.query) parts.push(`"${browseState.query}"`);
+    if (browseState.category) parts.push(browseState.category);
+    text.textContent = `No storefronts match ${parts.join(" in ")} yet.`;
+    action.type = "button";
+    action.textContent = "Clear filters";
+    action.addEventListener("click", clearFilters);
+  } else {
+    title.textContent = "No storefronts yet";
+    text.textContent = "Be the first to open shop on campus.";
+    action.href = "/storefronts/create";
+    action.textContent = "Create Storefront";
+  }
+
+  box.append(title, text, action);
+  grid.appendChild(box);
+}
+
+function renderPagination(totalPages) {
+  const pagination = document.getElementById("pagination");
+  if (!pagination) return;
+  pagination.hidden = totalPages <= 1;
+  document.getElementById("pageIndicator").textContent = `Page ${browseState.page} of ${totalPages}`;
+  document.getElementById("prevPageBtn").disabled = browseState.page <= 1;
+  document.getElementById("nextPageBtn").disabled = browseState.page >= totalPages;
+}
+
 function renderStorefronts() {
   if (!grid) return; // Updated by Day E 3/22/26
   grid.innerHTML = ""; // this clears the gird. Useful for if there needs to be re-rendering 
-  storefronts.forEach(store => { // loops through each store object in the storefronts array
-    const card = createCard(store); //creates a card for the current store object
-    grid.appendChild(card); // inserts the created card into the storefront grid in the HTML
+
+  const visible = getVisibleStorefronts();
+  const totalPages = Math.max(1, Math.ceil(visible.length / STORES_PER_PAGE));
+  browseState.page = Math.min(browseState.page, totalPages);
+
+  if (!visible.length) {
+    renderEmptyState();
+  } else {
+    const start = (browseState.page - 1) * STORES_PER_PAGE;
+    visible.slice(start, start + STORES_PER_PAGE).forEach(store => { // loops through this page's stores
+      const card = createCard(store); //creates a card for the current store object
+      grid.appendChild(card); // inserts the created card into the storefront grid in the HTML
+    });
+  }
+
+  renderPagination(totalPages);
+}
+
+function setCategory(category) {
+  browseState.category = category;
+  browseState.page = 1;
+  document.querySelectorAll("#filterChips .chip[data-category]").forEach(chip => {
+    const active = chip.dataset.category === category;
+    chip.classList.toggle("active", active);
+    chip.setAttribute("aria-pressed", String(active));
+    // on phones the chips are one sideways-scrolling row, so keep the selected one in view
+    if (active) chip.scrollIntoView({ block: "nearest", inline: "nearest" });
   });
+  renderStorefronts();
+}
+
+function clearFilters() {
+  browseState.query = "";
+  if (searchInput) searchInput.value = "";
+  setCategory("");
 }
 
 
@@ -240,27 +330,7 @@ async function fetchStorefronts() {
   }
 }
 
-// Navigation pane functionality 
-
-const menuBtn = document.querySelector(".menu-btn");
-const navPane = document.getElementById("navPane");
-const navOverlay = document.getElementById("navOverlay");
-
-// open menu
-if (menuBtn) { // Updated by Day E 3/22/26
-  menuBtn.addEventListener("click", () => {
-    navPane.classList.toggle("active");
-    navOverlay.classList.toggle("active");
-  });
-}
-
-// close when clicking overlay
-if (navOverlay) { // Updated by Day E 3/22/26
-  navOverlay.addEventListener("click", () => {
-    navPane.classList.remove("active");
-    navOverlay.classList.remove("active");
-  });
-}
+// Navigation pane functionality: moved to cove_header.js on 10/27/26 (shared with the Create pages)
 
 console.log(storefronts); // logs the storefronts array to the console for debugging purposes
 console.log(grid); // logs the storefront grid element to the console for debugging purposes
@@ -271,36 +341,48 @@ console.log(grid); // logs the storefront grid element to the console for debugg
 
 const searchInput = document.getElementById("searchInput");
 
-// filters storefronts by name based on search input
-function filterStorefronts(query) {
-    const filtered = storefronts.filter(store =>
-        store.name.toLowerCase().includes(query.toLowerCase())
-    );
-
-    // render filtered results
-    grid.innerHTML = "";
-
-    if (!filtered.length) {
-        grid.innerHTML = `<p style="color:#c9c9c9; font-style:italic; text-align:center; grid-column:1/-1; padding: 2rem;">No storefronts found for "${query}"</p>`;
-        return;
-    }
-
-    filtered.forEach(store => {
-        const card = createCard(store);
-        grid.appendChild(card);
+// Updated 10/27/26: search now works together with the category chips and pagination
+// (see renderStorefronts above) instead of rendering its own list
+if (searchInput) {
+    searchInput.addEventListener("input", () => {
+        browseState.query = searchInput.value.trim();
+        browseState.page = 1;
+        renderStorefronts();
     });
 }
 
-//  input changes
-if (searchInput) {
-    searchInput.addEventListener("input", () => {
-        const query = searchInput.value.trim();
-        if (!query) {
-            renderStorefronts(); // show all if search is cleared
-        } else {
-            filterStorefronts(query);
-        }
+// category chips (Added 10/27/26)
+document.querySelectorAll("#filterChips .chip[data-category]").forEach(chip => {
+    // clicking the selected category again clears it (there's no "All" link in the category bar)
+    chip.addEventListener("click", () => {
+        setCategory(browseState.category === chip.dataset.category ? "" : chip.dataset.category);
     });
+});
+
+// Previous / Next buttons (Added 10/27/26)
+const prevPageBtn = document.getElementById("prevPageBtn");
+const nextPageBtn = document.getElementById("nextPageBtn");
+if (prevPageBtn && nextPageBtn) {
+    prevPageBtn.addEventListener("click", () => {
+        browseState.page -= 1;
+        renderStorefronts();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    nextPageBtn.addEventListener("click", () => {
+        browseState.page += 1;
+        renderStorefronts();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+}
+
+// Added 10/27/26: the header on the Create pages links here with ?q=... or ?category=...
+const startParams = new URLSearchParams(window.location.search);
+if (startParams.get("q") && searchInput) {
+    searchInput.value = startParams.get("q");
+    browseState.query = searchInput.value.trim();
+}
+if (startParams.get("category")) {
+    setCategory(startParams.get("category"));
 }
 
 /* Initial render of the storefront cards. This will display the storefronts on the page when it is first loaded. */
@@ -308,24 +390,4 @@ fetchStorefronts(); // Updated by Day E 4/9/26 - this will now fetch real storef
 
 /* renderStorefronts(); // Updated by Day E 3/22/26 */
 
-
-/*
-Added 10/20/26: unread message badge on the top-bar Messages icon.
-Checks once on load and every 30 seconds while the tab is visible.
-*/
-async function refreshUnreadBadge() {
-  const badge = document.getElementById("unreadBadge");
-  if (!badge || document.hidden) return;
-  try {
-    const response = await fetch("/api/messages/unread-count");
-    const data = await response.json();
-    const unread = Number(data.unread) || 0;
-    badge.textContent = unread > 99 ? "99+" : String(unread);
-    badge.hidden = unread === 0;
-  } catch (error) {
-    console.error("Could not load unread message count:", error);
-  }
-}
-
-refreshUnreadBadge();
-setInterval(refreshUnreadBadge, 30000);
+// Unread message badge: moved to cove_header.js on 10/27/26 (shared with the Create pages)
