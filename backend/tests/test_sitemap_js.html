@@ -1,0 +1,184 @@
+<!--Created 10/21/2026 by Jaylen Belle
+
+This file tests sitemap.js and campus_locations.js. It tests the file, pins, buttons, and the search box. It bascally checks that the page acts correctly. 
+
+Double click the file in file explorer to run the test and refreash the page to run it again. 
+-->
+
+
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <meta charset ="UTF-8" />
+        <title> Sitemap JS Tests</title>
+        <style>
+            body {font-family: Arial, sans-serif; margin: 24px;}
+            .pass {color: green}
+            .fail {color: red}
+            #fakePage {display: none}
+        </style>
+    </head>
+    <body>
+        <h1>Sitemap JS Test</h1>
+        <h2 id="summary">Running test...</h2>
+        <ul id ="results"></ul>
+        <div id ="fakePage">
+            <div class ="sitemap-panel">
+                <input id ="placeSearch" />
+                <button class ="filter-button active" data-filter="all"></button>
+                <button class ="filter-button" data-filter="meetup"></button>
+                <button class ="filter-button" data-filter="building"></button>
+                <section id ="placeDetails" hidden></section>
+                <ul id ="placeList"></ul>
+            </div>
+            <div id ="campusMap"><img class ="campus-map-img" /></div>
+            <div id ="pickReadout" hidden></div>
+        </div>
+
+        <script src ="../../static/js/campus_locations.js"></script>
+        <script src ="../../static/js/sitemap.js"></script>
+        <script>
+            const results= [];
+
+            function test(name, fn) {
+                try {
+                    resetPage();
+                    fn();
+                    results.push({name, passed: true});
+                } catch (err) {
+                    results.push({name, passed: false, message: err.message});
+                }
+            }
+
+            function check(condition, message) {
+                if(!condition)
+                    throw new Error(message);
+            }
+
+
+            function resetPage() {
+                clearSelection();
+                searchEl.value = "";
+                clickFilter("all");
+            }
+
+            <!-- small helpers -->
+            const visiblePins = () => Object.values(pins).filter(pin=> !pin.hidden);
+            const listItems = () => document.querySelectorAll("#placeList .place-item");
+            const clickFilter = name => document.querySelector(`.filter-button[data-filter="${name}"]`).click();
+            const meetupCount = CAMPUS_LOCATIONS.filter(p => p.type === "meetup").length;
+            const first = CAMPUS_LOCATIONS[0];
+
+
+
+
+            <!-- campus_locations.js test -->
+            test("Test that every place has an id, name, type, description, x, and y", () => {CAMPUS_LOCATIONS.forEach(p =>{ check(p.id&&p.name&&p.description, `${p.id} is missing a name or description`); 
+                check(p.type==="meetup" || p.type ==="building", `${p.id} has type "${p.type}"`);
+                });
+            });
+
+            
+            test("Every pin is inside the map", () => {
+                CAMPUS_LOCATIONS.forEach(p => check(p.x >=0&&p.x <=100 &&p.y >=0&&p.y <= 100, `${p.id} is at x ${p.x}, y ${p.y}`));
+            });
+
+
+            test("Test that no two places shoudl have the same id", () => {
+                const ids = CAMPUS_LOCATIONS.map(p => p.id);
+                check(new Set(ids).size === ids.length, "two places share an id");
+            });
+
+
+            test("Test if there is a pin and a list item for everyplace added", () => {
+                check(Object.keys(pins).length === CAMPUS_LOCATIONS.length, "wrong number of pins");
+                check(listItems().length === CAMPUS_LOCATIONS.length, "wrong number of list items");
+            });
+
+
+            test("Test if pins have the right style", () => {
+                CAMPUS_LOCATIONS.forEach(p => {
+                    const style = p.type === "meetup" ? "pin-meetup" : "pin-building";
+                    check(pins[p.id].classList.contains("map-pin"), `${p.id} pin is missing "map-pin"`);
+                    check(pins[p.id].classList.contains(style), `${p.id} pin is missing "${style}"`);
+                });
+            });
+
+
+            test("Testing that clicking a pin shows its details", () => {
+                pins[first.id].click();
+                check(!detailsEl.hidden, "details did not open");
+                check(detailsEl.textContent.includes(first.name), "wrong building shown");
+                check(pins[first.id].classList.contains("pin-selected"), "pin is not highlighted");
+            });
+
+
+            test("Test that clicking a list item shows its details", () => {
+                listItems()[0].click();
+                check(!detailsEl.hidden&&detailsEl.textContent.includes(first.name), "details did not open");
+            });
+
+
+            test("Test that the level buttons switch floors", () => {
+                const place = CAMPUS_LOCATIONS.find(p => p.levels&& p.levels.length >= 2);
+                if (!place) return; /*skips if building has more than 2 levels*/
+                pins[place.id].click();
+                detailsEl.querySelectorAll(".level-tab")[1].click();
+                check(detailsEl.textContent.includes(place.levels[1].note), "level 2 info not shown");
+            });
+
+
+            test("Test that the X button closes the details", () => {
+                pins[first.id].click();
+                detailsEl.querySelector(".details-close").click();
+                check(detailsEl.hidden, "details are still open");
+                check(!pins[first.id].classList.contains("pin-selected"), "pin is still highlighted");
+            });
+
+
+
+            test("Test that the meetup filter shows only meetup spots", () =>{
+                clickFilter("meetup");
+                check(visiblePins().length === meetupCount, `${visiblePins().length} pins showing, expected ${meetupCount}`);
+                check (listItems().length === meetupCount, "list shows the wrong places");
+            });
+            
+
+            test("Test that the search finds a building", () => {
+                searchEl.value = first.name.slice(0, 5);
+                searchEl.dispatchEvent(new Event("input"));/*aks like the user wrote it*/
+                check(!pins[first.id].hidden, `${first.name} was not found`);
+            });
+
+
+            test("Test that a search with no matches shows a message", () => {
+                searchEl.value = "zzzz";
+                searchEl.dispatchEvent(new Event("input"));
+                check(visiblePins().length === 0, "pins are still showing");
+                check(document.getElementById("placeList").textContent.includes("No places match"), "no message is shown");
+            });
+
+
+
+
+
+            const passed = results.filter(r => r.passed).length;
+            const summary = document.getElementById("summary");
+            summary.textContent = `${passed} of ${results.length} tests passed`;
+            summary.className = passed === results.length ? "pass" : "fail";
+
+
+            document.getElementById("results").innerHTML = results.map(r => `<li class="${r.passed ? "pass" : "fail"}">${r.passed ? "Passed:" : "Failed:"} ${r.name}${r.passed ? "" :"--" + r.message}</li>`).join("");
+            
+    
+
+
+
+
+
+
+
+        </script>
+    </body>
+
+</html>
