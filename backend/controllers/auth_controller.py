@@ -1,4 +1,8 @@
 # By Ryan Grimes - Updated 3/19/2026
+# auth_controller.py
+# Account routes: log in, sign up, admin log in and log out, plus the shopping bag (cart) routes.
+# app.py registers this with url_prefix='/auth', so every route here starts with /auth (e.g. /auth/login).
+
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, jsonify
 from services.auth_services import AuthService 
 from config.db import get_connection
@@ -7,22 +11,31 @@ import os
 import smtplib
 from email.message import EmailMessage
 
+# auth_bp groups these routes. service (AuthService) does the real work: checking passwords, saving users, loading carts.
 auth_bp = Blueprint('auth', __name__)
 service = AuthService()
 
+# ---------- Log in ----------
+# GET  /auth/login -> shows the log in page
+# POST /auth/login -> checks the username + password; success logs the user in, failure shows a red error box
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    # POST = the form was submitted. Read what the user typed.
     if request.method == 'POST':
         user = request.form.get('username')
         pw = request.form.get('password')
 
         conn = get_connection()
         if conn is None:
-            return "Database connection failed. <a href='/auth/login'>Try again</a>"
+            # Show errors on the styled login page instead of a plain white page - Nicco Hill 10/20/2026
+            flash("Can't reach the database right now. Please try again.", "error")
+            return render_template('login.html', username=user)
 
+        # Ask AuthService if the password matches the hashed one in the database. Returns (True/False, 'user'/'admin')
         success, role = service.validate_login(user, pw, conn)
         # conn.close()
         
+        # Correct password: save who they are in the session (Flask's login cookie)
         if success:
             session['user'] = user
             session['role'] = role
@@ -48,10 +61,18 @@ def login():
             else:
                 return redirect(url_for('auth.listings'))
         
-        return "Invalid Credentials. <a href='/auth/login'>Try again</a>"
+        # Wrong username or password: close the database connection, then show the log in page again
+        # with a red error box and the username still filled in (only the password needs retyping)
+        conn.close()
+        flash("That username and password don't match. Please try again.", "error")
+        return render_template('login.html', username=user)
     
+    # GET = just visiting the page, so show the empty form
     return render_template('login.html')
 
+# ---------- Sign up ----------
+# GET  /auth/signup -> shows the sign up page
+# POST /auth/signup -> creates the account, then sends the user to log in
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup(): #Errors now show on the signup page instead of a white screen - Tykeara Hammond 10/15/2026
     if request.method == 'POST':
@@ -64,11 +85,14 @@ def signup(): #Errors now show on the signup page instead of a white screen - Ty
             flash("Something went wrong, please try again.", "error")
             return render_template('signup.html', username=user, email=email)
 
+        # AuthService checks the Hampton email and password rules, hashes the password and saves the user.
+        # message explains what went wrong if it fails (e.g. username taken).
         success, message = service.register_user(user, pw, email, conn)
         conn.close()
 
         if success:
             return redirect(url_for('auth.login')) # Removed "Signup Successful" message, user goes straight to login - Tykeara Hammond 10/15/2026
+        # Signup failed: show the reason in a red box and keep the username + email filled in
         flash(message, "error") #Tykeara Hammond added flash for signup errors 10/15/2026
         return render_template('signup.html', username=user, email=email)
 
@@ -137,6 +161,8 @@ def forgot_username():
 
     return render_template('forgot_username.html')
 
+# ---------- Pages that need a logged-in user ----------
+# If there's no user in the session, send them to log in first
 @auth_bp.route('/listings')
 def listings():
     if 'user' not in session:
@@ -149,17 +175,21 @@ def account():
         return redirect(url_for('auth.login'))
     return render_template('account.html')
     
+# Log out: erase everything in the session, then go back to the log in page
 @auth_bp.route('/logout')
 def logout():
     session.clear()
     return redirect(url_for('auth.login'))
 
+# ---------- Shopping bag (cart) ----------
+# The cart is saved in two places: the cart_items table (so it lasts between logins) and the session (so pages load fast)
 @auth_bp.route('/cart')
 def view_cart():
     if 'cart' not in session:
         session['cart'] = []
     return render_template('cart.html')
 
+# Add an item: make sure it's not sold out, save it to the database, then add it to the session cart
 @auth_bp.route('/add_to_cart', methods=['POST'])
 def add_to_cart():
     if 'user_id' not in session:
@@ -220,6 +250,7 @@ def add_to_cart():
     flash(f"Added {item_name} to your bag!", "success")
     return redirect(url_for('auth.view_cart'))
 
+# Remove the item at position index from the cart, in both the session and the database
 @auth_bp.route('/remove_from_cart/<int:index>', methods=['POST'])
 def remove_from_cart(index):
     if 'cart' in session and 'user_id' in session:
@@ -276,15 +307,20 @@ def get_current_session_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+# The cart as JSON, for JavaScript on the pages
 @auth_bp.route('/cart/json')
 def get_cart_json():
     return jsonify(session.get('cart', []))
 
+# Shows everything in the session as JSON (for debugging)
 @auth_bp.route('/debug/session')
 def debug_session():
     return jsonify(dict(session))
 
 # Admin login route - added by David Jackson 4/19/26
+# ---------- Admin log in ----------
+# GET  /auth/admin-login -> shows the admin log in page
+# POST /auth/admin-login -> checks the admin username + password, then opens the admin dashboard
 @auth_bp.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
@@ -297,6 +333,8 @@ def admin_login():
             session['role'] = 'admin'
             return redirect(url_for('admin.admin_dashboard'))
 
-        return "Invalid Admin Credentials. <a href='/auth/admin-login'>Try again</a>"
+        # Wrong admin login: show a red error box on the styled page with the username still filled in
+        flash("That admin username and password don't match. Please try again.", "error")
+        return render_template('admin_login.html', username=user)
 
     return render_template('admin_login.html')

@@ -1,7 +1,7 @@
 /*
     edit_listing.js
 
-    The Vault Campus Marketplace
+    The Pirate Cove Campus Marketplace
     CSC 405 Sp 26'
     Updated by Day Ekoi - Iteration 5 4/22/26
     - One Size mode: loads correctly from existing data
