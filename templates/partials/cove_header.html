@@ -31,12 +31,12 @@ or category applied (cove_header.js).
     <hr class="nav-divider">
   </div>
 
-  <!-- Links added by Anthony Jackson -->
+  <!-- Links added by Anthony Jackson; pointed at Noah Green's browse pages 10/27/26 -->
   <div class="nav-section">
-    <a href="/storefronts" class="nav-item">Explore Brands <span>→</span></a>
-    <a href="/categories" class="nav-item">All Categories <span>→</span></a>
-    <a href="/new-drops" class="nav-item">New Drops <span>→</span></a>
-    <a href="/hot" class="nav-item">Hot! <span>→</span></a>
+    <a href="{{ url_for('browse_brands') }}" class="nav-item">Explore Brands <span>→</span></a>
+    <a href="{{ url_for('browse_categories') }}" class="nav-item">All Categories <span>→</span></a>
+    <a href="{{ url_for('browse_new_drops') }}" class="nav-item">New Drops <span>→</span></a>
+    <a href="{{ url_for('browse_hot') }}" class="nav-item">Hot! <span>→</span></a>
   </div>
 
   <div class="nav-section more">

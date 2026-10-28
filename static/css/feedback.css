@@ -1,0 +1,75 @@
+.feedback-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  width: min(360px, calc(100vw - 40px));
+}
+
+.feedback-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 14px 16px;
+
+  color: white;
+  background: #0b2a7a;
+
+  border: 1px solid rgba(191, 212, 255, 0.35);
+  border-radius: 10px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+
+  animation: feedback-in 0.25s ease;
+}
+
+.feedback-success {
+  border-left: 4px solid #7fe0a3;
+}
+
+.feedback-error {
+  border-left: 4px solid #ff8080;
+}
+
+.feedback-warning {
+  border-left: 4px solid #ffd66b;
+}
+
+.feedback-info {
+  border-left: 4px solid #91b9ff;
+}
+
+.feedback-close {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: white;
+
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.feedback-out {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: 0.3s ease;
+}
+
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

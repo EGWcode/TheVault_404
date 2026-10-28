@@ -140,6 +140,12 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
+        /* Added 10/27/26: stack on phones so the page isn't wider than the screen */
+        .two-col-row > * { min-width: 0; }
+        @media (max-width: 600px) {
+            .preview-grid-4,
+            .two-col-row { grid-template-columns: 1fr; }
+        }
         .price-wrap {
             width: 90%;
             display: flex;

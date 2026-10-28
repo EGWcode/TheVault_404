@@ -1,12 +1,6 @@
 <!--
  create_storefront.html
 
-    The Pirate Cove Campus Marketplace 
-    CSC 405 Sp 26'
-    Created by Day Ekoi - Iteration 4 - 3/22/2026
-    Updated by Day Ekoi - Iteration 5 - 4/20/26 - added drag-drop image upload zones and preview thumbnails for banner, logo, and preview images
-
-
 This file is the Create Storefront page where users create their storefronts using a form based UI 
 
 Users can:
@@ -18,9 +12,6 @@ Users can:
 - Upload preview images for their storefront
 
 This page is rendered using Flask and connects to the static CSS and JS files.
-
-This doesnt do this rn. But it will be updated so this form will submit data to the backend (Flask API) where the storefront will be stored
-in the database and then displayed dynamically on the homepage.
 
 This file acts as the UI structure (skeleton) of the Create Storefront feature.
 -->
@@ -41,6 +32,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
     <link rel="stylesheet" href="./create_storefront.css"> -->
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/create_storefront.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}"> <!-- Added 10/27/26: shared Pirate Cove header + look -->
     <!-- Drag-drop zone styles - Added by Day Ekoi 4/20/26 -->
     <style>
@@ -94,6 +86,10 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
         }
         .preview-slot { display: flex; flex-direction: column; gap: 6px; }
         .slot-label { font-size: 0.8rem; color: #9fd0ff; font-weight: 700; margin: 0; }
+        /* Added 10/27/26: one preview slot per row on phones */
+        @media (max-width: 600px) {
+            .preview-grid-4 { grid-template-columns: 1fr; }
+        }
     </style>
     
 
@@ -294,6 +290,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
     <script src="./create_storefront.js"></script> -->
 
     <!-- flask version (for later use) -->
+    <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
     <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26 -->
     <script src="{{ url_for('static', filename='js/create_storefront.js') }}"></script>
 
