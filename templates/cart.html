@@ -4,66 +4,115 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Pirate Cove | Your Bag</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront.css') }}">
+    <!-- Updated 10/27/26: Pirate Cove redesign - shared header, underwater background, square boxes and pill buttons
+         (the old black and gold styles are in git history) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}">
     <style>
-        :root { --gold: #B8860B; --dark-bg: #121212; }
-        
-        body { background-color: #000; color: white; font-family: 'Segoe UI', sans-serif; }
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; }
 
         .cart-container {
-            max-width: 900px; margin: 50px auto; padding: 30px;
-            background: rgba(18, 18, 18, 0.95); border: 1px solid var(--gold);
-            box-shadow: 0 0 20px rgba(184, 134, 11, 0.2);
+            width: min(1000px, 92%);
+            margin: 0 auto 60px;
+            padding: 32px 36px;
+            background: rgba(12, 24, 100, 0.35);
+            border: 2px solid rgba(255, 255, 255, 0.7);
         }
 
         .cart-header {
-            border-bottom: 2px solid var(--gold); padding-bottom: 15px; margin-bottom: 30px;
-            display: flex; justify-content: space-between; align-items: center;
+            display: flex; justify-content: space-between; align-items: center; gap: 16px;
+            padding-bottom: 18px; margin-bottom: 24px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.7);
         }
 
-        .cart-header h1 { margin: 0; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; }
+        .cart-header h1 { margin: 0; font-size: 2.6rem; font-weight: 700; letter-spacing: 0.5px; }
 
-        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        .cart-table th { text-align: left; color: var(--gold); border-bottom: 1px solid #333; padding: 15px; text-transform: uppercase; font-size: 0.8rem; }
-        .cart-table td { padding: 15px; border-bottom: 1px solid #222; }
+        /* thin outlined pill, like Previous / Next */
+        .back-link {
+            display: inline-block;
+            color: white; text-decoration: none;
+            border: 2px solid white; border-radius: 999px;
+            padding: 8px 20px 6px;
+            font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .back-link:hover { background: rgba(255, 255, 255, 0.15); }
 
-        .item-info h4 { margin: 0; color: white; }
-        .item-info span { color: #888; font-size: 0.85rem; }
-
-        .price-col { font-family: 'Courier New', monospace; color: var(--gold); }
-
-        .cart-summary {
-            background: #1a1a1a; padding: 20px; border: 1px solid #333;
-            text-align: right;
+        .flash-msg {
+            margin-bottom: 18px; padding: 10px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.08);
         }
 
-        .total-row { font-size: 1.5rem; color: var(--gold); font-weight: bold; margin-bottom: 20px; }
+        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+        .cart-table th {
+            text-align: left; padding: 12px 14px;
+            font-size: 0.85rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.8);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+        }
+        .cart-table td { padding: 16px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.2); font-size: 1.1rem; }
 
+        .item-info h4 { margin: 0; font-size: 1.2rem; font-weight: 700; }
+        .item-info span { color: rgba(255, 255, 255, 0.65); font-size: 0.85rem; }
+
+        .price-col { font-weight: 700; }
+
+        .remove-btn {
+            width: 34px; height: 34px;
+            background: transparent; color: white;
+            border: 2px solid rgba(255, 255, 255, 0.7); border-radius: 50%;
+            font-size: 1.2rem; line-height: 1; cursor: pointer;
+        }
+        .remove-btn:hover { background: rgba(255, 110, 110, 0.25); border-color: #ffb3b3; }
+
+        .cart-summary { display: flex; justify-content: flex-end; align-items: center; gap: 28px; flex-wrap: wrap; }
+        .total-row { font-size: 1.8rem; font-weight: 700; }
+
+        /* filled white pill, like the Create buttons */
         .checkout-btn {
-            background: var(--gold); color: black; border: none; padding: 15px 40px;
-            font-weight: bold; text-transform: uppercase; cursor: pointer;
-            transition: 0.3s; letter-spacing: 2px;
+            display: inline-block;
+            background: white; color: #1c3fae;
+            border: 2px solid white; border-radius: 999px;
+            padding: 12px 34px 9px;
+            font-family: inherit; font-size: 1.2rem; font-weight: 700;
+            letter-spacing: 1px; text-transform: uppercase; text-decoration: none;
         }
+        .checkout-btn:hover { background: rgba(255, 255, 255, 0.85); }
 
-        .checkout-btn:hover { background: #DAA520; transform: translateY(-2px); }
+        .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+        .empty-msg { text-align: center; padding: 50px 20px 30px; }
+        .empty-msg p { font-size: 1.4rem; margin: 0 0 22px; }
 
-        .empty-msg { text-align: center; padding: 50px; color: #555; font-style: italic; }
-        
-        .back-link { color: var(--gold); text-decoration: none; font-size: 0.9rem; margin-top: 20px; display: inline-block; }
+        /* phones: each item becomes a stacked block instead of a wide table row */
+        @media (max-width: 640px) {
+            .cart-container { padding: 22px 18px; }
+            .cart-header { flex-wrap: wrap; }
+            .cart-header h1 { font-size: 2rem; }
+            .cart-table thead { display: none; }
+            .cart-table, .cart-table tbody, .cart-table tr, .cart-table td { display: block; width: 100%; }
+            .cart-table tr { position: relative; padding: 14px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.25); }
+            .cart-table td { border: none; padding: 3px 44px 3px 0; }
+            .cart-table td[data-label]::before { content: attr(data-label) ": "; color: rgba(255, 255, 255, 0.65); }
+            .cart-table td.remove-col { position: absolute; top: 14px; right: 0; padding: 0; width: auto; }
+            .cart-summary { justify-content: space-between; }
+        }
     </style>
 </head>
 <body>
+<!-- Added 10/27/26: shared Pirate Cove header (side menu, header row, category bar) -->
+{% include 'partials/cove_header.html' %}
 
 <div class="cart-container">
     <div class="cart-header">
-        <h1>Secured Bag</h1>
-        <a href="{{ url_for('auth.listings') }}" class="back-link">← CONTINUE SHOPPING</a>
+        <h1>Your Bag</h1>
+        <a href="{{ url_for('auth.listings') }}" class="back-link">← Continue shopping</a>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
-          <div style="color: var(--gold); margin-bottom: 15px; font-size: 0.9rem;">{{ message }}</div>
+          <div class="flash-msg">{{ message }}</div>
         {% endfor %}
       {% endif %}
     {% endwith %}
@@ -72,11 +121,11 @@
         <table class="cart-table">
             <thead>
                 <tr>
-                    <th>Designation (Item)</th>
+                    <th>Item</th>
                     <th>Size</th>
                     <th>Qty</th>
                     <th>Price</th>
-                    <th>Action</th>
+                    <th><span class="visually-hidden">Remove</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -88,12 +137,12 @@
                                 <span>ID: {{ item.id }}</span>
                             </div>
                         </td>
-                        <td>{{ item.size }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td class="price-col">${{ "%.2f"|format(item.price|float) }}</td>
-                        <td>
+                        <td data-label="Size">{{ item.size }}</td>
+                        <td data-label="Qty">{{ item.quantity }}</td>
+                        <td class="price-col" data-label="Price">${{ "%.2f"|format(item.price|float) }}</td>
+                        <td class="remove-col">
                             <form action="{{ url_for('auth.remove_from_cart', index=loop.index0) }}" method="POST">
-                                <button type="submit" style="background:none; border:none; color:#ff4444; cursor:pointer; font-size: 1.2rem;" title="Remove Item">×</button>
+                                <button type="submit" class="remove-btn" title="Remove item" aria-label="Remove {{ item.name }}">×</button>
                             </form>
                         </td>
                     </tr>
@@ -102,27 +151,24 @@
         </table>
 
         <div class="cart-summary">
+            {% set total_price = namespace(value=0) %}
+            {% for item in session['cart'] %}
+                {% set total_price.value = total_price.value + (item.price|float * item.quantity|int) %}
+            {% endfor %}
             <div class="total-row">
                 <span>TOTAL: </span>
-                <span>$
-                    {% set total_price = namespace(value=0) %}
-                    {% for item in session['cart'] %}
-                        {% set total_price.value = total_price.value + (item.price|float * item.quantity|int) %}
-                    {% endfor %}
-                    {{ "%.2f"|format(total_price.value) }}
-                </span>
+                <span>${{ "%.2f"|format(total_price.value) }}</span>
             </div>
-           <a href="{{ url_for('checkout') }}" style="text-decoration: none;">
-    <button class="checkout-btn">Initialize Checkout</button>
-</a>
+            <a href="{{ url_for('checkout') }}" class="checkout-btn">Checkout</a>
         </div>
     {% else %}
         <div class="empty-msg">
-            <p>Your vault bag is currently empty.</p>
-            <a href="{{ url_for('auth.listings') }}" class="back-link">Browse Storefronts</a>
+            <p>Your bag is empty.</p>
+            <a href="{{ url_for('auth.listings') }}" class="checkout-btn">Browse storefronts</a>
         </div>
     {% endif %}
 </div>
 
+<script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26 -->
 </body>
 </html>

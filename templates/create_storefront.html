@@ -33,7 +33,8 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/create_storefront.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
-    <!-- Drag-drop zone styles --->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}"> <!-- Added 10/27/26: shared Pirate Cove header + look -->
+    <!-- Drag-drop zone styles - Added by Day Ekoi 4/20/26 -->
     <style>
         .drop-zone {
             border: 2px dashed #9fd0ff;
@@ -85,6 +86,10 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
         }
         .preview-slot { display: flex; flex-direction: column; gap: 6px; }
         .slot-label { font-size: 0.8rem; color: #9fd0ff; font-weight: 700; margin: 0; }
+        /* Added 10/27/26: one preview slot per row on phones */
+        @media (max-width: 600px) {
+            .preview-grid-4 { grid-template-columns: 1fr; }
+        }
     </style>
     
 
@@ -93,7 +98,9 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
 
 
 
-<body> 
+<body class="cove-page">
+<!-- Added 10/27/26: shared Pirate Cove header (side menu, header row, category bar) -->
+{% include 'partials/cove_header.html' %}
 <!-- Start of main body code -->
 
     <!-- Added 10/20/26: back button - returns to the previous page on this site, otherwise to the storefronts page -->
@@ -107,15 +114,9 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
     </div>
 
     <!-- Header -->
+    <!-- Updated 10/27/26: the logo moved into the shared Pirate Cove header above -->
     <header class="create-header">
-        <div class="brand-block">
-            <h1 class="brand-title">
-                <!-- Updated 10/19/26: ship-wheel logo replaces the text title -->
-                <img class="brand-logo" src="{{ url_for('static', filename='images/pirate_cove_logo.png') }}" alt="The Pirate Cove">
-            </h1>
-        </div>
-
-        <h2 class="page-title">Create Storefront</h2>
+        <h1 class="page-title">Create Storefront</h1>
     </header>
 
 
@@ -216,6 +217,8 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
                         <label><input type="checkbox" name="categories" value="Earthy"> Earthy</label>
                         <label><input type="checkbox" name="categories" value="Athleisure"> Athleisure</label>
                         <label><input type="checkbox" name="categories" value="Retro"> Retro</label>
+                        <label><input type="checkbox" name="categories" value="Womenswear"> Womenswear</label> <!-- Added 10/27/26 for the Pirate Cove category bar -->
+                        <label><input type="checkbox" name="categories" value="Menswear"> Menswear</label> <!-- Added 10/27/26 -->
                         <label><input type="checkbox" name="categories" value="Accessories"> Accessories</label>
                         <label><input type="checkbox" name="categories" value="Other"> Other</label>
                     </div>
@@ -288,6 +291,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
 
     <!-- flask version (for later use) -->
     <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26 -->
     <script src="{{ url_for('static', filename='js/create_storefront.js') }}"></script>
 
 
