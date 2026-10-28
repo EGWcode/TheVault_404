@@ -1,6 +1,7 @@
 # menu_controller.py
 # Added by Anthony Jackson (back end)
-# Makes the dropdown menu buttons work: New Drops, Hot!, All Categories, About, Sitemap.
+# Makes the dropdown menu buttons work: New Drops, Hot!, All Categories, Top Rated, About.
+# (The Sitemap page is Jaylen Belle's, it lives in app.py)
 # menu_api_bp gives the data (JSON). menu_pages_bp opens the pages.
 
 from flask import Blueprint, jsonify, render_template
@@ -44,6 +45,6 @@ def about_page():
     return render_template("menu_page.html", page="about")
 
 
-@menu_pages_bp.route("/sitemap")
-def sitemap_page():
-    return render_template("menu_page.html", page="sitemap")
+@menu_pages_bp.route("/top-rated")
+def top_rated_page():
+    return render_template("menu_page.html", page="top-rated")

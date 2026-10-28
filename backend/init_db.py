@@ -412,9 +412,49 @@ def create_vault_tables():
         cur.execute(create_messages_table)
         cur.execute("CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages (conversation_id, id);")
 
+        # ________________________________________________________
+        # PROFILE COLUMNS (added to the users table)
+        # Added by Anthony Jackson 10/21/26
+        # These are optional. Users add them from the Account page, not at signup/login.
+        # ADD COLUMN IF NOT EXISTS keeps existing users and their data safe.
+        # ________________________________________________________
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS first_name VARCHAR(50);")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS last_name VARCHAR(50);")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR(20);")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS class_year VARCHAR(12);")
+        cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS hometown VARCHAR(100);")
+
+        # ________________________________________________________
+        # STOREFRONT RATINGS TABLE (1 to 5 stars for a whole storefront)
+        # Added by Anthony Jackson 10/21/26
+        # Every rating is its own row, so a user can rate the same storefront
+        # more than once. The overall rating is the average of all rows.
+        # ________________________________________________________
+        create_storefront_ratings_table = """
+            CREATE TABLE IF NOT EXISTS storefront_ratings (
+                id SERIAL PRIMARY KEY,
+                storefront_id INTEGER NOT NULL,
+                user_id INTEGER NOT NULL,
+                stars SMALLINT NOT NULL CHECK (stars BETWEEN 1 AND 5),
+                created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+
+                CONSTRAINT fk_rating_storefront
+                    FOREIGN KEY(storefront_id)
+                    REFERENCES storefronts(id)
+                    ON DELETE CASCADE,
+
+                CONSTRAINT fk_rating_user
+                    FOREIGN KEY(user_id)
+                    REFERENCES users(id)
+                    ON DELETE CASCADE
+            );
+        """
+        cur.execute(create_storefront_ratings_table)
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_ratings_storefront ON storefront_ratings (storefront_id);")
+
         conn.commit()
 
-        print("DATABASE INITIALIZED: users, storefronts, listings, listing_images, listing_sizes, purchases, wishlist, orders, order_items, conversations, and messages tables are ready.")
+        print("DATABASE INITIALIZED: users, storefronts, listings, listing_images, listing_sizes, purchases, wishlist, orders, order_items, conversations, messages, and storefront_ratings tables are ready.")
 
         cur.close()
         conn.close()

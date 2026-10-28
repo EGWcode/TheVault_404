@@ -136,6 +136,25 @@
         .purchase-total { color: var(--gold); font-weight: bold; float: right; }
 
         .back-btn { color: var(--gold); text-decoration: none; font-size: 0.9rem; }
+
+        /* Profile tab - Added by Anthony Jackson 10/21/26 */
+        .profile-note { color: #bbb; font-size: 0.9rem; margin: 4px 0 12px; }
+        .profile-row { margin-bottom: 14px; max-width: 420px; }
+        .profile-row label { display: block; color: #bbb; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .profile-row input, .profile-row select {
+            width: 100%; padding: 9px 10px; background: #111; color: #f0f0f0;
+            border: 1px solid #333; font-size: 1rem; font-family: inherit;
+        }
+        .profile-row input:focus, .profile-row select:focus { outline: none; border-color: var(--gold); }
+        .profile-row.has-error input, .profile-row.has-error select { border-color: #ff6b6b; }
+        .profile-save-btn {
+            border: 1px solid var(--gold); background: transparent; color: var(--gold);
+            padding: 9px 18px; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;
+        }
+        .profile-save-btn:hover { background: rgba(184,134,11,0.15); }
+        .profile-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .profile-msg { min-height: 1.3em; margin-top: 10px; font-size: 0.9rem; color: #9fd0ff; }
+        .profile-msg.error { color: #ff8f8f; }
     </style>
 </head>
 <body>
@@ -158,6 +177,7 @@
         <button class="tab-link" onclick="openTab(event, 'wishlist')">Wishlist</button>
         <button class="tab-link" onclick="openTab(event, 'purchases')">Purchases</button>
         <button class="tab-link" onclick="openTab(event, 'sales')">Sales History</button>
+        <button class="tab-link" id="profileTabBtn" onclick="openTab(event, 'profile')">Profile</button> <!-- Added by Anthony Jackson 10/21/26 -->
     </div>
 
     <div id="listings" class="tab-content active">
@@ -181,6 +201,45 @@
     <div id="sales" class="tab-content">
         <h3>SALES HISTORY</h3>
         <p class="empty-state">No items sold yet.</p>
+    </div>
+
+    <!-- Added by Anthony Jackson 10/21/26: optional profile info. Everything here is optional. -->
+    <div id="profile" class="tab-content">
+        <h3>YOUR PROFILE</h3>
+        <p class="profile-note">All of this is optional. Add what you want and leave the rest blank. You can change it any time.</p>
+        <p class="profile-note" id="profileWho"></p>
+
+        <form id="profileForm" novalidate>
+            <div class="profile-row">
+                <label for="pfFirstName">First name</label>
+                <input type="text" id="pfFirstName" name="first_name" maxlength="50" autocomplete="given-name">
+            </div>
+            <div class="profile-row">
+                <label for="pfLastName">Last name</label>
+                <input type="text" id="pfLastName" name="last_name" maxlength="50" autocomplete="family-name">
+            </div>
+            <div class="profile-row">
+                <label for="pfPhone">Phone number</label>
+                <input type="tel" id="pfPhone" name="phone" maxlength="20" placeholder="10 digits" autocomplete="tel">
+            </div>
+            <div class="profile-row">
+                <label for="pfClassYear">Class year</label>
+                <select id="pfClassYear" name="class_year">
+                    <option value="">Choose one</option>
+                    <option value="Freshman">Freshman</option>
+                    <option value="Sophomore">Sophomore</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Graduate">Graduate</option>
+                </select>
+            </div>
+            <div class="profile-row">
+                <label for="pfHometown">Hometown</label>
+                <input type="text" id="pfHometown" name="hometown" maxlength="100">
+            </div>
+            <button type="submit" class="profile-save-btn" id="profileSaveBtn">Save profile</button>
+            <p id="profileMsg" class="profile-msg"></p>
+        </form>
     </div>
 </div>
 
@@ -542,6 +601,7 @@
     document.addEventListener("DOMContentLoaded", loadMyListings);
     document.addEventListener("DOMContentLoaded", loadWishlist);
 </script>
+<script src="{{ url_for('static', filename='js/profile.js') }}"></script> <!-- Added by Anthony Jackson 10/21/26 -->
 
 </body>
 </html>
