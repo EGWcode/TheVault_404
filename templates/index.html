@@ -1,9 +1,9 @@
 <!--
-  The Vault: portal / landing page (home page at /). The sign-in form itself is templates/login.html
+  The Pirate Cove: portal / landing page (home page at /). The sign-in form itself is templates/login.html
   Originally created 3/19/2026 by Ryan Grimes
   Hampton redesign 10/15/2026 by Nicco Hill:
-    - Hampton blue theme with vault door, moon, sailing ship and animated waves
-    - Scales to fit one browser window; "Inside the Vault" category strip below
+    - Hampton blue theme with ship's wheel, moon, sailing ship and animated waves
+    - Scales to fit one browser window; "Inside the Cove" category strip below
     - CSS and JS are kept in this one file on purpose
 -->
 <!DOCTYPE html>
@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Vault — Portal</title>
+    <title>The Pirate Cove — Portal</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
     <style>
 /* ===== Theme (Nicco Hill) ===== */
@@ -32,7 +32,7 @@ body { margin: 0; background: var(--navy); }
 a { color: var(--ice); }
 a:hover { color: var(--white); }
 
-@keyframes vaultTurn { from { transform: rotate(-60deg); } to { transform: rotate(0deg); } }
+@keyframes helmTurn { from { transform: rotate(-60deg); } to { transform: rotate(0deg); } }
 @keyframes vaultFill { from { width: 0%; } to { width: 100%; } }
 @keyframes cueBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
 
@@ -63,16 +63,10 @@ a:hover { color: var(--white); }
 .hero-content { position: relative; flex-grow: 1; max-width: 1280px; width: 100%; margin: 0 auto; padding: clamp(8px, 2vh, 24px) 32px calc(var(--wave-h) * 0.8); display: flex; flex-direction: column; align-items: center; gap: clamp(10px, 2.6vh, 36px); text-align: center; }
 .portal-intro { margin: 0; font-size: 14px; font-style: italic; letter-spacing: 0.22em; color: var(--ice); }
 
-/* ===== Vault door: sizes are fractions of --door (designed at 340px) ===== */
-.vault-door { position: relative; width: var(--door); aspect-ratio: 1 / 1; }
-.vault-ring, .vault-face, .vault-wheel, .vault-hub { position: absolute; border-radius: 50%; }
-.vault-ring { inset: 0; border: calc(var(--door) * 0.035) dotted var(--ice); }
-.vault-face { inset: calc(var(--door) * 0.065); background: var(--hampton-blue); border: max(3px, calc(var(--door) * 0.018)) solid var(--off-white); box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 calc(var(--door) * 0.03) var(--deep-blue); }
-/* The wheel turns into place on load; each spoke gets its angle from --r */
-.vault-wheel { inset: 0; border-radius: 0; animation: vaultTurn 1.6s cubic-bezier(.2,.8,.2,1) both; }
-.vault-spoke { position: absolute; left: 50%; top: calc(50% - var(--door) * 0.0235); width: 42%; height: calc(var(--door) * 0.047); border-radius: calc(var(--door) * 0.0235); background: var(--off-white); transform-origin: 0 50%; transform: rotate(var(--r)); }
-.vault-hub { inset: 27%; background: var(--navy); border: max(3px, calc(var(--door) * 0.018)) solid var(--off-white); display: flex; align-items: center; justify-content: center; }
-.vault-hub-dot { width: 22%; aspect-ratio: 1 / 1; border-radius: 50%; background: var(--off-white); }
+/* ===== Ship's wheel: an SVG sized by --door (Nicco Hill) ===== */
+.helm { display: block; width: var(--door); aspect-ratio: 1 / 1; overflow: visible; filter: drop-shadow(0 30px 40px rgba(0,0,0,0.45)); }
+/* The wheel turns into place once on load, same movement as the old vault door */
+.helm-wheel { transform-box: view-box; transform-origin: center; animation: helmTurn 1.6s cubic-bezier(.2,.8,.2,1) both; }
 
 /* ===== Title ===== */
 .title-block { display: flex; flex-direction: column; align-items: center; gap: clamp(6px, 1.2vh, 12px); }
@@ -95,7 +89,7 @@ a:hover { color: var(--white); }
 .vault-fill { height: 100%; background: var(--white); border-radius: 3px; animation: vaultFill 2s cubic-bezier(.4,0,.2,1) .3s both; }
 .loading-text { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; letter-spacing: 0.18em; color: var(--ice); }
 
-/* ===== "Inside the Vault" scroll cue on the waves (Nicco Hill) ===== */
+/* ===== "Inside the Cove" scroll cue on the waves (Nicco Hill) ===== */
 html { scroll-behavior: smooth; }
 .scroll-cue { position: absolute; left: 50%; bottom: calc(var(--wave-h) * 0.2); transform: translateX(-50%); display: flex; align-items: center; gap: 8px; padding: 10px 14px 10px 22px; border: 1.5px solid rgba(255,255,255,0.55); border-radius: 999px; background: rgba(6,22,58,0.45); font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-decoration: none; white-space: nowrap; }
 .scroll-cue, .scroll-cue:hover { color: var(--white); }
@@ -105,9 +99,10 @@ html { scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .scroll-cue svg { animation: none; }
+    .helm-wheel { animation: none; }
 }
 
-/* ===== Inside the Vault: category photo tiles (Nicco Hill) ===== */
+/* ===== Inside the Cove: category photo tiles (Nicco Hill) ===== */
 .inside-vault { background: var(--hampton-blue); }
 .inside-vault-inner { max-width: 1280px; margin: 0 auto; padding: 32px; display: flex; flex-direction: column; gap: 20px; }
 .inside-vault-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -127,8 +122,8 @@ html { scroll-behavior: smooth; }
   <!-- Header -->
   <header class="portal-header">
     <div class="brand">
-      <div class="brand-mark">V</div>
-      <div class="brand-name">THE VAULT</div>
+      <div class="brand-mark">P</div>
+      <div class="brand-name">THE PIRATE COVE</div>
     </div>
     <div class="header-tagline">Hampton University · Our Home by the Sea</div>
   </header>
@@ -156,20 +151,28 @@ html { scroll-behavior: smooth; }
     {% endfor %}
 
     <main class="hero-content">
-      <p class="portal-intro">You have arrived at the portal to…</p>
+      <p class="portal-intro">You have entered the Cove…</p>
 
-      <!-- Vault door: 8 spokes generated every 45 degrees -->
-      <div aria-hidden="true" class="vault-door">
-        <div class="vault-ring"></div>
-        <div class="vault-face"></div>
-        <div class="vault-wheel">
-          {% for deg in range(0, 360, 45) %}<div class="vault-spoke" style="--r: {{ deg }}deg"></div>{% endfor %}
-        </div>
-        <div class="vault-hub"><div class="vault-hub-dot"></div></div>
-      </div>
+      <!-- Ship's wheel: 8 spokes with handles (one every 45 degrees), a rim on top of them, then the hub -->
+      <svg aria-hidden="true" class="helm" viewBox="-170 -170 340 340">
+        <g class="helm-wheel">
+          {% for deg in range(0, 360, 45) %}
+          <g transform="rotate({{ deg }})" stroke="#F7F9FF" stroke-linecap="round">
+            <line y1="0" y2="-130" stroke-width="12"></line>
+            <line y1="-128" y2="-150" stroke-width="22"></line>
+            <circle cy="-158" r="11" fill="#F7F9FF" stroke="none"></circle>
+          </g>
+          {% endfor %}
+          <circle r="108" fill="none" stroke="#0033A0" stroke-width="30"></circle>
+          <circle r="124" fill="none" stroke="#F7F9FF" stroke-width="6"></circle>
+          <circle r="92" fill="none" stroke="#F7F9FF" stroke-width="6"></circle>
+          <circle r="40" fill="#06163A" stroke="#F7F9FF" stroke-width="6"></circle>
+          <circle r="12" fill="#F7F9FF"></circle>
+        </g>
+      </svg>
 
       <div class="title-block">
-        <h1 class="main-title">THE VAULT</h1>
+        <h1 class="main-title">THE PIRATE COVE</h1>
         <p class="sub-title">Hampton's student fashion marketplace</p>
         <p class="title-blurb">Buy, sell and swap fits with Hamptonians — homecoming looks, vintage finds and sneakers, handed off right on campus.</p>
       </div>
@@ -184,7 +187,7 @@ html { scroll-behavior: smooth; }
       <div class="loading">
         <div class="loading-track"><div class="vault-fill"></div></div>
         <div class="loading-text">
-          <span>Unlocking campus markets…</span>
+          <span>Setting sail for campus markets…</span>
           <span>Est. 1868</span>
         </div>
       </div>
@@ -192,16 +195,16 @@ html { scroll-behavior: smooth; }
 
     <!-- Scroll cue so people know the tiles are below -->
     <a class="scroll-cue" href="#inside-the-vault">
-      <span>Inside the Vault</span>
+      <span>Inside the Cove</span>
       <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
     </a>
   </div>
 
-  <!-- Inside the Vault: category tiles. To add a category, add a row to this list (Nicco Hill) -->
+  <!-- Inside the Cove: category tiles. To add a category, add a row to this list (Nicco Hill) -->
   <section class="inside-vault" id="inside-the-vault">
     <div class="inside-vault-inner">
       <div class="inside-vault-head">
-        <h2 class="inside-vault-title">INSIDE THE VAULT</h2>
+        <h2 class="inside-vault-title">INSIDE THE COVE</h2>
         <span class="inside-vault-note">Log in to browse what's dropping on campus</span>
       </div>
       <div class="tile-grid">

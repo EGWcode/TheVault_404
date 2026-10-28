@@ -1,13 +1,6 @@
 /*
     edit_listing.js
 
-    The Vault Campus Marketplace
-    CSC 405 Sp 26'
-    Updated by Day Ekoi - Iteration 5 4/22/26
-    - One Size mode: loads correctly from existing data
-    - Per-size quantity inputs
-    - Made-to-Order toggle
-    Updated by Day E - April 22nd - multi-image edit management using existing S3 and listing image routes
 */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -509,11 +502,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             await saveQueuedImages();
-            window.location.href = "/storefronts/dashboard";
+            
+            // show confirmation after listing changes are saved
+            showFeedback(
+                "Listing updated successfully",
+                "success"
+            );
+
+            setTimeout(() => {
+                window.location.href = "/storefronts/dashboard";
+            }, 800);
         });
     } catch (error) {
         console.error("Error loading edit listing page:", error);
-        alert(error.message || "Something went wrong while loading this listing.");
+        showFeedback(
+            error.message || "Something went wrong while loading this listing.",
+            "error"
+        );
         window.location.href = "/storefronts/dashboard";
     }
 });
