@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520">
+  <!-- Pirate Cove storefronts background (added 10/27/26): soft underwater light ripples
+       that fade out toward the bottom. Drawn by the browser from noise, so the file stays tiny. -->
+  <defs>
+    <filter id="ripples" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="turbulence" baseFrequency="0.0045 0.016" numOctaves="2" seed="11"/>
+      <!-- keep only the brightest swirls, as white -->
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  3.2 0 0 0 -1.15"/>
+      <feGaussianBlur stdDeviation="1.2"/>
+    </filter>
+    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="1"/>
+      <stop offset="0.55" stop-color="#fff" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <mask id="fadeMask">
+      <rect width="1600" height="520" fill="url(#fade)"/>
+    </mask>
+  </defs>
+  <rect width="1600" height="520" filter="url(#ripples)" mask="url(#fadeMask)" opacity="0.28"/>
+</svg>
