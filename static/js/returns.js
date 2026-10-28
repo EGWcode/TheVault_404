@@ -13,12 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const damagePreview = document.getElementById("damagePreview");
     const feedback = document.getElementById("returnsFeedback");
 
-    function showFeedback(message, tone = "success") {
-        if (!feedback) return;
-        feedback.textContent = message;
-        feedback.classList.toggle("error", tone === "error");
-        feedback.style.display = "block";
-    }
 
     function clearFeedback() {
         if (!feedback) return;
@@ -127,9 +121,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             form.reset();
             if (damagePreview) damagePreview.innerHTML = "";
+            // confirmation after return request is submitted
             showFeedback("Return submitted successfully");
         } catch (error) {
             console.error("Error submitting return:", error);
+            // show error if return submission fails
             showFeedback(error.message || "Something went wrong while submitting your return.", "error");
         }
     });

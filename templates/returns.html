@@ -110,7 +110,7 @@
         <div class="brand-block">
             <h1 class="brand-title">
                 <!-- Updated 10/19/26: ship-wheel logo replaces the text title -->
-                <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Vault">
+                <img class="brand-logo" src="{{ url_for('static', filename='images/pirate_cove_logo.png') }}" alt="The Pirate Cove">
             </h1>
         </div>
         <h2 class="page-title">Returns</h2>
@@ -127,7 +127,7 @@ Please contact the seller first to request your return.
 
 If you are unable to reach the seller, email TheVaultAdmins@my.hamptonu.edu.
 
-Please still complete this form so The Vault can track the return request.
+Please still complete this form so The Pirate Cove can track the return request.
                 </textarea>
             </section>
 
@@ -172,6 +172,7 @@ Please still complete this form so The Vault can track the return request.
 
     <div class="returns-feedback" id="returnsFeedback"></div>
 
+    <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
     <script src="{{ url_for('static', filename='js/returns.js') }}"></script>
 </body>
 </html>

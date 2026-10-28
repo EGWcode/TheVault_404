@@ -3,7 +3,7 @@
 /*
     create_storefront.css
 
-    The Vault Campus Marketplace 
+    The Pirate Cove Campus Marketplace 
     CSC 405 Sp 26'
     Created by Day Ekoi - Iteration 5
     3/22/2026
@@ -355,6 +355,21 @@ input[type="file"] {
     margin: 0 auto;
     color: white;
     font-size: 0.95rem;
+}
+
+/* Added 10/27/26: inputs marked hidden stay hidden (the display: block above was overriding
+   the hidden attribute, so "Choose File" showed inside the drag & drop boxes). Clicking the
+   box still opens the file picker. */
+input[type="file"][hidden] {
+    display: none;
+}
+
+/* Added 10/27/26: let boxes inside the two-column rows shrink on small screens instead of
+   pushing the page wider than the phone (which made phones zoom the whole page out) */
+.middle-row > *,
+.bottom-row > *,
+.preview-grid-4 > * {
+    min-width: 0;
 }
 
 

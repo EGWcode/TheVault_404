@@ -1,9 +1,7 @@
 <!--
  edit_listing.html
 
-    The Vault Campus Marketplace
-    CSC 405 Sp 26'
-    Updated by Day E - April 22nd - multi-image edit support and image management UI
+
 -->
 
 <!DOCTYPE html>
@@ -13,6 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Listing</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/create_storefront.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
     <style>
         .helper-note {
             color: #bfbfbf;
@@ -170,7 +169,7 @@
         <div class="brand-block">
             <h1 class="brand-title">
                 <!-- Updated 10/19/26: ship-wheel logo replaces the text title -->
-                <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Vault">
+                <img class="brand-logo" src="{{ url_for('static', filename='images/pirate_cove_logo.png') }}" alt="The Pirate Cove">
             </h1>
         </div>
         <h2 class="page-title">Edit Listing</h2>
@@ -294,6 +293,7 @@
         </form>
     </main>
 
+    <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
     <script src="{{ url_for('static', filename='js/edit_listing.js') }}"></script>
 </body>
 </html>

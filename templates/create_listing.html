@@ -1,7 +1,7 @@
 <!--
  create_listing.html
 
-    The Vault Campus Marketplace 
+    The Pirate Cove Campus Marketplace 
     CSC 405 Sp 26'
     Created by Elali McNair - Iteration 4
 
@@ -36,6 +36,7 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
 
     <!-- Flask version - uses create_storefront.css for styling consistency -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/create_storefront.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}"> <!-- Added 10/27/26: shared Pirate Cove header + look -->
     <style>
         .drop-zone {
             border: 2px dashed #9fd0ff;
@@ -139,6 +140,12 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
+        /* Added 10/27/26: stack on phones so the page isn't wider than the screen */
+        .two-col-row > * { min-width: 0; }
+        @media (max-width: 600px) {
+            .preview-grid-4,
+            .two-col-row { grid-template-columns: 1fr; }
+        }
         .price-wrap {
             width: 90%;
             display: flex;
@@ -201,7 +208,9 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
 </head>
 
 
-<body> 
+<body class="cove-page">
+<!-- Added 10/27/26: shared Pirate Cove header (side menu, header row, category bar) -->
+{% include 'partials/cove_header.html' %}
 <!-- Start of main body code -->
 
     <!-- Added 10/20/26: back button - returns to the previous page on this site, otherwise to the storefronts page -->
@@ -215,15 +224,9 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
     </div>
 
     <!-- Header -->
+    <!-- Updated 10/27/26: the logo moved into the shared Pirate Cove header above -->
     <header class="create-header">
-        <div class="brand-block">
-            <h1 class="brand-title">
-                <!-- Updated 10/19/26: ship-wheel logo replaces the text title -->
-                <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Vault">
-            </h1>
-        </div>
-
-        <h2 class="page-title">Create Listing</h2>
+        <h1 class="page-title">Create Listing</h1>
     </header>
 
 
@@ -385,6 +388,7 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
 
 
     <!-- javascript -->
+    <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script> <!-- Added 10/27/26 -->
     <script src="{{ url_for('static', filename='js/create_listing.js') }}"></script>
 
 </body>
