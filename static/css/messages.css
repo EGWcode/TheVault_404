@@ -21,6 +21,7 @@ html, body {
 
 body {
     background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
+    background-color: #1a146a; /* Added 10/27/26: solid color behind the background so scrolling past the top/bottom (overscroll bounce) shows this instead of white */
     color: white;
     font-family: 'League Spartan', Arial, Helvetica, sans-serif;
 }
