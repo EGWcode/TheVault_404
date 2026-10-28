@@ -202,48 +202,28 @@ a:hover { color: var(--white); }
       <!-- Log in form: sends the username + password to login() in auth_controller.py (POST).
            value="{{ username or '' }}" puts the username back after a failed try so only the password is retyped -->
       <form class="auth-form" action="{{ url_for('auth.login') }}" method="POST">
-        <!--Updated code by Sidney Cerami 10/15/2026: Creates Show Password checkbox underneath the password field -->
-          <div class="field">
-    <label for="password">Password</label>
-    <input
-        id="password"
-        type="password"
-        name="password"
-        required
-        autocomplete="current-password"
-        placeholder="••••••••"
-    >
-
-    <label class="show-password">
-        <input type="checkbox" id="togglePassword">
-        Show Password
-    </label>
-</div>
-    <!--    <div class="field">
+        <div class="field">
           <label for="username">Username</label>
           <input id="username" type="text" name="username" required autocomplete="username" placeholder="Your username" value="{{ username or '' }}" autofocus>
         </div>
+        <!-- Show Password checkbox underneath the password field - Sidney Cerami 10/15/2026 -->
         <div class="field">
           <label for="password">Password</label>
           <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+          <label class="show-password">
+            <input type="checkbox" id="togglePassword">
+            Show Password
+          </label>
         </div>
         <button type="submit" class="vault-btn">LOG IN</button>
-      </form> -->
+      </form>
 
-      <!-- Links to the other account pages and back to the portal -->
+      <!-- Links to the other account pages and back to the portal. Forgot Username added by Sidney Cerami -->
       <div class="auth-links">
+        <a href="{{ url_for('auth.forgot_username') }}">Forgot Username?</a>
         <a href="{{ url_for('index') }}">← Back to portal</a>
         <a href="{{ url_for('auth.signup') }}">New here? Sign up</a>
-      </div>  -->
-<!--Updated code By: Sidney Cerami to add in forgot Username and password Feature-->
-
-<div class="auth-links">
-    <a href="{{ url_for('auth.forgot_username') }}">Forgot Username?</a>
-
-    <a href="{{ url_for('index') }}">← Back to portal</a>
-
-    <a href="{{ url_for('auth.signup') }}">New here? Sign up</a>
-</div>
+      </div>
       <!-- Admin Login Button added by David Jackson 4/20/26 -->
       <a href="{{ url_for('auth.admin_login') }}" class="admin-link">Admin access</a>
     </main>
@@ -252,6 +232,11 @@ a:hover { color: var(--white); }
 </div>
 
 <script>
+// Show Password checkbox (Sidney Cerami): switch the password field between hidden dots and plain text
+document.getElementById('togglePassword').addEventListener('change', function () {
+  document.getElementById('password').type = this.checked ? 'text' : 'password';
+});
+
 // Ship + wave animation (Nicco Hill). Skipped for users who prefer reduced motion.
 (function () {
   // Stop here (no animation) if the user's device is set to reduce motion
