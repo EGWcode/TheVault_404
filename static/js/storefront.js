@@ -69,6 +69,7 @@ function createCard(store) {
 
   const card = document.createElement("div"); // Created new element in memory
   card.className = "storefront-card"; // assigns the storefront-card class to the new element for styling purposes
+  card.dataset.storefrontId = store.id; // Added by Anthony Jackson 10/21/26: lets ratings.js show each store's rating on its card
 
   const categories = Array.isArray(store.categories) ? store.categories : [];
   const images = Array.isArray(store.images) ? store.images.filter(Boolean) : [];

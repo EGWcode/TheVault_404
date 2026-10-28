@@ -1,88 +1,146 @@
 <!--
     menu_page.html
-    Added by Anthony Jackson (back end)
-    One page used by the dropdown menu buttons: New Drops, Hot!, All Categories, About and Sitemap.
-    The "page" value sent from menu_controller.py decides what shows up.
+    Made by Anthony Jackson
+    Updated 10/21/26: switched to the blue theme, rewrote the wording, new About page, added Top Rated
+
+    One page that covers the side menu pages: New Drops, Hot!, Top Rated, All Categories and About.
+    menu_controller.py sends a "page" value and that decides what shows up.
+    (The Sitemap page is Jaylen's, it has its own file.)
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Vault</title>
+  <title>The Vault | {% if page == 'new-drops' %}New Drops{% elif page == 'hot' %}Hot!{% elif page == 'top-rated' %}Top Rated{% elif page == 'categories' %}All Categories{% else %}About{% endif %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; background: #0b0b0b; color: #fff; font-family: Arial, sans-serif; }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 20px 60px; }
-    .back { color: #B8860B; text-decoration: none; font-size: 0.95rem; }
-    .back:hover { text-decoration: underline; }
-    h1 { color: #B8860B; letter-spacing: 2px; text-transform: uppercase; margin: 18px 0 6px; }
-    .sub { color: rgba(204,178,128,0.75); margin: 0 0 28px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-    .card { display: block; background: rgba(0,0,0,0.78); border: 1px solid rgba(255,255,255,0.5);
-            border-radius: 18px; padding: 14px; color: #fff; text-decoration: none; }
-    .card:hover { border-color: #B8860B; }
-    .card img { width: 100%; height: 220px; object-fit: cover; border-radius: 12px; background: #222; }
-    .noimg { width: 100%; height: 220px; border-radius: 12px; background: #222; display: flex;
-             align-items: center; justify-content: center; color: #777; }
-    .title { margin: 10px 0 2px; font-weight: bold; }
-    .meta { color: rgba(204,178,128,0.85); font-size: 0.9rem; }
-    .msg { color: #c9c9c9; font-style: italic; }
-    .cat { margin-bottom: 26px; }
-    .cat h2 { margin: 0 0 8px; font-size: 1.2rem; }
-    .chip { display: inline-block; margin: 0 8px 8px 0; padding: 8px 14px; border: 1px solid #B8860B;
-            border-radius: 20px; color: #fff; text-decoration: none; }
-    .chip:hover { background: #B8860B; color: #000; }
-    p, li { line-height: 1.6; }
-    li a { color: #B8860B; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(to bottom, #1176ff 0%, #1a146a 100%) fixed;
+      color: #fff;
+      font-family: 'League Spartan', Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 70px; }
+
+    .pill {
+      display: inline-block; padding: 8px 20px; border: 2px solid #fff; border-radius: 999px;
+      color: #fff; text-decoration: none; font-weight: 700; letter-spacing: 1px; background: transparent;
+    }
+    .pill:hover, .pill.active { background: #fff; color: #1a146a; }
+
+    .top-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 28px; }
+    .top-row .spacer { flex: 1; }
+
+    h1 { font-size: 2.8rem; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 6px; }
+    .sub { color: #9fd0ff; font-size: 1.2rem; margin: 0 0 28px; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
+    .card {
+      display: block; background: rgba(8, 12, 60, 0.55); border: 1px solid rgba(255,255,255,0.7);
+      border-radius: 18px; padding: 14px; color: #fff; text-decoration: none; transition: 0.2s;
+    }
+    .card:hover { border-color: #9fd0ff; transform: translateY(-3px); }
+    .card img, .noimg { width: 100%; height: 220px; border-radius: 12px; display: block; }
+    .card img { object-fit: cover; }
+    .noimg { background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: #9fd0ff; }
+    .title { margin: 12px 0 2px; font-weight: 700; font-size: 1.15rem; }
+    .meta { color: #9fd0ff; }
+    .stars { color: #ffd54a; letter-spacing: 2px; }
+    .big-name { font-size: 1.4rem; font-weight: 700; margin: 4px 0 6px; }
+    .badge { display: inline-block; margin-top: 8px; padding: 3px 12px; border-radius: 999px; background: #fff; color: #1a146a; font-weight: 700; font-size: 0.9rem; }
+
+    .cat { margin-bottom: 28px; }
+    .cat h2 { margin: 0 0 10px; font-size: 1.5rem; letter-spacing: 1px; }
+    .chip { display: inline-block; margin: 0 10px 10px 0; padding: 8px 18px; border: 2px solid #fff; border-radius: 999px; color: #fff; text-decoration: none; font-weight: 700; }
+    .chip:hover { background: #fff; color: #1a146a; }
+
+    .msg { color: #dbe9ff; font-size: 1.2rem; }
+    .about-card { background: rgba(8, 12, 60, 0.55); border: 1px solid rgba(255,255,255,0.7); border-radius: 18px; padding: 22px 26px; margin-bottom: 20px; }
+    .about-card h2 { margin: 0 0 8px; font-size: 1.5rem; letter-spacing: 1px; }
+    .about-card p, .about-card li { font-size: 1.15rem; line-height: 1.55; margin: 0 0 8px; }
+    .about-card ol { margin: 0; padding-left: 22px; }
   </style>
 </head>
 <body>
 <div class="wrap">
-  <a class="back" href="/storefront">&larr; Back to The Vault</a>
+
+  <div class="top-row">
+    <a class="pill" href="/storefront">&larr; Back to The Vault</a>
+    <span class="spacer"></span>
+    <a class="pill {% if page == 'new-drops' %}active{% endif %}" href="/new-drops">New Drops</a>
+    <a class="pill {% if page == 'hot' %}active{% endif %}" href="/hot">Hot!</a>
+    <a class="pill {% if page == 'top-rated' %}active{% endif %}" href="/top-rated">Top Rated</a>
+    <a class="pill {% if page == 'categories' %}active{% endif %}" href="/categories">All Categories</a>
+    <a class="pill {% if page == 'about' %}active{% endif %}" href="/about">About</a>
+  </div>
 
   {% if page == 'new-drops' %}
     <h1>New Drops</h1>
-    <p class="sub">The newest listings from Hampton student brands.</p>
+    <p class="sub">Fresh listings from Hampton student brands.</p>
     <div id="results" class="grid"></div>
 
   {% elif page == 'hot' %}
     <h1>Hot!</h1>
-    <p class="sub">The listings people are saving the most.</p>
+    <p class="sub">What everybody's saving to their wishlist.</p>
+    <div id="results" class="grid"></div>
+
+  {% elif page == 'top-rated' %}
+    <h1>Top Rated</h1>
+    <p class="sub">The stores students rate the highest.</p>
     <div id="results" class="grid"></div>
 
   {% elif page == 'categories' %}
     <h1>All Categories</h1>
-    <p class="sub">Pick a category to see the storefronts in it.</p>
+    <p class="sub">Pick a category and see who's selling.</p>
     <div id="results"></div>
 
   {% elif page == 'about' %}
     <h1>About The Vault</h1>
-    <p>The Vault is a campus marketplace for Hampton University students. Student-run clothing brands
-       can open a storefront, list their items, and sell to other students.</p>
-    <p>Everything is an in-person meetup. You pick your items, check out, and meet the seller on campus
-       to complete the exchange. No payments are taken on the site.</p>
+    <p class="sub">A campus marketplace made by Hampton students, for Hampton students.</p>
 
-  {% elif page == 'sitemap' %}
-    <h1>Sitemap</h1>
-    <ul>
-      <li><a href="/storefront">Explore Brands (home)</a></li>
-      <li><a href="/categories">All Categories</a></li>
-      <li><a href="/new-drops">New Drops</a></li>
-      <li><a href="/hot">Hot!</a></li>
-      <li><a href="/create-storefront">Create Storefront</a></li>
-      <li><a href="/create-listing">Create Listing</a></li>
-      <li><a href="/my-storefront">My Storefront</a></li>
-      <li><a href="/cart">Cart</a></li>
-      <li><a href="/returns">Returns</a></li>
-      <li><a href="/about">About</a></li>
-    </ul>
+    <div class="about-card">
+      <h2>What is it?</h2>
+      <p>The Vault is where students sell and shop clothing right here on campus. If you've got your own brand, you can open a storefront and list your stuff. If you're shopping, you can browse brands, save what you like, and message the seller.</p>
+    </div>
+
+    <div class="about-card">
+      <h2>How it works</h2>
+      <ol>
+        <li>Make an account with your school email.</li>
+        <li>Open a storefront and list your items, or browse what's already up.</li>
+        <li>Check out, then meet the seller on campus to finish the exchange.</li>
+      </ol>
+    </div>
+
+    <div class="about-card">
+      <h2>Meetups only</h2>
+      <p>Everything is an in-person exchange. We don't take payments on the site, you and the seller sort that out when you meet up.</p>
+    </div>
+
+    <div class="about-card">
+      <h2>Rate your favorites</h2>
+      <p>Shopped with a store? Give it 1 to 5 stars so other students know who's worth it. The highest rated stores show up on the Top Rated page.</p>
+    </div>
+
+    <div class="about-card">
+      <h2>The team</h2>
+      <p>Built by our CSC 404 group: Ethan Williams, Nicco Hill, Nicholas Smith, Noah Green, Anthony Jackson, Tykeara Hammond, Sidney Cerami and Jaylen Belle.</p>
+    </div>
   {% endif %}
 </div>
 
 {% if page in ['new-drops', 'hot'] %}
 <script>
   const results = document.getElementById("results");
-  const url = "/api/menu/{{ page }}";
+  const isHot = {{ 'true' if page == 'hot' else 'false' }};
+  const emptyText = isHot
+    ? "Nothing's trending yet. Save a few items to your wishlist and check back."
+    : "Nothing new right now. Check back soon.";
 
   function esc(text) {
     const d = document.createElement("div");
@@ -90,22 +148,53 @@
     return d.innerHTML;
   }
 
-  fetch(url)
+  fetch("/api/menu/{{ page }}")
     .then(r => { if (!r.ok) throw new Error("bad response"); return r.json(); })
     .then(items => {
-      if (!items.length) {
-        results.innerHTML = '<p class="msg">Nothing here yet. Check back soon.</p>';
-        return;
-      }
+      if (!items.length) { results.innerHTML = '<p class="msg">' + emptyText + '</p>'; return; }
       results.innerHTML = items.map(item => `
         <a class="card" href="/storefronts/${item.storefront_id}">
-          ${item.image_url ? `<img src="${esc(item.image_url)}" alt="${esc(item.title)}">` : '<div class="noimg">No image</div>'}
+          ${item.image_url ? `<img src="${esc(item.image_url)}" alt="${esc(item.title)}">` : '<div class="noimg">No image yet</div>'}
           <div class="title">${esc(item.title)}</div>
           <div class="meta">$${Number(item.price).toFixed(2)} &middot; ${esc(item.brand_name)}</div>
+          ${isHot && item.wishlist_count > 0 ? `<span class="badge">Saved ${item.wishlist_count} ${item.wishlist_count === 1 ? "time" : "times"}</span>` : ""}
         </a>`).join("");
     })
-    .catch(() => { results.innerHTML = '<p class="msg">Could not load listings. Please try again.</p>'; });
+    .catch(() => { results.innerHTML = '<p class="msg">Something went wrong loading this page. Try refreshing.</p>'; });
 </script>
+
+{% elif page == 'top-rated' %}
+<script>
+  const results = document.getElementById("results");
+
+  function esc(text) {
+    const d = document.createElement("div");
+    d.textContent = text == null ? "" : String(text);
+    return d.innerHTML;
+  }
+  function starString(avg) {
+    const full = Math.round(avg);
+    return "\u2605".repeat(full) + "\u2606".repeat(5 - full);
+  }
+
+  fetch("/api/ratings/top")
+    .then(r => { if (!r.ok) throw new Error("bad response"); return r.json(); })
+    .then(stores => {
+      if (!stores.length) {
+        results.innerHTML = '<p class="msg">No ratings yet. Visit a store and be the first to rate it.</p>';
+        return;
+      }
+      results.innerHTML = stores.map(s => `
+        <a class="card" href="/storefronts/${s.storefront_id}">
+          <div class="big-name">${esc(s.brand_name)}</div>
+          <div class="stars">${starString(s.average)}</div>
+          <div class="meta">${esc(s.text)}</div>
+          <span class="badge">${esc(s.label)}</span>
+        </a>`).join("");
+    })
+    .catch(() => { results.innerHTML = '<p class="msg">Something went wrong loading this page. Try refreshing.</p>'; });
+</script>
+
 {% elif page == 'categories' %}
 <script>
   const results = document.getElementById("results");
@@ -119,17 +208,14 @@
   fetch("/api/menu/categories")
     .then(r => { if (!r.ok) throw new Error("bad response"); return r.json(); })
     .then(groups => {
-      if (!groups.length) {
-        results.innerHTML = '<p class="msg">No categories yet.</p>';
-        return;
-      }
+      if (!groups.length) { results.innerHTML = '<p class="msg">No categories yet.</p>'; return; }
       results.innerHTML = groups.map(g => `
         <div class="cat">
           <h2>${esc(g.category)}</h2>
           ${g.storefronts.map(s => `<a class="chip" href="/storefronts/${s.id}">${esc(s.brand_name)}</a>`).join("")}
         </div>`).join("");
     })
-    .catch(() => { results.innerHTML = '<p class="msg">Could not load categories. Please try again.</p>'; });
+    .catch(() => { results.innerHTML = '<p class="msg">Something went wrong loading this page. Try refreshing.</p>'; });
 </script>
 {% endif %}
 </body>

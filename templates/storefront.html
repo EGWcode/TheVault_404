@@ -100,6 +100,7 @@ Start of Code w/ comments
     <a href="/categories" class="nav-item" style="text-decoration:none;">All Categories <span>→</span></a>
     <a href="/new-drops" class="nav-item" style="text-decoration:none;">New Drops <span>→</span></a>
     <a href="/hot" class="nav-item" style="text-decoration:none;">Hot! <span>→</span></a>
+    <a href="/top-rated" class="nav-item" style="text-decoration:none;">Top Rated <span>→</span></a> <!-- Added by Anthony Jackson 10/21/26 -->
   </div>
 
   <!-- extras -->
@@ -294,6 +295,7 @@ Updated nav bar
   </div>
 
   <script src="{{ url_for('static', filename='js/storefront.js') }}"></script> <!-- Updated by Day E 3/22/26 -->
+  <script src="{{ url_for('static', filename='js/ratings.js') }}"></script> <!-- Added by Anthony Jackson 10/21/26: storefront ratings on the cards -->
   <!-- This line links this file to storefront.js 
    Placed at the bottom so that all HTML loads correctly first and then JS. This ensures everything runs correctly -->
 </body> <!-- end of body -->

@@ -56,6 +56,9 @@
     </section>
 
     <!-- listings -->
+    <!-- Added by Anthony Jackson 10/21/26: overall rating and star picker (filled in by ratings.js) -->
+    <section id="ratingSection"></section>
+
     <section class="storefront-listings-section">
         <h3 class="listings-heading" id="listingsHeading">Listings</h3>
         <div class="listing-grid" id="listingGrid"></div>
@@ -74,5 +77,6 @@
 </main>
 
 <script src="{{ url_for('static', filename='js/storefront_view.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ratings.js') }}"></script> <!-- Added by Anthony Jackson 10/21/26 -->
 </body>
 </html>
