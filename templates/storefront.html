@@ -1,7 +1,7 @@
 <!---
     storefront.html
 
-    The Vault Campus Marketplace 
+    The Pirate Cove Campus Marketplace 
     CSC 405 Sp 26'
     Created by Day Ekoi - Iteration 4
     3/18/2026-3/22/2026
@@ -9,7 +9,7 @@
 
 
 Description of file (What it does, how it is used, etc):
-This file holds the main UI strucutre for the storefront homepage of the Vault. It includes the top navigation bar, logo and search section, 
+This file holds the main UI strucutre for the storefront homepage of The Pirate Cove. It includes the top navigation bar, logo and search section, 
 and the main content area where storefront cards will be displayed. The storefront cards are generated dynamically using storefront.js. This page serves as the entry point for users to explore different storefronts available on the website.
 It is simply the skeleton/template of the storefront page, all styling is handled by storefront.css
 The cards are not hardcoded into HTML, but there is a grid container that the javascript file added dynamically as users create storefronts.
@@ -17,7 +17,7 @@ This page will connect to the Flask backend and database by requesting storefron
 
 Purpose simplified: Creates page structure:
 Top bar: menu button on left, cart and profile icons on right
-Logo/Title and search section: The Vault logo/title and a search bar for users to search for storefronts
+Logo/Title and search section: The Pirate Cove logo/title and a search bar for users to search for storefronts
 Main content: where storefront cards will be displayed, along with pagination controls at bottom of page
 Script connection: Links and loads JS file that actually creates the storefront cards dynamically
 
@@ -38,7 +38,7 @@ Start of Code w/ comments
 <!-- stores info that isnt actually shown on the page itself. Includes metadata, browser tab title, and links to the css file -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- ensures the screensize is consistent on different types of devices -->
-  <title>The Vault | Storefronts</title> <!-- Simple, this is the Title of the page -->
+  <title>The Pirate Cove | Storefronts</title> <!-- Simple, this is the Title of the page -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap" rel="stylesheet">
@@ -114,7 +114,7 @@ Start of Code w/ comments
 
   <!-- extras -->
   <div class="nav-section more">
-    <p class="nav-heading">More from The Vault</p>
+    <p class="nav-heading">More from The Pirate Cove</p>
     <a href="/about" class="nav-subitem">About</a>
     <a href="/messages" class="nav-subitem">Messages</a> <!-- Added 10/20/26 -->
     <a href="/returns" class="nav-subitem">Returns</a>
@@ -267,7 +267,7 @@ Updated nav bar
 
     <!-- Updated 10/18/26: text title replaced with the ship-wheel logo from the blue redesign -->
     <h1 class="brand-title">
-      <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Vault">
+      <img class="brand-logo" src="{{ url_for('static', filename='images/vault_wheel_logo.png') }}" alt="The Pirate Cove">
     </h1>
 
     <!-- Search Bar input that allows users to type their search queries. As of right now there isnt any actual functionality -->
@@ -277,7 +277,7 @@ Updated nav bar
         type="text"
         id="searchInput"
         class="search-input"
-        placeholder="Explore The Vault"
+        placeholder="Explore The Pirate Cove"
       />
     </div>
   </section>
