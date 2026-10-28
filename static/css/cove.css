@@ -245,7 +245,11 @@ body {
 .nav-pane {
     position: fixed;
     top: 0;
-    right: -320px;
+    right: 0;
+    /* closed: slid out of view and hidden. (Parking it past the right edge with right: -320px
+       made phones treat the page as wider than the screen and zoom everything out.) */
+    transform: translateX(calc(100% + 12px));
+    visibility: hidden;
     width: 300px;
     height: 100vh;
     background: linear-gradient(to bottom, #2b8cff 0%, #2443b9 55%, #1c1a6e 100%);
@@ -253,13 +257,15 @@ body {
     box-shadow: -6px 0 24px rgba(0, 0, 0, 0.35);
     padding: 30px 22px 24px 22px;
     z-index: 30;
-    transition: right 0.3s ease;
+    transition: transform 0.3s ease, visibility 0s linear 0.3s;
     overflow-y: auto;
     text-align: left;
 }
 
 .nav-pane.active {
-    right: 0;
+    transform: none;
+    visibility: visible;
+    transition: transform 0.3s ease;
 }
 
 .nav-top {

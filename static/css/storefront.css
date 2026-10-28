@@ -67,7 +67,7 @@ body {
 .nav-pane {
     position: fixed;
     top: 0;
-    right: -320px; /* Updated 10/27/26: slides in from the right, where the menu button now is */
+    right: 0; /* Updated 10/27/26: opens from the right; hiding/sliding is in cove.css */
     width: 300px;
     height: 100vh;
     /* Updated 10/18/26: same blue-to-navy gradient as the page, white edge instead of gold */

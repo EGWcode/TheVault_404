@@ -1,10 +1,6 @@
 <!--
  storefront_view.html
-    The Pirate Cove Campus Marketplace
-    CSC 405 Sp 26'
-    Created by Day Ekoi - Iteration 4
-    3/18/2026-3/22/2026
-    Updated by Day Ekoi - Iteration 5 - 4/20/26 - Facebook-style layout, back arrow above banner, info moved below banner
+
 -->
 
 <!DOCTYPE html>
@@ -14,6 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Storefront View</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront_view.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
 </head>
 <body>
 
@@ -73,6 +70,7 @@
 
 </main>
 
+<script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
 <script src="{{ url_for('static', filename='js/storefront_view.js') }}"></script>
 </body>
 </html>
