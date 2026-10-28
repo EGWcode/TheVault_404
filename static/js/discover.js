@@ -1,142 +1,232 @@
-// discover.js
-// Loads the cards for the themed browse pages (discover.html): Brands, Categories, New Drops and Hot!
-// Data comes from /api/storefronts and Anthony Jackson's /api/menu routes.
+/* The Vault browse page functionality - Noah Green 10/17/2026 */
+'use strict';
+const PAGE = document.body.dataset.page;
+const results = document.getElementById('results');
+const search = document.getElementById('browseSearch');
+const filters = document.getElementById('categoryFilters');
+const heading = document.getElementById('resultsHeading');
+const categoryParam = new URLSearchParams(window.location.search).get('category');
+let storefronts = [];
+let selectedCategory = categoryParam || '';
 
-const page = document.body.dataset.page;
-const results = document.getElementById("results");
-const searchInput = document.getElementById("browseSearch");
-
-function esc(text) {
-  const d = document.createElement("div");
-  d.textContent = text == null ? "" : String(text);
-  return d.innerHTML;
+function element(tag, className = '', text = '') {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  if (text) el.textContent = text;
+  return el;
 }
+function showState(message, type = 'info') {
+  const state = element('div', `state-message state-${type}`);
 
-function showMessage(text) {
-  results.innerHTML = `<p class="state-message">${esc(text)}</p>`;
+  if (type === 'loading') {
+    const spinner = element('div', 'loading-spinner');
+    state.appendChild(spinner);
+  }
+
+  state.appendChild(element('p', '', message));
+  results.replaceChildren(state);
 }
-
-function getJSON(url) {
-  return fetch(url).then(r => {
-    if (!r.ok) throw new Error("bad response");
-    return r.json();
+function safeImage(url, alt) {
+  if (typeof url === 'string' && /^(https?:\/\/|\/static\/|\/uploads\/)/i.test(url)) {
+    const img = element('img', 'card-media');
+    img.src = url;
+    img.alt = alt;
+    img.loading = 'lazy';
+    img.addEventListener('error', () => img.replaceWith(element('div', 'card-media card-placeholder', 'THE VAULT')), {once:true});
+    return img;
+  }
+  return element('div', 'card-media card-placeholder', 'THE VAULT');
+}
+function parseCategories(raw) {
+  if (Array.isArray(raw)) return raw.map(x => String(x).trim()).filter(Boolean);
+  if (typeof raw !== 'string') return [];
+  let value = raw;
+  if (raw.trim().startsWith('[')) {
+    try { const json = JSON.parse(raw); if (Array.isArray(json)) return parseCategories(json); } catch (_err) { /* comma-delimited fallback */ }
+  }
+  return value.split(',').map(x => x.trim()).filter(Boolean);
+}
+function buildCard({url, image, title, alt, eyebrow, meta, price, footerText}) {
+  const card = element('a', 'item-card');
+  card.href = url;
+  card.appendChild(safeImage(image, alt || title));
+  const body = element('div', 'card-body');
+  body.appendChild(element('span', 'card-eyebrow', eyebrow));
+  body.appendChild(element('h2', 'card-title', title));
+  body.appendChild(element('p', 'card-meta', meta));
+  const footer = element('div', 'card-footer');
+  if (price !== undefined) footer.appendChild(element('strong', 'card-price', '$' + Number(price).toFixed(2)));
+  footer.appendChild(element('span', 'card-action', footerText || 'View Storefront →'));
+  body.appendChild(footer);
+  card.appendChild(body);
+  return card;
+}
+function storeCard(store) {
+  const cats = store.categoryList || [];
+  const n = Number(store.item_count) || 0;
+  return buildCard({
+    url: '/storefronts/' + encodeURIComponent(store.id),
+    image: store.preview_image_1 || store.banner_url || store.logo_url,
+    title: store.brand_name || 'Unnamed Storefront',
+    eyebrow:'Brand',
+    meta: `${n} ${n === 1 ? 'listing' : 'listings'}${cats.length ? ' · ' + cats.join(' · ') : ''}`
   });
 }
-
-function media(imageUrl, alt, placeholder) {
-  if (imageUrl) {
-    return `<img class="card-media" src="${esc(imageUrl)}" alt="${esc(alt)}">`;
-  }
-  return `<div class="card-media"><span class="card-placeholder">${esc(placeholder)}</span></div>`;
+function productCard(item) {
+  const meta = PAGE === 'hot'
+    ? `${item.brand_name} · ${item.units_ordered} ${item.units_ordered === 1 ? 'unit ordered' : 'units ordered'}`
+    : `${item.brand_name} · ${item.status === 'SOLD_OUT' ? 'Sold out' : 'Available'}`;
+  return buildCard({
+    url: '/storefronts/' + encodeURIComponent(item.storefront_id),
+    image:item.image_url,
+    title:item.title || 'Untitled Item',
+    eyebrow:item.brand_name || 'Storefront',
+    meta, price:item.price, footerText:'View in Store →'
+  });
 }
-
-// ---------- Listing cards (New Drops, Hot!) ----------
-
-function listingCard(item) {
-  const saves = page === "hot" && item.wishlist_count
-    ? `<p class="card-meta">Saved ${item.wishlist_count} time${item.wishlist_count === 1 ? "" : "s"}</p>`
-    : "";
-  return `
-    <a class="item-card" href="/storefronts/${item.storefront_id}">
-      ${media(item.image_url, item.title, item.brand_name)}
-      <div class="card-body">
-        <div class="card-eyebrow">${esc(item.brand_name)}</div>
-        <h3 class="card-title">${esc(item.title)}</h3>
-        ${saves}
-        <div class="card-footer">
-          <span class="card-price">$${Number(item.price).toFixed(2)}</span>
-          <span class="card-action">View brand →</span>
-        </div>
-      </div>
-    </a>`;
+function drawStores() {
+  const term = (search?.value || '').trim().toLocaleLowerCase();
+  const matched = storefronts.filter(s => {
+    if (selectedCategory && !s.categoryList.some(c => c.toLocaleLowerCase() === selectedCategory.toLocaleLowerCase())) return false;
+    if (!term) return true;
+    return s.brand_name.toLocaleLowerCase().includes(term) || s.categoryList.some(c => c.toLocaleLowerCase().includes(term));
+  });
+  matched.sort((a, b) => a.brand_name.localeCompare(b.brand_name));
+  results.replaceChildren(...matched.map(storeCard));
+  if (!matched.length) {
+  showState(
+    'No storefronts found. Try another category or search term.',
+    'empty'
+  );
 }
-
-function loadListings(url) {
-  getJSON(url)
-    .then(items => {
-      if (!items.length) return showMessage("Nothing here yet. Check back soon.");
-      results.innerHTML = items.map(listingCard).join("");
-    })
-    .catch(() => showMessage("Could not load listings. Please try again."));
+  if (heading) heading.textContent = selectedCategory ? selectedCategory + ' Storefronts' : 'All Storefronts';
 }
-
-// ---------- Storefront cards (Brands, Categories) ----------
-
-function storefrontCard(store) {
-  const count = store.item_count != null
-    ? `${store.item_count} item${store.item_count === 1 ? "" : "s"}`
-    : "";
-  return `
-    <a class="item-card" href="/storefronts/${store.id}">
-      ${media(store.banner_url || store.logo_url, store.brand_name, store.brand_name)}
-      <div class="card-body">
-        <div class="card-eyebrow">${esc(store.categories || "Student brand")}</div>
-        <h3 class="card-title">${esc(store.brand_name)}</h3>
-        ${store.bio ? `<p class="card-meta">${esc(store.bio)}</p>` : ""}
-        <div class="card-footer">
-          <span class="card-meta">${count}</span>
-          <span class="card-action">Visit storefront →</span>
-        </div>
-      </div>
-    </a>`;
-}
-
-function matchesSearch(store, query) {
-  if (!query) return true;
-  const text = `${store.brand_name} ${store.categories || ""} ${store.bio || ""}`.toLowerCase();
-  return text.includes(query);
-}
-
-function storeCategories(store) {
-  return String(store.categories || "").split(",").map(c => c.trim()).filter(Boolean);
-}
-
-function loadStorefronts() {
-  let stores = [];
-  let activeCategory = null;
-  const filters = document.getElementById("categoryFilters");
-  const heading = document.getElementById("resultsHeading");
-
-  function render() {
-    const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
-    const shown = stores.filter(s =>
-      matchesSearch(s, query) &&
-      (!activeCategory || storeCategories(s).includes(activeCategory))
-    );
-    if (heading) heading.textContent = activeCategory ? `${activeCategory} storefronts` : "Storefronts";
-    if (!shown.length) return showMessage("No storefronts match that yet.");
-    results.innerHTML = shown.map(storefrontCard).join("");
-  }
-
-  function renderFilters() {
-    const names = [...new Set(stores.flatMap(storeCategories))].sort((a, b) => a.localeCompare(b));
-    filters.innerHTML = ["All", ...names].map(name => {
-      const pressed = (name === "All" && !activeCategory) || name === activeCategory;
-      return `<button type="button" class="category-chip" data-category="${esc(name)}" aria-pressed="${pressed}">${esc(name)}</button>`;
-    }).join("");
-  }
-
-  if (filters) {
-    filters.addEventListener("click", e => {
-      const chip = e.target.closest(".category-chip");
-      if (!chip) return;
-      activeCategory = chip.dataset.category === "All" ? null : chip.dataset.category;
-      renderFilters();
-      render();
+function drawCategories() {
+  const counts = new Map();
+  storefronts.forEach(s => s.categoryList.forEach(c => {
+    const key = c.toLocaleLowerCase();
+    if (!counts.has(key)) counts.set(key, {name:c, count:0});
+    counts.get(key).count++;
+  }));
+  filters.replaceChildren();
+  const all = [{name:'All', count:storefronts.length}, ...[...counts.values()].sort((a,b)=>a.name.localeCompare(b.name))];
+  all.forEach(c => {
+    const button = element('button', 'category-chip', c.name + ' (' + c.count + ')');
+    button.type = 'button';
+    button.setAttribute('aria-pressed', String(c.name === 'All' ? !selectedCategory : c.name.toLocaleLowerCase() === selectedCategory.toLocaleLowerCase()));
+    button.addEventListener('click', () => {
+      selectedCategory = c.name === 'All' ? '' : c.name;
+      const u = new URL(window.location.href);
+      if (selectedCategory) u.searchParams.set('category', selectedCategory);
+      else u.searchParams.delete('category');
+      history.replaceState(null, '', u);
+      drawCategories();
+      drawStores();
     });
+    filters.appendChild(button);
+  });
+  if (all.length === 1) {
+    filters.appendChild(element('p','card-meta','There are no categories yet. Sellers can assign them while creating storefronts.'));
   }
-  if (searchInput) searchInput.addEventListener("input", render);
-
-  getJSON("/api/storefronts")
-    .then(data => {
-      stores = data;
-      if (!stores.length) return showMessage("No storefronts are open yet.");
-      if (filters) renderFilters();
-      render();
-    })
-    .catch(() => showMessage("Could not load storefronts. Please try again."));
 }
+async function loadStores() {
+  showState('Loading storefronts...', 'loading');
 
-if (page === "new") loadListings("/api/menu/new-drops");
-else if (page === "hot") loadListings("/api/menu/hot");
-else if (page === "brands" || page === "categories") loadStorefronts();
+  try {
+    const response = await fetch('/api/storefronts');
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error('Unexpected storefront data');
+    }
+
+    storefronts = data
+      .filter(s => s && s.id && s.is_active !== false)
+      .map(s => ({
+        ...s,
+        brand_name: String(s.brand_name || 'Unnamed Storefront'),
+        categoryList: parseCategories(s.categories)
+      }));
+
+    if (!storefronts.length) {
+      showState(
+        'No storefronts are available right now. Check back soon.',
+        'empty'
+      );
+      return;
+    }
+
+    if (PAGE === 'categories') {
+      drawCategories();
+    }
+
+    drawStores();
+
+  } catch (error) {
+    console.error('Storefront browse failed:', error);
+
+    showState(
+      'Unable to load storefronts. Please try again.',
+      'error'
+    );
+  }
+}
+async function loadProducts() {
+  showState('Loading listings...', 'loading');
+
+  try {
+    const response = await fetch(
+      '/api/discover/listings?sort=' + PAGE + '&limit=48'
+    );
+
+    if (!response.ok) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    const products = await response.json();
+
+    if (!Array.isArray(products)) {
+      throw new Error('Unexpected listing data');
+    }
+
+    if (!products.length) {
+      if (PAGE === 'hot') {
+        showState(
+          'No popular listings yet. Products will appear here after orders are placed.',
+          'empty'
+        );
+      } else {
+        showState(
+          'No new drops yet. Check back soon!',
+          'empty'
+        );
+      }
+
+      return;
+    }
+
+    results.replaceChildren(...products.map(productCard));
+
+  } catch (error) {
+    console.error('Product browse failed:', error);
+
+    showState(
+      'Unable to load listings. Please try again.',
+      'error'
+    );
+  }
+}
+if (search) search.addEventListener('input', drawStores);
+if (PAGE === 'brands' || PAGE === 'categories') loadStores();
+else if (PAGE === 'new' || PAGE === 'hot') loadProducts();
+if (typeof module !== 'undefined') {
+  module.exports = {
+    showState,
+    loadProducts
+  };
+}

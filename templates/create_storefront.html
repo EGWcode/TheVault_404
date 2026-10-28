@@ -1,12 +1,6 @@
 <!--
  create_storefront.html
 
-    The Pirate Cove Campus Marketplace 
-    CSC 405 Sp 26'
-    Created by Day Ekoi - Iteration 4 - 3/22/2026
-    Updated by Day Ekoi - Iteration 5 - 4/20/26 - added drag-drop image upload zones and preview thumbnails for banner, logo, and preview images
-
-
 This file is the Create Storefront page where users create their storefronts using a form based UI 
 
 Users can:
@@ -18,9 +12,6 @@ Users can:
 - Upload preview images for their storefront
 
 This page is rendered using Flask and connects to the static CSS and JS files.
-
-This doesnt do this rn. But it will be updated so this form will submit data to the backend (Flask API) where the storefront will be stored
-in the database and then displayed dynamically on the homepage.
 
 This file acts as the UI structure (skeleton) of the Create Storefront feature.
 -->
@@ -41,7 +32,8 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
     <link rel="stylesheet" href="./create_storefront.css"> -->
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/create_storefront.css') }}">
-    <!-- Drag-drop zone styles - Added by Day Ekoi 4/20/26 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/feedback.css') }}">
+    <!-- Drag-drop zone styles --->
     <style>
         .drop-zone {
             border: 2px dashed #9fd0ff;
@@ -295,6 +287,7 @@ This file acts as the UI structure (skeleton) of the Create Storefront feature.
     <script src="./create_storefront.js"></script> -->
 
     <!-- flask version (for later use) -->
+    <script src="{{ url_for('static', filename='js/feedback.js') }}"></script>
     <script src="{{ url_for('static', filename='js/create_storefront.js') }}"></script>
 
 
