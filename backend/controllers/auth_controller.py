@@ -6,6 +6,10 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, jsonify
 from services.auth_services import AuthService 
 from config.db import get_connection
+# imports created by Sidney cerami 10/20/2-26
+import os
+import smtplib
+from email.message import EmailMessage
 
 # auth_bp groups these routes. service (AuthService) does the real work: checking passwords, saving users, loading carts.
 auth_bp = Blueprint('auth', __name__)
@@ -93,6 +97,69 @@ def signup(): #Errors now show on the signup page instead of a white screen - Ty
         return render_template('signup.html', username=user, email=email)
 
     return render_template('signup.html')
+# Created by Sidney Cerami 10/20/2026 - Forgot Username route and email functionality
+@auth_bp.route('/forgot-username', methods=['GET', 'POST'])
+def forgot_username():
+    if request.method == 'GET':
+        return render_template('forgot_username.html')
+
+    email = (request.form.get('email') or '').strip()
+    if not email:
+        flash("Enter the email address associated with your account.", "error")
+        return render_template('forgot_username.html')
+
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    sender = os.getenv("SMTP_FROM", smtp_user)
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+
+    if not all((smtp_host, smtp_user, smtp_password, sender)):
+        print("Forgot-username error: SMTP settings are not configured.")
+        flash("We couldn't process your request right now. Please try again later.", "error")
+        return render_template('forgot_username.html')
+
+    conn = get_connection()
+    if conn is None:
+        flash("We couldn't process your request right now. Please try again later.", "error")
+        return render_template('forgot_username.html')
+
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT username FROM users WHERE LOWER(email) = LOWER(%s)",
+            (email,)
+        )
+        user = cur.fetchone()
+        cur.close()
+
+        if user:
+            message = EmailMessage()
+            message["Subject"] = "Your Vault username"
+            message["From"] = sender
+            message["To"] = email
+            message.set_content(
+                f"Your Vault username is: {user[0]}\n\n"
+                "If you didn't request this, you can ignore this email."
+            )
+
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as smtp:
+                smtp.starttls()
+                smtp.login(smtp_user, smtp_password)
+                smtp.send_message(message)
+
+        # Use the same response whether or not the email matches an account.
+        flash(
+            "If an account matches that email, its username has been sent.",
+            "success"
+        )
+    except Exception as e:
+        print(f"Forgot-username error: {e}")
+        flash("We couldn't process your request right now. Please try again later.", "error")
+    finally:
+        conn.close()
+
+    return render_template('forgot_username.html')
 
 # ---------- Pages that need a logged-in user ----------
 # If there's no user in the session, send them to log in first

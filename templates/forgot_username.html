@@ -1,0 +1,29 @@
+<!--Created by Sidney Cerami 10/20/2026-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Forgot Username — The Vault</title>
+</head>
+<body>
+  <main>
+    <h1>Forgot your username?</h1>
+    <p>Enter the email address associated with your account. If it matches, we’ll email your username.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p role="status">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post">
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email" required autocomplete="email">
+      <button type="submit">Send username</button>
+    </form>
+
+    <p><a href="{{ url_for('auth.login') }}">Back to log in</a></p>
+  </main>
+</body>
+</html>
