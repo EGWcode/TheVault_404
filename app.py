@@ -3,19 +3,20 @@ import os
 import secrets
 from flask import Flask, render_template, redirect, url_for, session
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend'))) # Updated 3/19/2026 by Ryan Grimes
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'backend'))) 
 
 from controllers.listing_controller import listing_bp
-from controllers.storefront_controller import storefront_bp, storefront_pages_bp  # Updated by Day E 3/22/26
+from controllers.storefront_controller import storefront_bp, storefront_pages_bp 
 from controllers.purchase_controller import purchase_bp
 from controllers.wishlist_controller import wishlist_bp
 from controllers.admin_controller import admin_bp
-from controllers.auth_controller import auth_bp # Updated 3/19/2026 by Ryan Grimes
+from controllers.auth_controller import auth_bp 
 from controllers.return_controller import returns_bp
 from controllers.checkout_controller import checkout_bp
 from controllers.menu_controller import menu_api_bp, menu_pages_bp  # Added by Anthony Jackson - dropdown menu pages
 from controllers.message_controller import messages_bp # Added 10/20/26 for buyer-seller messaging
 from init_db import create_vault_tables
+from controllers.discovery_controller import discovery_bp  # Updated by Noah Green 10/17/2026
 
 
 def create_app():
@@ -88,6 +89,44 @@ def create_app():
     @app.route('/sitemap')
     def sitemap():
         return render_template('sitemap.html')
+    
+    # Browse pages added by Noah Green 10/17/2026
+
+    @app.get('/brands')
+    def browse_brands():
+        return render_template(
+            'discover.html',
+            page='brands',
+            title='Explore Brands',
+            subtitle='Find independent brands on The Vault.'
+        )
+
+    @app.get('/categories')
+    def browse_categories():
+        return render_template(
+            'discover.html',
+            page='categories',
+            title='All Categories',
+            subtitle='Browse the categories your campus storefronts offer.'
+        )
+
+    @app.get('/new-drops')
+    def browse_new_drops():
+        return render_template(
+            'discover.html',
+            page='new',
+            title='New Drops',
+            subtitle='See the latest active listings across The Vault.'
+        )
+
+    @app.get('/hot')
+    def browse_hot():
+        return render_template(
+            'discover.html',
+            page='hot',
+            title='Hot!',
+            subtitle='Discover the most ordered listings on The Vault.'
+        )
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
@@ -102,6 +141,7 @@ def create_app():
     app.register_blueprint(menu_api_bp)    # Added by Anthony Jackson - dropdown menu data
     app.register_blueprint(menu_pages_bp)  # Added by Anthony Jackson - dropdown menu pages
     app.register_blueprint(messages_bp) # Added 10/20/26 for buyer-seller messaging
+    app.register_blueprint(discovery_bp)
 
     @app.get("/health")
     def health():
