@@ -6,161 +6,132 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Pirate Cove | Account Console</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront.css') }}">
+    <!-- Updated by Ethan Williams 11/5/26: Pirate Cove redesign -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}">
     <style>
-        :root { --gold: #B8860B; --dark-bg: #121212; }
-        
-        body { background-color: #000; color: white; font-family: 'Segoe UI', sans-serif; }
+        :root { --accent: #9fd0ff; --line: rgba(255, 255, 255, 0.7); --soft-line: rgba(255, 255, 255, 0.25); }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; }
 
         .account-container {
-            max-width: 1000px; margin: 50px auto; padding: 20px;
-            background: rgba(18, 18, 18, 0.9); border: 1px solid var(--gold);
+            width: min(1000px, 92%); margin: 0 auto 60px; padding: 32px 36px;
+            background: rgba(12, 24, 100, 0.35); border: 2px solid var(--line);
         }
+
+        /* outlined pill */
+        .back-btn, .logout-btn {
+            display: inline-block; color: white; text-decoration: none;
+            border: 2px solid white; border-radius: 999px;
+            padding: 8px 20px 6px; font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .back-btn:hover { background: rgba(255, 255, 255, 0.15); }
+        .logout-btn { border-color: #ffb3b3; color: #ffd6d6; }
+        .logout-btn:hover { background: rgba(255, 110, 110, 0.25); }
 
         .profile-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--gold); padding-bottom: 20px; margin-bottom: 30px;
+            display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;
+            border-bottom: 2px solid var(--line); padding-bottom: 20px; margin: 24px 0 26px;
         }
 
-        .user-meta h1 { margin: 0; color: var(--gold); letter-spacing: 2px; }
-        .role-badge { 
-            background: var(--gold); color: black; padding: 2px 10px; 
-            font-size: 0.8rem; font-weight: bold; text-transform: uppercase; 
+        .user-meta h1 { margin: 0 0 8px; font-size: 2.6rem; font-weight: 700; letter-spacing: 0.5px; word-break: break-word; }
+        .role-badge {
+            display: inline-block; background: white; color: #1c3fae; padding: 4px 14px 2px;
+            border-radius: 999px; font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
         }
 
-        /* Tabs Styling */
-        .tab-menu { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; }
+        /* tabs: underlined like the category bar */
+        .tab-menu {
+            display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 2px solid var(--soft-line);
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .tab-menu::-webkit-scrollbar { display: none; }
         .tab-link {
-            padding: 10px 20px; cursor: pointer; background: none; border: none;
-            color: #888; text-transform: uppercase; transition: 0.3s;
+            flex: 0 0 auto; padding: 12px 14px 9px; margin-bottom: -2px; cursor: pointer;
+            background: none; border: none; border-bottom: 3px solid transparent;
+            color: rgba(255, 255, 255, 0.75); font-family: inherit; font-size: 1.15rem; letter-spacing: 0.5px;
         }
-        .tab-link.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        .tab-link:hover { color: white; border-bottom-color: rgba(255, 255, 255, 0.5); }
+        .tab-link.active { color: white; font-weight: 700; border-bottom-color: white; }
 
-        .tab-content { display: none; padding: 20px; background: #1a1a1a; min-height: 200px; }
+        .tab-content { display: none; min-height: 200px; }
         .tab-content.active { display: block; }
+        .tab-content h3 { margin: 0 0 6px; font-size: 1.3rem; font-weight: 700; letter-spacing: 1.5px; }
 
-        .empty-state { color: #555; text-align: center; padding-top: 50px; font-style: italic; }
+        .empty-state { color: rgba(255, 255, 255, 0.7); text-align: center; padding-top: 50px; font-size: 1.15rem; }
 
-        .listing-items { display: grid; gap: 12px; margin-top: 16px; }
-        .listing-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #333;
-            background: #111;
-            padding: 12px 14px;
+        /* list rows */
+        .listing-items, .wishlist-items, .purchase-items { display: grid; gap: 12px; margin-top: 16px; }
+        .listing-row, .wishlist-row {
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+            border: 2px solid var(--soft-line); background: rgba(255, 255, 255, 0.04); padding: 12px 14px;
         }
-        .listing-main {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .purchase-row { border: 2px solid var(--soft-line); background: rgba(255, 255, 255, 0.04); padding: 14px; }
+        .listing-main, .wishlist-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+        .listing-title, .wishlist-title { font-weight: 700; font-size: 1.1rem; }
+        .listing-meta, .wishlist-meta, .purchase-meta { color: rgba(255, 255, 255, 0.65); font-size: 0.9rem; margin-top: 3px; }
+        .listing-price, .purchase-total { font-weight: 700; font-size: 1.1rem; }
+        .purchase-total { float: right; }
+        .purchase-conf { color: var(--accent); font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px; }
+        .purchase-row a { color: var(--accent); }
+
+        .wishlist-thumb { width: 50px; height: 50px; object-fit: cover; border: 2px solid var(--soft-line); background: rgba(255, 255, 255, 0.08); }
+
+        /* round x, like the bag page */
         .delete-listing-btn {
-            width: 28px;
-            height: 28px;
-            border: 1px solid #8b2d2d;
-            background: #2a1010;
-            color: #ff6b6b;
-            font-size: 1rem;
-            font-weight: 700;
-            line-height: 1;
-            cursor: pointer;
+            flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.7); background: transparent; color: white;
+            font-family: inherit; font-size: 1rem; line-height: 1; cursor: pointer;
         }
-        .delete-listing-btn:hover {
-            background: #3a1414;
-            color: #ff8f8f;
-        }
-        .delete-listing-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .listing-title { font-weight: 700; color: #f0f0f0; }
-        .listing-meta { color: #bbb; font-size: 0.9rem; margin-top: 3px; }
-        .listing-price { color: var(--gold); font-weight: 700; }
+        .delete-listing-btn:hover { background: rgba(255, 110, 110, 0.25); border-color: #ffb3b3; }
+        .delete-listing-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .wishlist-items { display: grid; gap: 12px; margin-top: 16px; }
-        .wishlist-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border: 1px solid #333;
-            background: #111;
-            padding: 12px 14px;
+        /* small pills */
+        .wishlist-cart-btn, .wishlist-remove-btn, .profile-save-btn {
+            border: 2px solid white; border-radius: 999px; cursor: pointer;
+            font-family: inherit; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase;
+            padding: 6px 14px 4px; white-space: nowrap;
         }
-        .wishlist-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .wishlist-thumb {
-            width: 46px;
-            height: 46px;
-            object-fit: cover;
-            border: 1px solid #333;
-            background: #1a1a1a;
-        }
-        .wishlist-title { font-weight: 700; color: #f0f0f0; }
-        .wishlist-meta { color: #bbb; font-size: 0.9rem; margin-top: 3px; }
-        .wishlist-remove-btn {
-            border: 1px solid #666;
-            background: transparent;
-            color: #ddd;
-            padding: 6px 10px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-        .wishlist-remove-btn:hover { border-color: #aaa; color: #fff; }
-
-        .wishlist-cart-btn {
-            border: 1px solid var(--gold);
-            background: transparent;
-            color: var(--gold);
-            padding: 6px 10px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            margin-right: 6px;
-        }
-        .wishlist-cart-btn:hover { background: rgba(184,134,11,0.15); }
-        .wishlist-cart-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-        .purchase-items { display: grid; gap: 12px; margin-top: 16px; }
-        .purchase-row {
-            border: 1px solid #333;
-            background: #111;
-            padding: 14px;
-        }
-        .purchase-conf { color: var(--gold); font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
-        .purchase-meta { color: #aaa; font-size: 0.85rem; margin-top: 4px; }
-        .purchase-total { color: var(--gold); font-weight: bold; float: right; }
-
-        .back-btn { color: var(--gold); text-decoration: none; font-size: 0.9rem; }
+        .wishlist-cart-btn { background: white; color: #1c3fae; font-weight: 700; }
+        .wishlist-cart-btn:hover { background: rgba(255, 255, 255, 0.85); }
+        .wishlist-remove-btn { background: transparent; color: white; }
+        .wishlist-remove-btn:hover { background: rgba(255, 255, 255, 0.15); }
+        .wishlist-cart-btn:disabled, .wishlist-remove-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Profile tab - Added by Anthony Jackson 10/21/26 */
-        .profile-note { color: #bbb; font-size: 0.9rem; margin: 4px 0 12px; }
-        .profile-row { margin-bottom: 14px; max-width: 420px; }
-        .profile-row label { display: block; color: #bbb; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .profile-note { color: rgba(255, 255, 255, 0.75); font-size: 1rem; margin: 4px 0 14px; }
+        .profile-row { margin-bottom: 16px; max-width: 460px; }
+        .profile-row label {
+            display: block; color: rgba(255, 255, 255, 0.8); font-size: 0.85rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px;
+        }
         .profile-row input, .profile-row select {
-            width: 100%; padding: 9px 10px; background: #111; color: #f0f0f0;
-            border: 1px solid #333; font-size: 1rem; font-family: inherit;
+            width: 100%; padding: 12px 14px 10px; background: rgba(255, 255, 255, 0.04); color: white;
+            border: 2px solid rgba(255, 255, 255, 0.85); border-radius: 0; font-size: 1.05rem; font-family: inherit;
         }
-        .profile-row input:focus, .profile-row select:focus { outline: none; border-color: var(--gold); }
-        .profile-row.has-error input, .profile-row.has-error select { border-color: #ff6b6b; }
-        .profile-save-btn {
-            border: 1px solid var(--gold); background: transparent; color: var(--gold);
-            padding: 9px 18px; cursor: pointer; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;
-        }
-        .profile-save-btn:hover { background: rgba(184,134,11,0.15); }
+        .profile-row select option { color: #1c1a6e; }
+        .profile-row input:focus, .profile-row select:focus { outline: none; border-color: white; background: rgba(255, 255, 255, 0.1); }
+        .profile-row.has-error input, .profile-row.has-error select { border-color: #ffb3b3; }
+        .profile-save-btn { background: white; color: #1c3fae; font-weight: 700; font-size: 1.05rem; padding: 10px 26px 7px; }
+        .profile-save-btn:hover { background: rgba(255, 255, 255, 0.85); }
         .profile-save-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .profile-msg { min-height: 1.3em; margin-top: 10px; font-size: 0.9rem; color: #9fd0ff; }
-        .profile-msg.error { color: #ff8f8f; }
+        .profile-msg { min-height: 1.3em; margin-top: 10px; font-size: 1rem; color: var(--accent); }
+        .profile-msg.error { color: #ffb3b3; }
+
+        @media (max-width: 640px) {
+            .account-container { padding: 22px 18px; }
+            .user-meta h1 { font-size: 2rem; }
+            .wishlist-row { flex-wrap: wrap; }
+        }
     </style>
 </head>
 <body>
+{% include 'partials/cove_header.html' %}
 
 <div class="account-container">
-    <a href="{{ url_for('storefront_pages_bp.my_storefront_page') }}" class="back-btn">← BACK TO STOREFRONT</a>
+    <a href="{{ url_for('storefront_pages_bp.my_storefront_page') }}" class="back-btn">← Back to storefront</a>
     
     <div class="profile-header">
         <div class="user-meta">
@@ -168,7 +139,7 @@
             <span class="role-badge">{{ session['role'] if 'role' in session else 'USER' }}</span>
         </div>
         <div class="logout-section">
-            <a href="{{ url_for('auth.logout')}}" style="color: #ff4444; text-decoration: none;">LOGOUT</a>
+            <a href="{{ url_for('auth.logout')}}" class="logout-btn">Logout</a>
         </div>
     </div>
 
@@ -587,7 +558,7 @@
                         ${order.buyer_first_name} ${order.buyer_last_name}
                         &nbsp;&mdash;&nbsp;
                         <a href="/order-confirmation?conf=${encodeURIComponent(order.confirmation_number)}"
-                           style="color:var(--gold); font-size:0.8rem;">View Details</a>
+                           style="font-size:0.85rem;">View Details</a>
                     </div>
                 `;
                 if (container) container.appendChild(row);
@@ -601,6 +572,7 @@
     document.addEventListener("DOMContentLoaded", loadMyListings);
     document.addEventListener("DOMContentLoaded", loadWishlist);
 </script>
+<script src="{{ url_for('static', filename='js/cove_header.js') }}"></script>
 <script src="{{ url_for('static', filename='js/profile.js') }}"></script> <!-- Added by Anthony Jackson 10/21/26 -->
 
 </body>

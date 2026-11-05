@@ -56,15 +56,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             total += subtotal;
 
             const row = document.createElement("div");
-            row.style.cssText = "display:flex; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid rgba(184,134,11,0.2); padding-bottom:8px;";
+            row.className = "summary-row";
             row.innerHTML = `
                 <div>
-                    <div style="font-weight:bold; color:#f0f0f0;">${item.name || "Item"}</div>
-                    <div style="color:#888; font-size:0.82rem; margin-top:2px;">
+                    <div class="summary-name">${item.name || "Item"}</div>
+                    <div class="summary-meta">
                         ${item.size ? `Size: ${item.size} &nbsp;|&nbsp; ` : ""}Qty: ${qty}
                     </div>
                 </div>
-                <span class="gold" style="white-space:nowrap; align-self:center;">$${subtotal.toFixed(2)}</span>
+                <span class="summary-price">$${subtotal.toFixed(2)}</span>
             `;
             itemsList.appendChild(row);
         });

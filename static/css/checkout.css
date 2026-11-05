@@ -1,137 +1,178 @@
 /* checkout.css
     The Pirate Cove Campus Marketplace
     Created by Kaila Roberts - Iteration 4
-    
-    This file pulls the theme from storefront.css to ensure 
-    consistent branding across the purchase flow.
+    Updated by Ethan Williams 11/5/26: Pirate Cove redesign to match cove.css
+
+    Background, font and header come from cove.css.
 */
 
+* { box-sizing: border-box; }
 
-/* Base Page Styles */
-body {
-    /* Uses the specific background gradient and image path from the project */
-    background: linear-gradient(rgba(0, 0, 0, 0.58), rgba(0, 0, 0, 0.58)),
-                url("/static/images/background.png") no-repeat center center fixed;
-    background-color: #000; /* stops white showing on overscroll */
-    background-size: cover;
-    color: white;
-    font-family: Arial, Helvetica, sans-serif;
-    margin: 0;
+body { margin: 0; min-height: 100vh; }
+
+.checkout-page {
+    width: min(1100px, 92%);
+    margin: 0 auto 60px;
 }
 
-/* Header & Navigation Styles */
-.storefront-banner {
-    width: min(1200px, 92%);
-    margin: 1.5rem auto;
+.checkout-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    padding-bottom: 18px;
+    margin-bottom: 28px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.7);
 }
 
-.nav-link { text-decoration: none; } /* Removes default blue underline from links */
+.checkout-header h1 {
+    margin: 0;
+    font-size: 2.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
 
-/* THE BACK BUTTON: Secondary style (Gold outline, transparent center) */
-.secondary-btn {
-    background: transparent;
-    color: #d4af37;
-    border: 1px solid #d4af37;
-    padding: 0.8rem 1.5rem;
-    font-weight: 800;
+.checkout-subtitle {
+    margin: 4px 0 0;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 1rem;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
+}
+
+/* outlined pill */
+.back-link {
+    display: inline-block;
+    color: white;
+    text-decoration: none;
+    border: 2px solid white;
+    border-radius: 999px;
+    padding: 8px 20px 6px;
+    font-size: 1rem;
     letter-spacing: 1px;
-    cursor: pointer;
-    transition: all 0.3s ease; /* Smooth transition for the hover effect */
-    border-radius: 2px;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
-.secondary-btn:hover {
-    background: rgba(212, 175, 55, 0.1); /* Subtle gold glow on hover */
-    transform: translateY(-2px); /* Matches movement of storefront cards */
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-}
+.back-link:hover { background: rgba(255, 255, 255, 0.15); }
 
-/* Form & Input Styles */
 .checkout-layout-wrapper {
-    width: min(1200px, 92%);
-    margin: 0 auto;
     display: flex;
-    gap: 2rem;
+    gap: 28px;
+    align-items: flex-start;
 }
 
 .form-card {
-    background: rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(184, 134, 11, 0.65);
-    padding: 2rem;
-    box-shadow: 0 0 25px rgba(184, 134, 11, 0.18);
+    background: rgba(12, 24, 100, 0.35);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    padding: 28px 30px;
 }
 
 .checkout-form-container { flex: 2; }
 .order-summary-container { flex: 1; }
 
 .section-label {
-    color: #d4af37;
+    margin: 0 0 22px;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    font-weight: 800;
-    margin-bottom: 20px;
 }
 
-/* Input boxes match the 'create_storefront' form style */
+.input-group label {
+    display: block;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
 input, textarea {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(184, 134, 11, 0.5);
-    padding: 1rem;
+    margin: 6px 0 20px;
+    padding: 13px 14px 11px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    border-radius: 0;
     color: white;
-    margin-top: 5px;
-    margin-bottom: 20px;
+    font-family: inherit;
+    font-size: 1.05rem;
     outline: none;
 }
 
-/* COMPLETE TRANSACTION BUTTON: Primary style (Solid Gold Gradient) */
-.primary-btn {
-    width: 100%;
-    padding: 1rem;
-    background: linear-gradient(145deg, #B8860B, #8B6508);
-    color: black;
-    border: none;
-    font-weight: 800;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: 0.3s;
+textarea { min-height: 90px; resize: vertical; }
+
+input::placeholder, textarea::placeholder { color: rgba(255, 255, 255, 0.55); }
+
+input:focus, textarea:focus {
+    border-color: white;
+    background: rgba(255, 255, 255, 0.1);
 }
 
-.primary-btn:hover {
-    filter: brightness(1.2);
-    transform: translateY(-2px);
+/* order summary rows (built in checkout.js) */
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+.summary-name { font-weight: 700; font-size: 1.1rem; }
+.summary-meta { color: rgba(255, 255, 255, 0.65); font-size: 0.85rem; margin-top: 2px; }
+.summary-price { font-weight: 700; white-space: nowrap; align-self: center; }
+
+.price-display {
+    display: flex;
+    justify-content: space-between;
+    margin: 22px 0 20px;
+    padding-top: 16px;
+    border-top: 2px solid rgba(255, 255, 255, 0.5);
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+/* filled pill */
+.primary-btn {
+    width: 100%;
+    padding: 12px 24px 9px;
+    background: white;
+    color: #1c3fae;
+    border: 2px solid white;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.primary-btn:hover { background: rgba(255, 255, 255, 0.85); }
 
 .primary-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-    transform: none;
 }
 
-.gold { color: #d4af37; }
-
-.helper-text { color: #888; font-size: 0.9rem; }
+.helper-text { color: rgba(255, 255, 255, 0.75); font-size: 1rem; }
 
 .error-msg {
-    background: rgba(180, 40, 40, 0.2);
-    border: 1px solid rgba(200, 60, 60, 0.5);
-    color: #ff8a8a;
+    margin-bottom: 18px;
     padding: 10px 14px;
-    margin-bottom: 16px;
-    font-size: 0.9rem;
+    background: rgba(255, 110, 110, 0.18);
+    border: 1px solid #ffb3b3;
+    color: #ffd6d6;
 }
 
-.price-display {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin: 20px 0 16px;
-    border-top: 1px solid rgba(184, 134, 11, 0.4);
-    padding-top: 16px;
+/* tablets and phones: stack the two boxes */
+@media (max-width: 800px) {
+    .checkout-layout-wrapper { flex-direction: column; align-items: stretch; }
+    .checkout-header { flex-wrap: wrap; }
+    .checkout-header h1 { font-size: 2rem; }
+    .form-card { padding: 22px 18px; }
 }
-
-.brand-title { font-size: 1.8rem; margin: 0; letter-spacing: 2px; }
-.brand-subtitle { color: #888; margin: 4px 0 0; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
-.brand-block { text-align: right; }
