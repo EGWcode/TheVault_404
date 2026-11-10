@@ -2,10 +2,14 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, jsonify
 from services.auth_services import AuthService 
 from config.db import get_connection
-# imports created by Sidney cerami 10/20/2-26
+# By Sidney Cerami 11/09/2026 - Added imports for email functionality
+import secrets
+import hashlib
+# imports created by Sidney cerami 10/20/2026
 import os
 import smtplib
 from email.message import EmailMessage
+from utils.auth_utils import hash_password, verify_password
 
 auth_bp = Blueprint('auth', __name__)
 service = AuthService()
@@ -84,11 +88,22 @@ def forgot_username():
         flash("Enter the email address associated with your account.", "error")
         return render_template('forgot_username.html')
 
-    smtp_host = os.getenv("SMTP_HOST")
-    smtp_user = os.getenv("SMTP_USER")
-    smtp_password = os.getenv("SMTP_PASSWORD")
-    sender = os.getenv("SMTP_FROM", smtp_user)
-    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    #smtp_host = os.getenv("SMTP_HOST")
+    #smtp_user = os.getenv("SMTP_USER")
+    #smtp_password = os.getenv("SMTP_PASSWORD")
+    #sender = os.getenv("SMTP_FROM", smtp_user)
+    #smtp_port = int(os.getenv("SMTP_PORT", "587"))
+# Changed to use config.py for SMTP settings - Sidney Cerami 11/08/2026
+    # Get email settings from .env
+    smtp_host = os.getenv("MAIL_SERVER")
+    smtp_user = os.getenv("MAIL_USERNAME")
+    smtp_password = os.getenv("MAIL_PASSWORD")
+    sender = os.getenv("MAIL_DEFAULT_SENDER", smtp_user)
+    smtp_port = int(os.getenv("MAIL_PORT", "587"))
+    use_tls = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
+
+
+
 
     if not all((smtp_host, smtp_user, smtp_password, sender)):
         print("Forgot-username error: SMTP settings are not configured.")
@@ -119,10 +134,20 @@ def forgot_username():
                 "If you didn't request this, you can ignore this email."
             )
 
+           # with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as smtp:
+             #   smtp.starttls()
+             #   smtp.login(smtp_user, smtp_password)
+                #  smtp.send_message(message)
+# Changed to use config.py for SMTP settings - Sidney Cerami 11/08/2026
             with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as smtp:
-                smtp.starttls()
+                if use_tls:
+                    smtp.starttls()
+
                 smtp.login(smtp_user, smtp_password)
                 smtp.send_message(message)
+
+
+
 
         # Use the same response whether or not the email matches an account.
         flash(
@@ -136,6 +161,207 @@ def forgot_username():
         conn.close()
 
     return render_template('forgot_username.html')
+
+# Create by Sidney Cerami 11/09/2026 - Forgot Password functionality
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'GET':
+        return render_template('forgot_password.html')
+
+    email = (request.form.get('email') or '').strip()
+
+    if not email:
+        flash("Enter the email address associated with your account.", "error")
+        return render_template('forgot_password.html')
+
+    # Reuse the existing Brevo SMTP configuration
+    smtp_host = os.getenv("MAIL_SERVER")
+    smtp_user = os.getenv("MAIL_USERNAME")
+    smtp_password = os.getenv("MAIL_PASSWORD")
+    sender = os.getenv("MAIL_DEFAULT_SENDER", smtp_user)
+    smtp_port = int(os.getenv("MAIL_PORT", "587"))
+    use_tls = os.getenv("MAIL_USE_TLS", "True").lower() == "true"
+
+    if not all((smtp_host, smtp_user, smtp_password, sender)):
+        print("Forgot-password error: SMTP settings are not configured.")
+        flash("We couldn't process your request right now. Please try again later.", "error")
+        return render_template('forgot_password.html')
+
+    conn = get_connection()
+
+    if conn is None:
+        flash("We couldn't process your request right now. Please try again later.", "error")
+        return render_template('forgot_password.html')
+
+    try:
+        cur = conn.cursor()
+
+        # Look up the account using the submitted email
+        cur.execute(
+            "SELECT id FROM users WHERE LOWER(email) = LOWER(%s)",
+            (email,)
+        )
+        user = cur.fetchone()
+
+        if user:
+            user_id = user[0]
+
+            # Generate a secure reset token
+            token = secrets.token_urlsafe(32)
+
+            # Store only the SHA-256 hash of the token
+            token_hash = hashlib.sha256(token.encode()).hexdigest()
+
+            # Remove older reset links for this account
+            cur.execute(
+                "DELETE FROM password_resets WHERE user_id = %s",
+                (user_id,)
+            )
+
+            # Save the new token with a 30-minute expiration
+            cur.execute("""
+                INSERT INTO password_resets (user_id, reset_token, expires_at)
+                VALUES (%s, %s, NOW() + INTERVAL '30 minutes')
+            """, (user_id, token_hash))
+
+            conn.commit()
+
+            # Build the reset link
+            reset_link = url_for(
+                'auth.reset_password',
+                token=token,
+                _external=True
+            )
+
+            message = EmailMessage()
+            message["Subject"] = "Reset Your Vault Password"
+            message["From"] = sender
+            message["To"] = email
+            message.set_content(
+                "We received a request to reset your Vault password.\n\n"
+                f"Use the link below to create a new password:\n{reset_link}\n\n"
+                "This link expires in 30 minutes and can only be used once.\n\n"
+                "If you did not request a password reset, you can ignore this email."
+            )
+
+            try:
+                with smtplib.SMTP(smtp_host, smtp_port, timeout=10) as smtp:
+                    if use_tls:
+                        smtp.starttls()
+
+                    smtp.login(smtp_user, smtp_password)
+                    smtp.send_message(message)
+
+            except Exception:
+                # Remove the reset token if the email could not be sent
+                cur.execute(
+                    "DELETE FROM password_resets WHERE reset_token = %s",
+                    (token_hash,)
+                )
+                conn.commit()
+                raise
+
+        cur.close()
+
+        # Do not reveal whether an account exists
+        flash(
+            "If an account matches that email, a password reset link has been sent.",
+            "success"
+        )
+
+    except Exception as e:
+        print(f"Forgot-password error: {e}")
+        conn.rollback()
+        flash(
+            "We couldn't process your request right now. Please try again later.",
+            "error"
+        )
+
+    finally:
+        conn.close()
+
+    return render_template('forgot_password.html')
+
+
+@auth_bp.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    # Hash the token from the URL to compare it with the database
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+
+    conn = get_connection()
+
+    if conn is None:
+        flash("Something went wrong. Please try again later.", "error")
+        return redirect(url_for('auth.forgot_password'))
+
+    try:
+        cur = conn.cursor()
+
+        # Check that the token exists and has not expired
+        cur.execute("""
+            SELECT user_id
+            FROM password_resets
+            WHERE reset_token = %s
+              AND expires_at > NOW()
+        """, (token_hash,))
+
+        reset_record = cur.fetchone()
+
+        if not reset_record:
+            cur.close()
+            flash("This password reset link is invalid or has expired.", "error")
+            return redirect(url_for('auth.forgot_password'))
+
+        if request.method == 'GET':
+            cur.close()
+            return render_template('reset_password.html', token=token)
+
+        new_password = request.form.get('password') or ''
+        confirm_password = request.form.get('confirm_password') or ''
+
+        if new_password != confirm_password:
+            cur.close()
+            flash("Your passwords do not match.", "error")
+            return render_template('reset_password.html', token=token)
+
+        if not service.validate_password(new_password):
+            cur.close()
+            flash(
+                "Password must be at least 8 characters and include an uppercase "
+                "letter, a lowercase letter, a number, and a symbol.",
+                "error"
+            )
+            return render_template('reset_password.html', token=token)
+
+        user_id = reset_record[0]
+        hashed_password = hash_password(new_password)
+
+        # Update the password and invalidate all reset links for this account
+        cur.execute(
+            "UPDATE users SET password = %s WHERE id = %s",
+            (hashed_password, user_id)
+        )
+
+        cur.execute(
+            "DELETE FROM password_resets WHERE user_id = %s",
+            (user_id,)
+        )
+
+        conn.commit()
+        cur.close()
+
+        flash("Your password has been reset successfully. Please log in.", "success")
+        return redirect(url_for('auth.login'))
+
+    except Exception as e:
+        print(f"Reset-password error: {e}")
+        conn.rollback()
+        flash("We couldn't reset your password. Please try again.", "error")
+        return redirect(url_for('auth.forgot_password'))
+
+    finally:
+        conn.close()
+
 
 @auth_bp.route('/listings')
 def listings():

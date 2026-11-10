@@ -1,5 +1,9 @@
 import sys
 import os
+# Load environment variables from the .env file in the backend directory
+from dotenv import load_dotenv
+# Load environment variables from the root .env file
+load_dotenv(os.path.join(os.path.dirname(__file__), '.env'))
 import secrets
 from flask import Flask, render_template, redirect, url_for, session
 
