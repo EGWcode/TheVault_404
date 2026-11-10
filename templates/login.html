@@ -112,8 +112,10 @@ a:hover { color: var(--white); }
 
 .show-password input[type="checkbox"] {
     width: auto;
+    padding: 0;
     margin: 0;
     cursor: pointer;
+    accent-color: var(--ice);
 }
     </style>
 </head>
@@ -160,22 +162,43 @@ a:hover { color: var(--white); }
 
       <form class="auth-form" action="{{ url_for('auth.login') }}" method="POST">
         <!--Updated code by Sidney Cerami 10/15/2026: Creates Show Password checkbox underneath the password field -->
-          <div class="field">
-    <label for="password">Password</label>
-    <input
-        id="password"
-        type="password"
-        name="password"
-        required
-        autocomplete="current-password"
-        placeholder="••••••••"
-    >
+        <!--Updated again code by Sidney 11/09/2026: Creates Show Password checkbox underneath the password field -->
+          <!-- Username -->
+      <div class="field">
+          <label for="username">Username</label>
+          <input
+              id="username"
+              type="text"
+              name="username"
+              required
+              autocomplete="username"
+              placeholder="Your username"
+              autofocus
+          >
+      </div>
 
-    <label class="show-password">
-        <input type="checkbox" id="togglePassword">
-        Show Password
-    </label>
-</div>
+      <!-- Password -->
+      <div class="field">
+          <label for="password">Password</label>
+          <input
+              id="password"
+              type="password"
+              name="password"
+              required
+              autocomplete="current-password"
+              placeholder="••••••••"
+          >
+
+          <!-- Show Password Feature -->
+          <label class="show-password">
+              <input type="checkbox" id="togglePassword">
+              Show Password
+          </label>
+      </div>
+
+      <button type="submit" class="vault-btn">LOG IN</button>
+
+</form>
     <!--    <div class="field">
           <label for="username">Username</label>
           <input id="username" type="text" name="username" required autocomplete="username" placeholder="Your username" autofocus>
@@ -194,11 +217,20 @@ a:hover { color: var(--white); }
 <!--Updated code By: Sidney Cerami to add in forgot Username and password Feature-->
 
 <div class="auth-links">
+   <!-- <a href="{{ url_for('auth.forgot_username') }}">Forgot Username?</a>
+
+    <a href="{{ url_for('index') }}">← Back to portal</a>
+
+    <a href="{{ url_for('auth.signup') }}">New here? Sign up</a> -->
+<!--Changed 11/09/2026 by Sidney Cerami: Updated links for forgot username and password F-->
     <a href="{{ url_for('auth.forgot_username') }}">Forgot Username?</a>
+
+    <a href="{{ url_for('auth.forgot_password') }}">Forgot Password?</a>
 
     <a href="{{ url_for('index') }}">← Back to portal</a>
 
     <a href="{{ url_for('auth.signup') }}">New here? Sign up</a>
+
 </div>
       <!-- Admin Login Button added by David Jackson 4/20/26 -->
       <a href="{{ url_for('auth.admin_login') }}" class="admin-link">Admin access</a>
