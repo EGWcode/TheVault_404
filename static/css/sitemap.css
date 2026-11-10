@@ -13,7 +13,7 @@ Description:
 */
 
 :root {
-    --navy: #06163A;
+    --Bcolor: #3477d4;
     --hampton-blue: #0033A0;
     --deep-blue: #0B2A7A;
     --ice: #BFD4FF;
@@ -47,7 +47,7 @@ html, body {
 
 /* Navy background */
 body {
-    background-color: var(--navy);
+    background-color: var(--Bcolor);
     background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
     background-size: 60px 60px;
     color:var(--white);
@@ -97,7 +97,7 @@ body {
 /* Back button hover style */
 .back-button:hover {
     background: var(--white);
-    color: var(--navy);
+    color: var(--Bcolor);
 }
 
 
@@ -117,7 +117,7 @@ body {
 }
 
 .sitemap-title p {
-    color: var(--ice);
+    color: var(--white);
     margin-top: 6px;
     font-size: 0.8rem;
     font-weight: 600;
@@ -234,7 +234,7 @@ body {
 
 .filter-button.active {
     background: var(--white);
-    color: var(--navy);
+    color: var(--Bcolor);
     border-color: var(--white);
 }
 
