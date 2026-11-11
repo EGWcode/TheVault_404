@@ -1,0 +1,8 @@
+# Windows batch files need CRLF line endings; macOS/Linux scripts need LF
+*.bat text eol=crlf
+*.command text eol=lf
+*.sh text eol=lf
+
+# Left out of release zips (git archive): developer-only files
+.gitattributes export-ignore
+backend/tests/inspect_db.py export-ignore

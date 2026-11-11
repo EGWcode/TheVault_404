@@ -1,10 +1,16 @@
-node_modules/
+# Secrets and local settings
 .env
 **/.env
+.env.bak
+
+# Python
 venv/
 .venv/
 __pycache__/
 *.pyc
+
+# Node
+node_modules/
 
 # Testing
 .pytest_cache/
@@ -23,10 +29,13 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
-
 # Local development uploads (used when AWS_S3_BUCKET is not set) - added 10/20/26
 static/uploads/
+
+# Release builds (made by scripts/build_release.sh)
+dist/
+
+# Not part of The Pirate Cove (personal folders kept next to the project) - 11/9/26
+smart-home-lab/
+media-kit/
+media-kit.zip

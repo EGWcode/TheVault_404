@@ -24,12 +24,17 @@ load_dotenv()
 
 def create_vault_tables():
     try:
-        conn = psycopg2.connect(
+        # DB_PORT and DB_SSLMODE are passed too so non-default setups work - Ethan Williams 11/9/26
+        conn_kwargs = dict(
             host=os.getenv("DB_HOST"),
             database=os.getenv("DB_NAME"),
             user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD")
+            password=os.getenv("DB_PASSWORD"),
+            port=int(os.getenv("DB_PORT") or 5432),
         )
+        if os.getenv("DB_SSLMODE"):
+            conn_kwargs["sslmode"] = os.getenv("DB_SSLMODE")
+        conn = psycopg2.connect(**conn_kwargs)
 
         cur = conn.cursor()
 
@@ -450,10 +455,13 @@ def create_vault_tables():
 
         cur.close()
         conn.close()
+        return True
 
     except Exception as e:
         print(f"SCHEMA ERROR: {e}")
+        return False
 
 
 if __name__ == "__main__":
-    create_vault_tables()
+    import sys
+    sys.exit(0 if create_vault_tables() else 1)
