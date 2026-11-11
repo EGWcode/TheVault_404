@@ -664,3 +664,192 @@ body {
     align-items: center;
     justify-content: center;
 }
+/* Pirate Cove storefront view theme - Noah Green */
+
+/* Match shared Pirate Cove background */
+body {
+    background: #1c1a6e;
+    color: white;
+    font-family: 'League Spartan', Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+}
+
+/* Main page */
+.storefront-view-page {
+    width: min(1280px, 94%);
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 30px 40px 60px;
+}
+
+/* Back button */
+.back-btn {
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 999px;
+    color: white;
+    padding: 10px 24px 8px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* Store name */
+.page-title {
+    color: white;
+    text-shadow: none;
+}
+
+/* Store banner */
+.storefront-banner {
+    background: rgba(10, 20, 90, 0.45);
+    border: 2px solid white;
+    border-radius: 26px;
+    box-shadow: none;
+}
+
+/* Store logo */
+.storefront-logo {
+    background: #1c1a6e;
+    border: 3px solid white;
+    box-shadow: none;
+}
+
+.storefront-logo p {
+    color: white;
+}
+
+/* Store information */
+.store-bio {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.contact-info {
+    color: #9fd0ff;
+}
+
+/* Message Seller */
+.message-seller-btn {
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 999px;
+    color: white;
+}
+
+.message-seller-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Rating panel */
+#ratingSection {
+    background: rgba(10, 20, 90, 0.45);
+    border: 2px solid white;
+    border-radius: 26px;
+    color: white;
+    padding: 24px 28px;
+    margin: 30px 0;
+}
+
+#ratingSection h1,
+#ratingSection h2,
+#ratingSection h3,
+#ratingSection p {
+    color: white;
+}
+
+/* Listing section */
+.listings-heading {
+    color: white;
+}
+
+/* Product cards */
+.listing-card {
+    background: rgba(10, 20, 90, 0.45);
+    border: 2px solid white;
+    border-radius: 26px;
+    color: white;
+}
+
+.listing-description {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.item-price {
+    color: #9fd0ff;
+}
+
+/* Size and quantity controls */
+.size-select,
+.count-input {
+    background: rgba(10, 20, 90, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    color: white;
+}
+
+/* Add to cart */
+.add-to-cart-btn {
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 999px;
+    color: white;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+/* Wishlist */
+.wishlist-lock-btn {
+    border-color: white;
+    color: white;
+}
+
+.wishlist-lock-btn.active {
+    background: white;
+    color: #1259d6;
+}
+
+/* Image carousel controls */
+.listing-image-nav:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+.listing-image-dot.active,
+.lightbox-dot.active {
+    background: white;
+}
+
+/* Lightbox */
+.listing-lightbox {
+    background: rgba(8, 12, 60, 0.94);
+}
+
+.lightbox-close:hover,
+.lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+}
+
+@media (max-width: 700px) {
+    .storefront-view-page {
+        padding: 20px 16px 40px;
+    }
+
+    .profile-info-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .message-seller-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
