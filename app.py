@@ -200,4 +200,6 @@ def create_app():
 app = create_app()
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # FLASK_DEBUG=0 turns debug mode off (the launcher does this); PORT picks the port - Ethan Williams 11/9/26
+    app.run(debug=os.environ.get("FLASK_DEBUG", "1") != "0",
+            port=int(os.environ.get("PORT", 5000)))

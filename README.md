@@ -33,63 +33,77 @@ The Pirate Cove is a web-based campus marketplace exclusively for Hampton Univer
 
 ---
 
-## Setup & Running Locally
+## Install and Run (v0.9.0-beta)
 
-### Prerequisites
-- Python 3.12+
-- AWS RDS credentials
-- AWS credentials (for S3 access)
+You need **Python 3.10+** and **PostgreSQL**. The installer helps with both.
 
-### Installation
+### macOS
+1. Unzip the release (or clone the repo).
+2. Double-click **`install.command`**. The first time, macOS may block it: right-click it, choose **Open**, then **Open** again.
+3. Answer the questions (database on this computer or a server, then an optional admin account).
+4. Double-click **`Launch Pirate Cove.command`**. The site opens in your browser. Keep the Terminal window open while you use it; close it to stop.
+
+### Windows
+1. Unzip the release (or clone the repo).
+2. Double-click **`install.bat`**. If Python isn't installed, it opens python.org; install it with **"Add python.exe to PATH"** ticked, then run `install.bat` again.
+3. Answer the questions.
+4. Double-click **`Launch Pirate Cove.bat`**.
+
+### What the installer does
+- Creates a virtual environment in `venv/` and installs `requirements.txt`
+- Writes `.env` with your database settings and a new random `SECRET_KEY` (an existing `.env` is kept unless you choose to replace it)
+- On a Mac with Homebrew, offers to install and start PostgreSQL if it isn't running, and creates the database if it doesn't exist
+- Creates the tables (`backend/init_db.py`)
+- Offers to create an admin account (`backend/create_admin.py`)
+
+Running the installer again is safe.
+
+### Image uploads
+With `AWS_S3_BUCKET` empty in `.env`, uploaded images are saved in `static/uploads/` on your computer.
+Fill in the `AWS_` values to use Amazon S3 instead.
+
+### Admin accounts
+Admins log in at `/auth/admin-login`. Admin accounts live in the `users` table with `role = 'admin'`:
 
 ```bash
-git clone https://github.com/DavidJ46/TheVaultProject.git
-cd TheVaultProject
+python backend/create_admin.py                   # create a new admin
+python backend/create_admin.py --promote NAME    # make an existing user an admin
+python backend/create_admin.py --demote NAME     # make an admin a normal user
+```
 
+### Manual setup (developers)
+
+```bash
+git clone https://github.com/EGWcode/TheVault_404.git
+cd TheVault_404
 python3 -m venv venv
 source venv/bin/activate        # macOS/Linux
 venv\Scripts\activate           # Windows
-
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
+cp .env.example .env            # then fill in your values
+python backend/init_db.py
+python app.py                   # http://127.0.0.1:5000 (set PORT=5001 if AirPlay uses 5000)
 ```
-
-### Environment Configuration
-
-Create a `.env` file in the root directory:
-
-DB_HOST=your-aws-rds-endpoint
-DB_NAME=your-database-name
-DB_USER=your-db-username
-DB_PASSWORD=your-db-password
-DB_PORT=5432
-DB_SSLMODE=require
-AWS_ACCESS_KEY_ID=your-access-key
-AWS_SECRET_ACCESS_KEY=your-secret-key
-AWS_S3_BUCKET=your-s3-bucket-name
-AWS_REGION=us-east-2
-SECRET_KEY=your-secret-key
-
-### Initialize the Database
-
-```bash
-python3 backend/init_db.py
-```
-
-### Run the App
-
-```bash
-python3 app.py
-```
-
-Visit `http://127.0.0.1:5000` in your browser.
 
 ---
 
 ## Running Tests
 
 ```bash
-python3 backend/tests/test_file_name
+python -m pytest backend/tests/test_admin.py backend/tests/test_messaging_feature.py
 ```
+
+Tests that touch the database use the database in your `.env`.
+
+---
+
+## Building a Release
+
+```bash
+scripts/build_release.sh v0.9.0-beta
+```
+
+This makes `dist/PirateCove-v0.9.0-beta.zip` from the tagged commit, so only committed files go in.
 
 ---
 

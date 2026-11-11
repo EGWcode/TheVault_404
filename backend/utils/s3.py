@@ -39,8 +39,20 @@ def _safe_folder(folder):
     return "/".join(parts) or "uploads"
 
 
+def _safe_extension(filename):
+    """
+    Returns a short lowercase extension like 'png', or 'bin' if the name has none.
+    Added by Ethan Williams 11/9/26 so odd file names can't change the saved path.
+    """
+    name = str(filename or "")
+    if "." not in name:
+        return "bin"
+    ext = "".join(ch for ch in name.rsplit(".", 1)[-1].lower() if ch.isalnum())
+    return ext[:10] or "bin"
+
+
 def _save_locally(file, folder):
-    ext = file.filename.rsplit(".", 1)[-1].lower()
+    ext = _safe_extension(file.filename)
     relative_path = f"{_safe_folder(folder)}/{uuid.uuid4().hex}.{ext}"
     destination = os.path.join(LOCAL_UPLOAD_ROOT, *relative_path.split("/"))
     os.makedirs(os.path.dirname(destination), exist_ok=True)
@@ -69,8 +81,8 @@ def upload_image_to_s3(file, folder="uploads"):
 
     try:
         # generate unique filename
-        ext = file.filename.rsplit(".", 1)[-1].lower()
-        filename = f"{folder}/{uuid.uuid4().hex}.{ext}"
+        ext = _safe_extension(file.filename)
+        filename = f"{_safe_folder(folder)}/{uuid.uuid4().hex}.{ext}"
 
         # upload to S3 - bucket policy handles public read access
         s3_client.upload_fileobj(
