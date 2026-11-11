@@ -369,18 +369,57 @@ def debug_session():
 # POST /auth/admin-login -> checks the admin username + password, then opens the admin dashboard
 @auth_bp.route('/admin-login', methods=['GET', 'POST'])
 def admin_login():
-    if request.method == 'POST':
-        user = request.form.get('username')
-        pw = request.form.get('password')
+    # Updated by Ethan Williams 11/9/26: checks a real admin account in the users table
+    # (role = 'admin') instead of the old hardcoded admin/admin123 login, and uses the same
+    # 3-attempt lockout as the normal login. Make an admin with: python backend/create_admin.py
+    if request.method != 'POST':
+        return render_template('admin_login.html')
 
-        # temporary hardcoded admin login for testing
-        if user == "admin" and pw == "admin123":
+    user = (request.form.get('username') or '').strip()
+    pw = request.form.get('password') or ''
+
+    conn = get_connection()
+    if conn is None:
+        flash("Can't reach the database right now. Please try again.", "error")
+        return render_template('admin_login.html', username=user), 503
+
+    try:
+        initialize_login_security(conn)
+        remaining = get_remaining_lock(conn, user)
+        if remaining > 0:
+            flash(f"Too many failed attempts. Please wait {remaining} seconds before trying again.", "error")
+            return render_template('admin_login.html', username=user), 429
+
+        success, role = service.validate_login(user, pw, conn)
+        if success and (role or '').lower() == 'admin':
+            reset_login_attempts(conn, user)
+            cur = conn.cursor()
+            cur.execute("SELECT id FROM users WHERE username = %s", (user,))
+            row = cur.fetchone()
+            cur.close()
+
+            session.clear()
             session['user'] = user
             session['role'] = 'admin'
+            session['user_id'] = row[0] if row else None
+            session['last_activity'] = time.time()
+            session['client_idle_reset'] = True
             return redirect(url_for('admin.admin_dashboard'))
 
-        # Wrong admin login: show a red error box on the styled page with the username still filled in
-        flash("That admin username and password don't match. Please try again.", "error")
-        return render_template('admin_login.html', username=user)
+        # Wrong password, unknown user, or a normal (non-admin) account: same message for all
+        # so the page doesn't reveal which usernames exist or which accounts are admins
+        attempts_left = record_failed_login(conn, user)
+    except Exception as e:
+        conn.rollback()
+        print(f"Admin login error: {e}")
+        flash("Admin log in is temporarily unavailable. Please try again in a moment.", "error")
+        return render_template('admin_login.html', username=user), 503
+    finally:
+        conn.close()
 
-    return render_template('admin_login.html')
+    if attempts_left == 0:
+        flash("Too many incorrect login attempts. Admin log in is locked for 60 seconds.", "error")
+        return render_template('admin_login.html', username=user), 429
+
+    flash(f"That admin username and password don't match. You have {attempts_left} attempt(s) left.", "error")
+    return render_template('admin_login.html', username=user)

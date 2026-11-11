@@ -49,7 +49,26 @@ def get_all_users():
     ]
 
 
+def get_user_role(user_id):
+    """
+    Returns the role ('user' or 'admin') for a user id, or None if there is no such user.
+    Added by Ethan Williams 11/9/26 so the dashboard can refuse to delete admin accounts.
+    """
+    conn = get_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute("SELECT role FROM users WHERE id = %s", (user_id,))
+        row = cur.fetchone()
+        return (row[0] or "user") if row else None
+    finally:
+        cur.close()
+        conn.close()
+
+
 def delete_user(user_id):
+    """
+    Deletes a user. Returns True if a row was deleted, False if the id didn't exist.
+    """
     conn = get_connection()
     cur = conn.cursor()
 
@@ -57,10 +76,12 @@ def delete_user(user_id):
         DELETE FROM users
         WHERE id = %s
     """, (user_id,))
+    deleted = cur.rowcount > 0
 
     conn.commit()
     cur.close()
     conn.close()
+    return deleted
 
 
 def get_all_listings():
@@ -152,6 +173,7 @@ def update_admin_return_status(return_id, status):
 
 
 # Added by David Jackson 4/23/2026
+# Returns True/False (deleted or not found) - Ethan Williams 11/9/26
 def delete_storefront(store_id):
     conn = get_connection()
     cur = conn.cursor()
@@ -160,8 +182,10 @@ def delete_storefront(store_id):
         DELETE FROM storefronts
         WHERE id = %s
     """, (store_id,))
+    deleted = cur.rowcount > 0
 
     conn.commit()
 
     cur.close()
     conn.close()
+    return deleted

@@ -1,10 +1,12 @@
 <!-- File Created By David Jackson -->
 <!-- Updated by David Jackson 4/21/2026 -->
+<!-- Updated by Ethan Williams 11/9/26: status message, storefront Active/Items columns, tables load on open -->
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Title shown in browser tab -->
     <title>Admin Dashboard</title>
@@ -19,21 +21,23 @@
 
     <!-- Added 4/23/2026 by David Jackson -->
     <!-- Logout Button -->
-    <div style="text-align: right; margin-bottom: 20px;">
-        <a href="{{ url_for('auth.logout') }}">
-            <button class="logout-btn">Logout</button>
-        </a>
+    <div class="admin-toolbar">
+        <span>Signed in as <strong>{{ session.get('user', 'admin') }}</strong></span>
+        <a href="{{ url_for('auth.logout') }}" class="logout-btn">Logout</a>
     </div>
+
+    <!-- Success / error messages from admin.js -->
+    <p id="adminStatus" class="admin-status" role="status" aria-live="polite" hidden></p>
 
     <!-- USERS SECTION -->
     <section>
         <h2>Users</h2>
 
         <!-- Button triggers JavaScript function to load users from backend -->
-        <button onclick="loadUsers()">Load Users</button>
+        <button onclick="loadUsers()">Reload Users</button>
 
         <!-- Table to display users dynamically -->
-        <table id="usersTable">
+        <div class="table-wrap"><table id="usersTable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -47,7 +51,7 @@
 
             <!-- Data will be inserted here using JavaScript -->
             <tbody></tbody>
-        </table>
+        </table></div>
     </section>
 
     <!-- LISTINGS SECTION -->
@@ -55,9 +59,9 @@
         <h2>Listings</h2>
 
         <!-- Button loads listings from backend -->
-        <button onclick="loadListings()">Load Listings</button>
+        <button onclick="loadListings()">Reload Listings</button>
 
-        <table id="listingsTable">
+        <div class="table-wrap"><table id="listingsTable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -74,7 +78,7 @@
 
             <!-- Filled dynamically with JavaScript -->
             <tbody></tbody>
-        </table>
+        </table></div>
     </section>
 
     <!-- STOREFRONTS SECTION -->
@@ -82,30 +86,32 @@
         <h2>Storefronts</h2>
 
         <!-- Button loads storefronts -->
-        <button onclick="loadStorefronts()">Load Storefronts</button>
+        <button onclick="loadStorefronts()">Reload Storefronts</button>
 
-        <table id="storefrontsTable">
+        <div class="table-wrap"><table id="storefrontsTable">
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
                     <th>Owner ID</th>
+                    <th>Active</th>
+                    <th>Items</th>
                     <th>Action</th>
                 </tr>
             </thead>
 
             <!-- Populated dynamically -->
             <tbody></tbody>
-        </table>
+        </table></div>
     </section>
 
     <!-- RETURNS SECTION -->
     <section>
         <h2>Returns</h2>
 
-        <button onclick="loadReturns()">Load Returns</button>
+        <button onclick="loadReturns()">Reload Returns</button>
 
-        <table id="returnsTable">
+        <div class="table-wrap"><table id="returnsTable">
             <thead>
                 <tr>
                     <th>ID</th>
@@ -118,7 +124,7 @@
                 </tr>
             </thead>
             <tbody></tbody>
-        </table>
+        </table></div>
     </section>
 
     <!-- Link to JavaScript file (handles API calls and UI updates) -->

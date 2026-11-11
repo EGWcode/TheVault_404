@@ -71,3 +71,39 @@ button.delete {
 .logout-btn:hover {
     filter: brightness(1.2);
 }
+/* Toolbar, status message and scrollable tables - added by Ethan Williams 11/9/26 */
+.admin-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
+a.logout-btn {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.admin-status {
+    margin: 0 0 20px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: rgba(20, 120, 60, 0.9);
+    color: #fff;
+}
+
+.admin-status.error {
+    background: rgba(170, 30, 30, 0.92);
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+section a {
+    color: #d4af37;
+}

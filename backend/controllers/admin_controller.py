@@ -29,6 +29,24 @@ from services.admin_service import (
     update_return_status_service
 )
 
+def _run_admin_action(action, *args, **kwargs):
+    """
+    Runs a service call and turns its errors into JSON responses.
+    Added by Ethan Williams 11/9/26 (see the error list in services/admin_service.py).
+    """
+    try:
+        return jsonify(action(*args, **kwargs))
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
+    except LookupError as e:
+        return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        print(f"[admin] {action.__name__} error: {e}")
+        return jsonify({"error": "Something went wrong. Please try again."}), 500
+
+
 # Create Flask Blueprint for admin routes
 # All routes will start with /admin
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -91,9 +109,7 @@ def get_users():
     # Ensure only admins can access this endpoint
     require_admin()
 
-    users = fetch_users()
-
-    return jsonify(users)
+    return _run_admin_action(fetch_users)
 
 
 @admin_bp.route("/users/<int:user_id>", methods=["DELETE"])
@@ -110,9 +126,7 @@ def delete_user_route(user_id):
     # Ensure only admins can perform user deletion
     require_admin()
 
-    result = remove_user(user_id)
-
-    return jsonify(result)
+    return _run_admin_action(remove_user, user_id, acting_user_id=session.get("user_id"))
 
 
 @admin_bp.route("/listings", methods=["GET"])
@@ -126,9 +140,7 @@ def get_listings():
     # Ensure only admins can view marketplace listings through admin tools
     require_admin()
 
-    listings = fetch_listings()
-
-    return jsonify(listings)
+    return _run_admin_action(fetch_listings)
 
 
 @admin_bp.route("/listings/<int:listing_id>", methods=["DELETE"])
@@ -146,9 +158,7 @@ def delete_listing_route(listing_id):
     # Ensure only admins can delete listings
     require_admin()
 
-    result = remove_listing(listing_id)
-
-    return jsonify(result)
+    return _run_admin_action(remove_listing, listing_id)
 
 
 @admin_bp.route("/storefronts", methods=["GET"])
@@ -164,35 +174,25 @@ def get_storefronts():
     # Ensure only admins can access storefront monitoring tools
     require_admin()
 
-    stores = fetch_storefronts()
-
-    return jsonify(stores)
+    return _run_admin_action(fetch_storefronts)
 
 
 @admin_bp.route("/storefronts/<int:store_id>", methods=["DELETE"])
 def delete_storefront_route(store_id):
     require_admin()
 
-    result = remove_storefront(store_id)
-
-    return jsonify(result)
+    return _run_admin_action(remove_storefront, store_id)
 
 
 @admin_bp.route("/returns", methods=["GET"])
 def get_returns():
     require_admin()
-    return jsonify(fetch_returns())
+    return _run_admin_action(fetch_returns)
 
 
 @admin_bp.route("/returns/<int:return_id>", methods=["PATCH"])
 def update_return_route(return_id):
     require_admin()
 
-    try:
-        data = request.get_json(silent=True) or {}
-        updated = update_return_status_service(return_id, data.get("status"))
-        return jsonify(updated)
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    data = request.get_json(silent=True) or {}
+    return _run_admin_action(update_return_status_service, return_id, data.get("status"))
