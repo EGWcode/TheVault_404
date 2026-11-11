@@ -1,122 +1,150 @@
 # The Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Updated by Day Ekoi - 4/22/26
+# Updated by Anthony Jackson - Iteration 4 (11/11/26):
+#   - Checkout is now ONE database transaction (models.checkout_model.place_order).
+#     Before, a failure halfway could leave an order with missing items or the wrong stock.
+#   - Prices and names come from the listings table, never from the cart in the browser.
+#   - Buyer details are checked properly (email format, 10-digit phone, length limits).
+#   - Duplicate bag lines for the same item and size are merged before stock is checked.
+#   - Errors the buyer can fix are CheckoutError (safe message + HTTP status). Anything else is
+#     logged and shown as a general error, so database details never reach the browser.
+#   - payment_method / payment_status are saved on every order (in person vs. Stripe test).
 
-import random
+import re
+import secrets
 import string
 from datetime import datetime
 
+import psycopg2
+
 from models.checkout_model import (
-    create_order,
-    create_order_item,
+    CheckoutError,
+    place_order,
+    quote_lines,
     get_order_by_confirmation,
     get_order_items_by_order_id,
     get_orders_by_user_id,
-    clear_cart_for_user,
-    update_listing_size_inventory,
-    remove_purchased_from_wishlist,
-    check_listing_availability,
 )
+from utils.payments import IN_PERSON
+
+__all__ = [
+    "CheckoutError",
+    "validate_buyer",
+    "merge_cart_lines",
+    "quote_cart",
+    "complete_transaction_from_session",
+    "get_order_summary_service",
+    "get_user_orders_service",
+]
+
+MAX_QTY_PER_LINE = 20
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$")
+_NAME_RE = re.compile(r"^[A-Za-z][A-Za-z .'\-]*$")
 
 
 def _generate_confirmation_number():
     date_str = datetime.now().strftime("%y%m%d")
-    suffix = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
-    return f"VAULT-{date_str}-{suffix}"
+    alphabet = string.ascii_uppercase + string.digits
+    suffix = "".join(secrets.choice(alphabet) for _ in range(6))
+    return f"COVE-{date_str}-{suffix}"
 
 
-def complete_transaction_from_session(user_id, session_cart, buyer_details):
+def validate_buyer(details):
+    """Clean the buyer form. Returns a dict, or raises CheckoutError naming the problem."""
+    details = details or {}
+
+    def text(key):
+        value = details.get(key)
+        return value.strip() if isinstance(value, str) else ""
+
+    buyer = {k: text(k) for k in ("first_name", "last_name", "email", "contact", "meeting_location")}
+
+    if not all(buyer.values()):
+        raise CheckoutError("All fields are required to complete your transaction.")
+    for key, label in (("first_name", "First name"), ("last_name", "Last name")):
+        if len(buyer[key]) > 100 or not _NAME_RE.match(buyer[key]):
+            raise CheckoutError(f"{label} can only use letters, spaces, hyphens and apostrophes (100 max).")
+    if len(buyer["email"]) > 255 or not _EMAIL_RE.match(buyer["email"]):
+        raise CheckoutError("Please enter a valid email address.")
+    digits = re.sub(r"\D", "", buyer["contact"])
+    if len(digits) == 11 and digits.startswith("1"):
+        digits = digits[1:]
+    if len(digits) != 10:
+        raise CheckoutError("Contact number must be a 10-digit phone number.")
+    buyer["contact"] = f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
+    if len(buyer["meeting_location"]) > 200:
+        raise CheckoutError("Meeting location is too long (200 characters max).")
+    return buyer
+
+
+def merge_cart_lines(session_cart):
+    """Turn the session cart into [(listing_id, size, quantity)], one line per item + size."""
+    if not session_cart:
+        raise CheckoutError("Your bag is empty.")
+    merged = {}
+    for item in session_cart:
+        raw_id = item.get("id", item.get("listing_id"))
+        try:
+            listing_id = int(raw_id)
+            quantity = int(item.get("quantity", 1))
+        except (TypeError, ValueError):
+            raise CheckoutError("An item in your bag is no longer available. Please remove it and try again.", 409)
+        if quantity < 1:
+            raise CheckoutError("Quantity must be at least 1.")
+        size = (item.get("size") or "").strip() or None
+        key = (listing_id, size)
+        merged[key] = merged.get(key, 0) + quantity
+    lines = []
+    for (listing_id, size), quantity in merged.items():
+        if quantity > MAX_QTY_PER_LINE:
+            raise CheckoutError(f"You can buy at most {MAX_QTY_PER_LINE} of one item per order.")
+        lines.append((listing_id, size, quantity))
+    return lines
+
+
+def quote_cart(user_id, session_cart):
+    """Database prices for the bag (used for Stripe line items). Raises CheckoutError."""
+    return quote_lines(user_id, merge_cart_lines(session_cart))
+
+
+def complete_transaction_from_session(user_id, session_cart, buyer_details,
+                                      payment_method=IN_PERSON, payment_status="PAY_AT_MEETUP"):
     """
-    Completes checkout using session cart and submitted buyer details.
+    Completes checkout using the session cart and the buyer form - all or nothing.
 
     buyer_details keys: first_name, last_name, email, contact, meeting_location
-    session_cart items: { id, name, price, quantity, size }
+    session_cart items: { id, name, price, quantity, size }  (name and price are ignored;
+                        the database values are used)
     """
-    if not session_cart:
-        raise Exception("Cart is empty.")
+    buyer = validate_buyer(buyer_details)
+    lines = merge_cart_lines(session_cart)
 
-    # Validate all cart items are still available before creating the order
-    for item in session_cart:
-        item_id = item.get("id")
-        quantity = int(item.get("quantity", 1))
-        if item_id:
-            check_listing_availability(int(item_id), quantity)
-
-    first_name = (buyer_details.get("first_name") or "").strip()
-    last_name = (buyer_details.get("last_name") or "").strip()
-    email = (buyer_details.get("email") or "").strip()
-    contact = (buyer_details.get("contact") or "").strip()
-    meeting_location = (buyer_details.get("meeting_location") or "").strip()
-
-    if not all([first_name, last_name, email, contact, meeting_location]):
-        raise Exception("All buyer details are required.")
-
-    total_amount = round(
-        sum(float(item.get("price", 0)) * int(item.get("quantity", 1)) for item in session_cart),
-        2,
-    )
-
-    confirmation_number = _generate_confirmation_number()
-
-    order = create_order(
-        user_id=user_id,
-        confirmation_number=confirmation_number,
-        buyer_first_name=first_name,
-        buyer_last_name=last_name,
-        buyer_email=email,
-        buyer_contact=contact,
-        buyer_meeting_location=meeting_location,
-        total_amount=total_amount,
-    )
-
-    order_items = []
-    for item in session_cart:
-        item_id = item.get("id")
-        item_name = item.get("name", "Item")
-        quantity = int(item.get("quantity", 1))
-        price = float(item.get("price", 0))
-        size = item.get("size")
-
-        order_item = create_order_item(
-            order_id=order["id"],
-            listing_id=item_id,
-            item_name=item_name,
-            quantity=quantity,
-            price_at_purchase=price,
-            selected_size=size,
-        )
-        order_items.append(order_item)
-
-        if item_id and size:
-            try:
-                update_listing_size_inventory(int(item_id), size, quantity)
-            except Exception as e:
-                print(f"[checkout] inventory update failed for listing {item_id} size {size}: {e}")
-
-    clear_cart_for_user(user_id)
-
-    # Remove purchased listings from the user's wishlist
-    purchased_listing_ids = [item.get("id") for item in session_cart if item.get("id") is not None]
-    try:
-        remove_purchased_from_wishlist(user_id, purchased_listing_ids)
-    except Exception as e:
-        print(f"[checkout] wishlist cleanup failed: {e}")
+    for _ in range(3):   # a new confirmation number if one ever collides
+        try:
+            result = place_order(user_id, _generate_confirmation_number(), buyer, lines,
+                                 payment_method=payment_method, payment_status=payment_status)
+            break
+        except psycopg2.errors.UniqueViolation as e:
+            if "confirmation_number" not in str(e):
+                raise
+    else:
+        raise CheckoutError("Could not create a confirmation number. Please try again.", 500)
 
     return {
-        "confirmation_number": confirmation_number,
-        "order": order,
-        "order_items": order_items,
-        "total_amount": total_amount,
+        "confirmation_number": result["order"]["confirmation_number"],
+        "order": result["order"],
+        "order_items": result["order_items"],
+        "total_amount": result["total_amount"],
     }
 
 
 def get_order_summary_service(confirmation_number, user_id):
-    """Returns order + items for the confirmation page. Validates user ownership."""
+    """Returns order + items for the confirmation page. Only the buyer can see it.
+    Someone else's order looks the same as a missing one (404), so numbers can't be probed."""
     order = get_order_by_confirmation(confirmation_number)
-    if not order:
-        raise Exception("Order not found.")
-    if order["user_id"] != user_id:
-        raise Exception("Access denied.")
+    if not order or order["user_id"] != user_id:
+        raise CheckoutError("Order not found.", 404)
     items = get_order_items_by_order_id(order["id"])
     return {"order": order, "order_items": items}
 

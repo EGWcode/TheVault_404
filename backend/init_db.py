@@ -15,28 +15,60 @@ Run this file manually when:
 # CSC 405 Sp 26'
 # Updated by Day Ekoi - Iteration 5 - 4/20/26 - added contact_info, preview_image_1-4, categories columns to storefronts; added ALTER TABLE migrations
 
-import psycopg2
+# Updated by Anthony Jackson - Iteration 4 (beta) - 11/11/26
+#   - Works against BOTH AWS RDS and a local / Docker Postgres. Connection settings now come from
+#     backend/config/db.py (the same place the app uses), so DB_PORT, DB_SSLMODE, DB_SSLROOTCERT
+#     and DATABASE_URL are all respected. (Ethan's 11/9 port/SSL fix is kept, just moved there.)
+#   - On a local or Docker database (DB_HOST=localhost or db) it creates the database itself if it
+#     doesn't exist yet, so "docker compose up" and a fresh install both work. Never on RDS.
+#   - Every change runs in ONE transaction: if anything fails, nothing is half-applied.
+#   - A lock stops two gunicorn workers from setting up the schema at the same moment.
+#   - Safe to run any number of times (CREATE ... IF NOT EXISTS / ADD COLUMN IF NOT EXISTS).
+#   - Added orders.payment_method / payment_status and lookup indexes for checkout.
+
 import os
-from dotenv import load_dotenv
+import sys
 
-load_dotenv()
+import psycopg2
+from psycopg2 import sql
+
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))   # so "config" imports when run directly
+
+from config.db import connect, database_name, current_host, is_local_host
 
 
-def create_vault_tables():
+def ensure_database_exists():
+    """Create the app database if it is missing. Only on a local or Docker Postgres."""
     try:
-        # DB_PORT and DB_SSLMODE are passed too so non-default setups work - Ethan Williams 11/9/26
-        conn_kwargs = dict(
-            host=os.getenv("DB_HOST"),
-            database=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            port=int(os.getenv("DB_PORT") or 5432),
-        )
-        if os.getenv("DB_SSLMODE"):
-            conn_kwargs["sslmode"] = os.getenv("DB_SSLMODE")
-        conn = psycopg2.connect(**conn_kwargs)
+        connect().close()
+        return True
+    except psycopg2.OperationalError as e:
+        if "does not exist" not in str(e) or not is_local_host():
+            raise
+    # The server is up but the database isn't there yet: create it from the 'postgres' database.
+    dbname = database_name()
+    admin = connect(dbname="postgres")
+    admin.autocommit = True   # CREATE DATABASE can't run inside a transaction
+    try:
+        with admin.cursor() as cur:
+            cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(dbname)))
+        print(f"Created database '{dbname}' on {current_host()}.")
+    finally:
+        admin.close()
+    return True
+
+
+def create_vault_tables(verbose=True):
+    """Create or update every table. Returns True on success, False on failure."""
+    conn = None
+    try:
+        ensure_database_exists()
+        conn = connect()
 
         cur = conn.cursor()
+
+        # Only one process sets up the schema at a time (released at commit/rollback).
+        cur.execute("SELECT pg_advisory_xact_lock(405405);")
 
         # ________________________________________________________
         # USERS TABLE
@@ -449,19 +481,41 @@ def create_vault_tables():
         cur.execute(create_storefront_ratings_table)
         cur.execute("CREATE INDEX IF NOT EXISTS idx_ratings_storefront ON storefront_ratings (storefront_id);")
 
+        # ________________________________________________________
+        # CHECKOUT ADDITIONS
+        # Added by Anthony Jackson 11/11/26 - Iteration 4
+        # Pirate Cove is an in-person exchange marketplace: by default the buyer pays the seller
+        # at the meetup (IN_PERSON / PAY_AT_MEETUP). Orders paid with the optional Stripe
+        # TEST-mode checkout are saved as STRIPE_TEST / PAID_TEST. See backend/utils/payments.py.
+        # ________________________________________________________
+        cur.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(20) DEFAULT 'IN_PERSON';")
+        cur.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(20) DEFAULT 'PAY_AT_MEETUP';")
+        cur.execute("UPDATE orders SET payment_method = 'IN_PERSON' WHERE payment_method IS NULL;")
+        cur.execute("UPDATE orders SET payment_status = 'PAY_AT_MEETUP' WHERE payment_status IS NULL;")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_orders_user ON orders (user_id, created_at DESC);")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order ON order_items (order_id);")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_cart_items_user ON cart_items (user_id);")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_listings_storefront ON listings (storefront_id);")
+
         conn.commit()
-
-        print("DATABASE INITIALIZED: users, storefronts, listings, listing_images, listing_sizes, purchases, wishlist, orders, order_items, conversations, messages, and storefront_ratings tables are ready.")
-
         cur.close()
-        conn.close()
+
+        if verbose:
+            print("DATABASE INITIALIZED: users, storefronts, listings, listing_images, listing_sizes, purchases, "
+                  "wishlist, returns, cart_items, orders, order_items, conversations, messages, and "
+                  "storefront_ratings tables are ready.")
         return True
 
     except Exception as e:
+        if conn is not None:
+            conn.rollback()   # nothing is half-applied
         print(f"SCHEMA ERROR: {e}")
         return False
 
+    finally:
+        if conn is not None:
+            conn.close()
+
 
 if __name__ == "__main__":
-    import sys
     sys.exit(0 if create_vault_tables() else 1)

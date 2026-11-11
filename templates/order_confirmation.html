@@ -188,9 +188,20 @@ Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
     (async () => {
         const card = document.getElementById("confCard");
 
+        // Anthony Jackson 11/11/26: everything from the server is escaped before it goes into the
+        // page. Item names come from sellers, so without this a listing title could run HTML/JS here.
+        function esc(value) {
+            return String(value ?? "").replace(/[&<>"']/g, (c) => (
+                { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+        }
+        const PAYMENT_TEXT = {
+            IN_PERSON: "Pay the seller in person at the meetup",
+            STRIPE_TEST: "Paid by card (Stripe test mode, no real money)",
+        };
+
         function renderError(msg) {
             card.innerHTML = `
-                <p class="error-msg">${msg}</p>
+                <p class="error-msg">${esc(msg)}</p>
                 <div class="button-row">
                     <a href="/auth/listings" class="btn btn-primary">Continue Shopping</a>
                 </div>
@@ -223,9 +234,9 @@ Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
 
         const itemRows = orderItems.map(item => `
             <tr>
-                <td>${item.item_name || "Item"}</td>
-                <td>${item.selected_size || "—"}</td>
-                <td>${item.quantity}</td>
+                <td>${esc(item.item_name || "Item")}</td>
+                <td>${esc(item.selected_size || "—")}</td>
+                <td>${esc(item.quantity)}</td>
                 <td>$${parseFloat(item.price_at_purchase).toFixed(2)}</td>
                 <td class="text-right">$${(item.quantity * parseFloat(item.price_at_purchase)).toFixed(2)}</td>
             </tr>
@@ -235,7 +246,7 @@ Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
             <div class="conf-header">
                 <div class="success-badge">&#10003; Order Submitted</div>
                 <h1><span>The</span> Pirate Cove — Thank You!</h1>
-                <p class="conf-number">Confirmation: <strong>${order.confirmation_number}</strong></p>
+                <p class="conf-number">Confirmation: <strong>${esc(order.confirmation_number)}</strong></p>
             </div>
 
             <div class="section">
@@ -247,7 +258,11 @@ Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
                     </div>
                     <div class="detail-item">
                         <strong>Status</strong>
-                        <span>${order.order_status}</span>
+                        <span>${esc(order.order_status)}</span>
+                    </div>
+                    <div class="detail-item">
+                        <strong>Payment</strong>
+                        <span>${esc(PAYMENT_TEXT[order.payment_method] || "Pay the seller in person at the meetup")}</span>
                     </div>
                     <div class="detail-item">
                         <strong>Order Total</strong>
@@ -261,19 +276,19 @@ Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
                 <div class="detail-grid">
                     <div class="detail-item">
                         <strong>Name</strong>
-                        <span>${order.buyer_first_name} ${order.buyer_last_name}</span>
+                        <span>${esc(order.buyer_first_name)} ${esc(order.buyer_last_name)}</span>
                     </div>
                     <div class="detail-item">
                         <strong>Email</strong>
-                        <span>${order.buyer_email}</span>
+                        <span>${esc(order.buyer_email)}</span>
                     </div>
                     <div class="detail-item">
                         <strong>Contact</strong>
-                        <span>${order.buyer_contact}</span>
+                        <span>${esc(order.buyer_contact)}</span>
                     </div>
                     <div class="detail-item">
                         <strong>Meeting Location</strong>
-                        <span>${order.buyer_meeting_location}</span>
+                        <span>${esc(order.buyer_meeting_location)}</span>
                     </div>
                 </div>
             </div>

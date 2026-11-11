@@ -62,6 +62,19 @@ Updated by Ethan Williams 11/5/26 - Pirate Cove redesign, shared header
                 <span>Total</span>
                 <span class="total-amount">$0.00</span>
             </div>
+            <!-- Payment choice - Anthony Jackson 11/11/26. In person is the default; the Stripe
+                 test-card option only appears when a Stripe TEST key is set (see utils/payments.py). -->
+            <fieldset id="paymentChoice" class="payment-choice" style="border:none; padding:0; margin:12px 0;">
+                <label style="display:block; margin-bottom:6px;">
+                    <input type="radio" name="paymentMethod" value="in_person" checked>
+                    Pay the seller in person at the meetup
+                </label>
+                <label id="stripeOption" style="display:none;">
+                    <input type="radio" name="paymentMethod" value="stripe_test">
+                    Card (Stripe test mode, no real money)
+                </label>
+            </fieldset>
+            <p id="paymentNote" class="helper-text">No card is charged online. You pay the seller when you meet.</p>
             <button type="submit" id="submitCheckoutBtn" form="checkoutForm" class="primary-btn">Complete Transaction</button>
         </aside>
     </main>

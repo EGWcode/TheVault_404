@@ -5,4 +5,4 @@
 
 # Left out of release zips (git archive): developer-only files
 .gitattributes export-ignore
-backend/tests/inspect_db.py export-ignore
+scripts/inspect_db.py export-ignore

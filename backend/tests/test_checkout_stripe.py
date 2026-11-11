@@ -53,6 +53,9 @@ def test_create_session_sends_price_in_cents(client, monkeypatch):
         captured.update(kwargs)
         return SimpleNamespace(url="https://checkout.stripe.com/test")
     monkeypatch.setattr(checkout_controller.stripe.checkout.Session, "create", fake_create)
+    # Prices now come from the database, not the cart (Anthony Jackson 11/11/26), so fake that lookup too
+    monkeypatch.setattr(checkout_controller, "quote_cart", lambda user_id, cart: [
+        {"listing_id": 1, "name": "STRIPE TEST ITEM", "price": 25.00, "quantity": 1, "size": None}])
     log_in_with_cart(client)
     res = client.post("/api/checkout/create-session", json=BUYER)
     assert res.status_code == 200
@@ -90,7 +93,7 @@ def test_success_creates_order_once(client, monkeypatch):
     monkeypatch.setattr(checkout_controller.stripe.checkout.Session, "retrieve",
                         lambda session_id: fake_stripe_session("paid", 1))
     called = []
-    def fake_complete(user_id, cart, buyer):
+    def fake_complete(user_id, cart, buyer, *payment):   # payment = method/status, added 11/11/26
         called.append(user_id)
         return {"confirmation_number": "VAULT-TEST-1"}
     monkeypatch.setattr(checkout_controller, "complete_transaction_from_session", fake_complete)
@@ -101,8 +104,22 @@ def test_success_creates_order_once(client, monkeypatch):
     assert "VAULT-TEST-1" in refresh.headers["Location"]
     assert len(called) == 1
 
-# SC-07
-def test_old_free_checkout_route_is_gone(client):
-    log_in_with_cart(client)
+# SC-07 (changed by Anthony Jackson 11/11/26 - payment decision)
+# The free route is back as "Pay in person at the meetup", but it still needs a login and a bag,
+# and it can't be used to skip Stripe for a card payment (no card is ever taken on this route).
+def test_in_person_checkout_requires_login(client):
     res = client.post("/api/checkout/complete", json=BUYER)
-    assert res.status_code in (404, 405)
+    assert res.status_code == 401
+
+def test_in_person_checkout_rejects_empty_cart(client):
+    log_in_with_cart(client, cart=[])
+    res = client.post("/api/checkout/complete", json=BUYER)
+    assert res.status_code == 400
+
+# SC-08 (Anthony Jackson 11/11/26): a LIVE Stripe key is refused
+def test_live_stripe_key_is_refused(client, monkeypatch):
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_live_" + "x" * 20)
+    log_in_with_cart(client)
+    res = client.post("/api/checkout/create-session", json=BUYER)
+    assert res.status_code == 503
+    assert "live" in res.get_json()["error"].lower()

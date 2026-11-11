@@ -1,33 +1,8 @@
-import os
-import psycopg2
-from dotenv import load_dotenv
+# backend/db.py
+# Updated by Anthony Jackson - Iteration 4 (11/11/26)
+# The models import get_connection from here. It now uses the same settings as
+# backend/config/db.py (RDS with SSL, local Postgres, Docker, or DATABASE_URL),
+# so there is only one place to change connection settings.
+# Unlike config.db.get_connection, this one raises an error instead of returning None.
 
-load_dotenv()
-
-from config.db import get_connection
-
-def get_connection():
-    """
-    Creates and returns a new PostgreSQL connection
-    using environment variables.
-    Supports AWS RDS SSL configuration if provided.
-    """
-
-    conn_kwargs = {
-        "host": os.getenv("DB_HOST"),
-        "dbname": os.getenv("DB_NAME"),
-        "user": os.getenv("DB_USER"),
-        "password": os.getenv("DB_PASSWORD"),
-        "port": int(os.getenv("DB_PORT", 5432)),
-    }
-
-    sslmode = os.getenv("DB_SSLMODE")
-    sslrootcert = os.getenv("DB_SSLROOTCERT")
-
-    if sslmode:
-        conn_kwargs["sslmode"] = sslmode
-
-    if sslrootcert:
-        conn_kwargs["sslrootcert"] = sslrootcert
-
-    return psycopg2.connect(**conn_kwargs)
+from config.db import connect as get_connection  # noqa: F401
