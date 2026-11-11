@@ -1,0 +1,12 @@
+.venv
+venv
+env
+.env
+.git
+.pytest_cache
+.vscode
+__pycache__
+*.pyc
+*.zip
+*.docx
+*.pptx
