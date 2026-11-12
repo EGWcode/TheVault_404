@@ -1,9 +1,976 @@
 <!--
-Created by Kaila Roberts 4/18/26
-Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
+    Pirate Cove - Order Confirmation Page
+    Redesigned by Sidney Cerami
+    Date: 11/11/2026
+    Design matches the Hampton University portal/login theme.
+    Existing order API and navigation functionality preserved.
 -->
 
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Confirmed | Pirate Cove</title>
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Instrument+Sans:wght@400;500;600;700&display=swap">
+
+    <style>
+        /* =========================================
+           HAMPTON UNIVERSITY THEME
+        ========================================= */
+
+        :root {
+            --navy: #06163A;
+            --hampton-blue: #0033A0;
+            --deep-blue: #0B2A7A;
+            --ice: #BFD4FF;
+            --mist: #DCE6FF;
+            --off-white: #F7F9FF;
+            --white: #FFFFFF;
+
+            --font-display: 'Big Shoulders Display',
+                            'Arial Narrow', sans-serif;
+            --font-body: 'Instrument Sans',
+                         'Helvetica Neue', sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--navy);
+            color: var(--off-white);
+            font-family: var(--font-body);
+        }
+
+        /* =========================================
+           BLUEPRINT GRID BACKGROUND
+        ========================================= */
+
+        .portal {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+
+            background-color: var(--navy);
+
+            background-image:
+                linear-gradient(
+                    rgba(191, 212, 255, 0.06) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(191, 212, 255, 0.06) 1px,
+                    transparent 1px
+                );
+
+            background-size: 48px 48px;
+        }
+
+        /* =========================================
+           HEADER
+        ========================================= */
+
+        .portal-header {
+            max-width: 1280px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 24px 32px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            color: var(--off-white);
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+
+            border: 3px dotted var(--ice);
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--white);
+        }
+
+        .brand-name {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+        }
+
+        .header-tagline {
+            color: var(--ice);
+            font-size: 12px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        /* =========================================
+           MAIN CONTENT
+        ========================================= */
+
+        .stage {
+            position: relative;
+            flex: 1;
+
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+
+            padding: 35px 20px 180px;
+        }
+
+        .conf-card {
+            position: relative;
+            z-index: 2;
+
+            width: 100%;
+            max-width: 900px;
+
+            padding: 38px;
+
+            background: var(--hampton-blue);
+
+            border: 1.5px solid rgba(255,255,255,0.22);
+            border-radius: 24px;
+
+            box-shadow: 0 30px 80px rgba(0,0,0,0.45);
+        }
+
+        /* =========================================
+           CONFIRMATION HEADER
+        ========================================= */
+
+        .conf-header {
+            text-align: center;
+            padding-bottom: 28px;
+            margin-bottom: 28px;
+
+            border-bottom: 1px solid rgba(191,212,255,0.3);
+        }
+
+        .success-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 8px 18px;
+            margin-bottom: 16px;
+
+            background: rgba(120,230,160,0.15);
+            border: 1px solid #8CEBB0;
+            border-radius: 999px;
+
+            color: #C5FFDA;
+
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .success-icon {
+            font-size: 16px;
+        }
+
+        .conf-header h1 {
+            margin: 0;
+
+            color: var(--white);
+
+            font-family: var(--font-display);
+            font-size: clamp(40px, 7vw, 58px);
+            font-weight: 900;
+            line-height: 1;
+            letter-spacing: 0.03em;
+        }
+
+        .conf-subtitle {
+            margin: 12px 0;
+            color: var(--mist);
+            font-size: 15px;
+        }
+
+        .conf-number {
+            margin-top: 16px;
+
+            color: var(--ice);
+            font-size: 13px;
+            letter-spacing: 0.05em;
+        }
+
+        .conf-number strong {
+            color: var(--white);
+        }
+
+        /* =========================================
+           SECTIONS
+        ========================================= */
+
+        .section {
+            margin-bottom: 28px;
+            padding-bottom: 26px;
+
+            border-bottom: 1px solid rgba(191,212,255,0.25);
+        }
+
+        .section:last-of-type {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            margin: 0 0 18px;
+
+            color: var(--ice);
+
+            font-family: var(--font-display);
+            font-size: 25px;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .detail-item {
+            min-width: 0;
+            padding: 15px 16px;
+
+            background: rgba(6,22,58,0.55);
+
+            border: 1px solid rgba(191,212,255,0.2);
+            border-radius: 12px;
+        }
+
+        .detail-item strong {
+            display: block;
+            margin-bottom: 7px;
+
+            color: var(--ice);
+
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+
+        .detail-item span {
+            color: var(--white);
+            font-size: 15px;
+            overflow-wrap: anywhere;
+        }
+
+        /* =========================================
+           ITEMS TABLE
+        ========================================= */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+
+            border: 1px solid rgba(191,212,255,0.25);
+            border-radius: 12px;
+        }
+
+        .items-table {
+            width: 100%;
+            min-width: 560px;
+
+            border-collapse: collapse;
+            background: rgba(6,22,58,0.4);
+        }
+
+        .items-table th {
+            padding: 15px 12px;
+
+            color: var(--ice);
+            background: rgba(6,22,58,0.7);
+
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-align: left;
+            text-transform: uppercase;
+
+            border-bottom: 1px solid rgba(191,212,255,0.3);
+        }
+
+        .items-table td {
+            padding: 15px 12px;
+
+            color: var(--off-white);
+            font-size: 14px;
+
+            border-bottom: 1px solid rgba(191,212,255,0.13);
+        }
+
+        .items-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .order-total {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+
+            margin-top: 20px;
+
+            color: var(--white);
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .order-total span {
+            color: var(--ice);
+            font-family: var(--font-display);
+            font-size: 30px;
+        }
+
+        /* =========================================
+           BUTTONS
+        ========================================= */
+
+        .button-row {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 14px;
+
+            margin-top: 32px;
+        }
+
+        .btn {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+
+            min-width: 200px;
+            padding: 14px 26px;
+
+            border-radius: 999px;
+
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 0.07em;
+            text-decoration: none;
+            text-align: center;
+
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--white);
+            color: var(--navy);
+            border: 2px solid var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--ice);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--white);
+            border: 2px solid rgba(255,255,255,0.7);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(6,22,58,0.4);
+            border-color: var(--white);
+        }
+
+        .btn:focus-visible {
+            outline: 3px solid var(--ice);
+            outline-offset: 4px;
+        }
+
+        /* =========================================
+           LOADING AND ERROR MESSAGES
+        ========================================= */
+
+        .loading-msg,
+        .error-msg {
+            text-align: center;
+            padding: 35px 10px;
+        }
+
+        .loading-msg {
+            color: var(--ice);
+        }
+
+        .error-msg {
+            color: #FFE1E1;
+        }
+
+        /* =========================================
+           OCEAN WAVES
+        ========================================= */
+
+        .waves {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+
+            width: 100%;
+            height: 180px;
+
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .wave {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* =========================================
+           RESPONSIVE DESIGN
+        ========================================= */
+
+        @media (max-width: 600px) {
+
+            .portal-header {
+                padding: 20px;
+            }
+
+            .header-tagline {
+                font-size: 10px;
+            }
+
+            .stage {
+                padding: 20px 12px 140px;
+            }
+
+            .conf-card {
+                padding: 22px 17px;
+                border-radius: 18px;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .conf-header h1 {
+                font-size: 42px;
+            }
+
+            .button-row {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .order-total {
+                font-size: 14px;
+            }
+
+            .order-total span {
+                font-size: 26px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                transition: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="portal">
+
+    <!-- PIRATE COVE HEADER -->
+
+    <header class="portal-header">
+
+        <a class="brand" href="{{ url_for('index') }}">
+
+            <div class="brand-mark">V</div>
+
+            <div class="brand-name">THE VAULT</div>
+
+        </a>
+
+        <div class="header-tagline">
+            Hampton University · Our Home by the Sea
+        </div>
+
+    </header>
+
+    <!-- MAIN CONTENT -->
+
+    <main class="stage">
+
+        <div class="conf-card" id="confCard">
+
+            <p class="loading-msg" id="loadingMsg">
+                Loading your order confirmation...
+            </p>
+
+        </div>
+
+        <!-- HAMPTON BLUE OCEAN WAVES -->
+
+        <div class="waves" aria-hidden="true">
+
+            <svg class="wave"
+                 viewBox="0 0 1440 320"
+                 preserveAspectRatio="none">
+
+                <path
+                    d="M0 160 Q360 70 720 160 T1440 160 V320 H0Z"
+                    fill="#0A2468">
+                </path>
+
+            </svg>
+
+            <svg class="wave"
+                 viewBox="0 0 1440 320"
+                 preserveAspectRatio="none">
+
+                <path
+                    d="M0 200 Q360 110 720 200 T1440 200 V320 H0Z"
+                    fill="#0B2C85">
+                </path>
+
+            </svg>
+
+            <svg class="wave"
+                 viewBox="0 0 1440 320"
+                 preserveAspectRatio="none">
+
+                <path
+                    d="M0 240 Q360 150 720 240 T1440 240 V320 H0Z"
+                    fill="#0033A0">
+                </path>
+
+            </svg>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================
+     ORDER CONFIRMATION JAVASCRIPT
+     Existing API functionality preserved.
+========================================= -->
+
+<script>
+
+(async () => {
+
+    const card = document.getElementById("confCard");
+
+
+    // Safely display values received from the API.
+    function escapeHTML(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+
+    }
+
+
+    // Format prices consistently.
+    function formatPrice(value) {
+
+        const number = Number(value);
+
+        return Number.isFinite(number)
+            ? number.toFixed(2)
+            : "0.00";
+
+    }
+
+
+    // Display errors.
+    function renderError(msg) {
+
+        card.innerHTML = `
+            <p class="error-msg">${escapeHTML(msg)}</p>
+
+            <div class="button-row">
+
+                <a href="/auth/listings"
+                   class="btn btn-primary">
+                    Continue Shopping
+                </a>
+
+            </div>
+        `;
+
+    }
+
+
+    // Retrieve confirmation number.
+    const params = new URLSearchParams(window.location.search);
+
+    const conf = params.get("conf");
+
+
+    if (!conf) {
+
+        renderError("No confirmation number found.");
+
+        return;
+
+    }
+
+
+    // Retrieve order information from existing API.
+    let order;
+    let orderItems;
+
+    try {
+
+        const res = await fetch(
+            `/api/orders/by-confirmation/${encodeURIComponent(conf)}`
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+
+            throw new Error(
+                data.error || "Order not found."
+            );
+
+        }
+
+        order = data.order;
+
+        orderItems = data.order_items || [];
+
+    } catch (e) {
+
+        renderError(
+            e.message || "Could not load order details."
+        );
+
+        return;
+
+    }
+
+
+    // Format order date.
+    const createdDate = order.created_at
+        ? new Date(order.created_at).toLocaleDateString(
+            "en-US",
+            {
+                year: "numeric",
+                month: "long",
+                day: "numeric"
+            }
+        )
+        : "N/A";
+
+
+    // Generate purchased item rows.
+    const itemRows = orderItems.map(item => {
+
+        const quantity = Number(item.quantity) || 0;
+
+        const price = Number(item.price_at_purchase) || 0;
+
+        const subtotal = quantity * price;
+
+        return `
+
+            <tr>
+
+                <td>${escapeHTML(item.item_name || "Item")}</td>
+
+                <td>${escapeHTML(item.selected_size || "—")}</td>
+
+                <td>${quantity}</td>
+
+                <td>$${formatPrice(price)}</td>
+
+                <td class="text-right">
+                    $${formatPrice(subtotal)}
+                </td>
+
+            </tr>
+
+        `;
+
+    }).join("");
+
+
+    // Display the completed order confirmation.
+    card.innerHTML = `
+
+        <div class="conf-header">
+
+            <div class="success-badge">
+
+                <span class="success-icon">✓</span>
+
+                Order Submitted
+
+            </div>
+
+            <h1>THANK YOU!</h1>
+
+            <p class="conf-subtitle">
+                Your Pirate Cove order has been received.
+            </p>
+
+            <p class="conf-number">
+
+                Confirmation:
+
+                <strong>
+                    ${escapeHTML(order.confirmation_number)}
+                </strong>
+
+            </p>
+
+        </div>
+
+
+        <!-- ORDER DETAILS -->
+
+        <div class="section">
+
+            <h2>Order Details</h2>
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+
+                    <strong>Order Date</strong>
+
+                    <span>${escapeHTML(createdDate)}</span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <strong>Status</strong>
+
+                    <span>${escapeHTML(order.order_status || "N/A")}</span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <strong>Order Total</strong>
+
+                    <span>$${formatPrice(order.total_amount)}</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- BUYER INFORMATION -->
+
+        <div class="section">
+
+            <h2>Buyer Information</h2>
+
+            <div class="detail-grid">
+
+                <div class="detail-item">
+
+                    <strong>Name</strong>
+
+                    <span>
+                        ${escapeHTML(order.buyer_first_name)}
+                        ${escapeHTML(order.buyer_last_name)}
+                    </span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <strong>Email</strong>
+
+                    <span>${escapeHTML(order.buyer_email)}</span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <strong>Contact</strong>
+
+                    <span>${escapeHTML(order.buyer_contact)}</span>
+
+                </div>
+
+
+                <div class="detail-item">
+
+                    <strong>Meeting Location</strong>
+
+                    <span>
+                        ${escapeHTML(order.buyer_meeting_location)}
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ITEMS PURCHASED -->
+
+        <div class="section">
+
+            <h2>Items Purchased</h2>
+
+            <div class="table-wrapper">
+
+                <table class="items-table">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Item</th>
+
+                            <th>Size</th>
+
+                            <th>Qty</th>
+
+                            <th>Price</th>
+
+                            <th class="text-right">Subtotal</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        ${itemRows || `
+                            <tr>
+                                <td colspan="5">
+                                    No items found.
+                                </td>
+                            </tr>
+                        `}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <div class="order-total">
+
+                TOTAL:
+
+                <span>
+                    $${formatPrice(order.total_amount)}
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <!-- NAVIGATION BUTTONS -->
+
+        <div class="button-row">
+
+            <a href="/auth/listings"
+               class="btn btn-primary">
+
+                Continue Shopping
+
+            </a>
+
+
+            <a href="/auth/account"
+               class="btn btn-secondary">
+
+                View My Orders
+
+            </a>
+
+        </div>
+
+    `;
+
+})();
+
+</script>
+
+</body>
+</html>
+
+<!--
+Created by Kaila Roberts 4/18/26
+Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
+-->
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -302,4 +1269,4 @@ Updated by Day Ekoi 4/22/26 - JS-driven, loads order data from API
     })();
     </script>
 </body>
-</html>
+</html>   -->
