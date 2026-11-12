@@ -39,30 +39,6 @@ const lightboxState = {
     index: 0
 };
 
-function ensureToastRoot() {
-    let root = document.getElementById("cartToastRoot");
-    if (!root) {
-        root = document.createElement("div");
-        root.id = "cartToastRoot";
-        root.className = "cart-toast-root";
-        document.body.appendChild(root);
-    }
-    return root;
-}
-
-function showCartToast(message, tone = "success") {
-    const root = ensureToastRoot();
-    const toast = document.createElement("div");
-    toast.className = `cart-toast ${tone === "error" ? "error" : "success"}`;
-    toast.textContent = message;
-    root.appendChild(toast);
-
-    window.setTimeout(() => {
-        toast.classList.add("fade-out");
-        window.setTimeout(() => toast.remove(), 220);
-    }, 2200);
-}
-
 function toNumericPrice(priceValue) {
     if (typeof priceValue === "number") return priceValue;
     if (typeof priceValue === "string") {
@@ -559,18 +535,18 @@ async function createListingCard(item, wishlistIds, currentUserId) {
             const effectiveMax = isMadeToOrder ? Number.POSITIVE_INFINITY : (item.quantity_on_hand || 1);
 
             if (!selectedSize) {
-                showCartToast("Please select a size.", "error");
+                showFeedback("Please select a size.", "error");
                 return;
             }
 
             if (!Number.isInteger(selectedCount) || selectedCount < 1) {
-                showCartToast("Count must be at least 1.", "error");
+                showFeedback("Count must be at least 1.", "error");
                 countInput.value = "1";
                 return;
             }
 
             if (!isMadeToOrder && selectedCount > effectiveMax) {
-                showCartToast(`Maximum available quantity is ${effectiveMax}.`, "error");
+                showFeedback(`Maximum available quantity is ${effectiveMax}.`, "error");
                 countInput.value = String(effectiveMax);
                 return;
             }
@@ -600,10 +576,12 @@ async function createListingCard(item, wishlistIds, currentUserId) {
                     throw new Error(errorMsg);
                 }
 
-                showCartToast(`${title} (${selectedSize}) x${selectedCount} added to cart.`);
+                showFeedback("Added to cart", "success");
             } catch (error) {
-                console.error("Add to cart failed:", error);
-                showCartToast(error.message || "Unable to add to cart.", "error");
+                showFeedback(
+                    error.message || "Unable to add item to cart.",
+                    "error"
+                );
             } finally {
                 addToCartBtn.disabled = false;
             }

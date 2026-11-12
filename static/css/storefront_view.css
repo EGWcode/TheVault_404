@@ -384,46 +384,6 @@ body {
     cursor: not-allowed;
 }
 
-.cart-toast-root {
-    position: fixed;
-    right: 18px;
-    bottom: 18px;
-    z-index: 1400;
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    width: min(92vw, 360px);
-}
-
-.cart-toast {
-    border-radius: 12px;
-    padding: 0.72rem 0.9rem;
-    font-size: 0.9rem;
-    font-weight: 700;
-    line-height: 1.25;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.38);
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-
-.cart-toast.success {
-    background: #111111;
-    color: #f3ce73;
-    border: 1px solid #b8860b;
-}
-
-.cart-toast.error {
-    background: #2c1212;
-    color: #ffd4d4;
-    border: 1px solid #b73f3f;
-}
-
-.cart-toast.fade-out {
-    opacity: 0;
-    transform: translateY(7px);
-}
-
 .wishlist-lock-btn {
     width: 40px;
     height: 40px;

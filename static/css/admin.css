@@ -60,7 +60,7 @@ button.delete {
     color: white;
 }
 
-/* Logout button styling - added 4/23/2026 by David Jackson */
+/* Logout button styling */
 .logout-btn {
     background: #d4af37;
     color: black;
@@ -70,4 +70,178 @@ button.delete {
 
 .logout-btn:hover {
     filter: brightness(1.2);
+}
+
+/* Pirate Cove admin dashboard theme - Noah Green */
+
+.admin-dashboard-page {
+    min-height: 100vh;
+    background-color: #1c1a6e;
+    color: white;
+    font-family: 'League Spartan', Arial, Helvetica, sans-serif;
+    padding: 40px;
+}
+
+/* Main dashboard title */
+.admin-dashboard-page h1 {
+    text-align: center;
+    font-size: 3rem;
+    margin-bottom: 35px;
+    color: white;
+}
+
+/* Section titles */
+.admin-dashboard-page h2,
+.admin-dashboard-page h3 {
+    color: white;
+}
+
+/* Users, listings and storefront sections */
+.admin-dashboard-page section,
+.admin-dashboard-page .admin-section {
+    background: rgba(10, 20, 90, 0.45);
+    border: 2px solid white;
+    border-radius: 26px;
+    padding: 24px;
+    margin-bottom: 28px;
+}
+
+/* Standard admin buttons */
+.admin-dashboard-page button {
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 999px;
+    color: white;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 10px 22px 8px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.admin-dashboard-page button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Delete actions visibly destructive */
+.admin-dashboard-page .delete-btn,
+.admin-dashboard-page .danger-btn {
+    border-color: #ff8b8b;
+    color: #ffb3b3;
+}
+
+.admin-dashboard-page .delete-btn:hover,
+.admin-dashboard-page .danger-btn:hover {
+    background: rgba(255, 75, 75, 0.15);
+}
+
+/* Tables */
+.admin-dashboard-page table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: rgba(8, 15, 70, 0.45);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+/* Table headers */
+.admin-dashboard-page th {
+    background: rgba(18, 89, 214, 0.65);
+    color: white;
+    text-align: left;
+    padding: 14px 16px;
+    font-size: 1rem;
+    letter-spacing: 0.4px;
+}
+
+/* Table cells */
+.admin-dashboard-page td {
+    color: rgba(255, 255, 255, 0.9);
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Row hover */
+.admin-dashboard-page tbody tr:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/*Links*/
+.admin-dashboard-page a {
+    color: #9fd0ff;
+}
+
+.admin-dashboard-page a:hover {
+    color: white;
+}
+
+/* Navigation/logout style */
+.admin-dashboard-page .back-btn,
+.admin-dashboard-page .logout-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: transparent;
+    border: 2px solid white;
+    border-radius: 999px;
+    color: white;
+    padding: 10px 22px 8px;
+    font-weight: 700;
+}
+
+.admin-dashboard-page .back-btn:hover,
+.admin-dashboard-page .logout-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Responsive tables */
+@media (max-width: 800px) {
+    .admin-dashboard-page {
+        padding: 20px 14px;
+    }
+
+    .admin-dashboard-page section,
+    .admin-dashboard-page .admin-section {
+        padding: 16px;
+        overflow-x: auto;
+    }
+
+    .admin-dashboard-page h1 {
+        font-size: 2.2rem;
+    }
+
+    .admin-dashboard-page table {
+        min-width: 700px;
+    }
+}
+/* Updated admin dashboard background - Noah Green */
+
+html,
+body {
+    min-height: 100%;
+}
+
+body.admin-dashboard-page {
+    margin: 0;
+    min-height: 100vh;
+
+    background-color: #06163A !important;
+
+    background-image:
+        linear-gradient(
+            rgba(191, 212, 255, 0.06) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(191, 212, 255, 0.06) 1px,
+            transparent 1px
+        ) !important;
+
+    background-size: 48px 48px !important;
+    background-attachment: fixed;
+    color: #F7F9FF;
 }

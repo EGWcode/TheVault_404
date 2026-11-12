@@ -1,4 +1,3 @@
-# By Ryan Grimes - Updated 3/19/2026
 # auth_controller.py
 # Account routes: log in, sign up, admin log in and log out, plus the shopping bag (cart) routes.
 # app.py registers this with url_prefix='/auth', so every route here starts with /auth (e.g. /auth/login).
@@ -373,14 +372,47 @@ def admin_login():
         user = request.form.get('username')
         pw = request.form.get('password')
 
-        # temporary hardcoded admin login for testing
-        if user == "admin" and pw == "admin123":
-            session['user'] = user
-            session['role'] = 'admin'
-            return redirect(url_for('admin.admin_dashboard'))
+        conn = get_connection()
+        if conn is None:
+            flash("Can't reach the database right now. Please try again.", "error")
+            return render_template('admin_login.html', username=user)
 
-        # Wrong admin login: show a red error box on the styled page with the username still filled in
-        flash("That admin username and password don't match. Please try again.", "error")
+        try:
+            success, role = service.validate_login(user, pw, conn)
+
+            if success and role and role.lower() == 'admin':
+                session['user'] = user
+                session['role'] = 'admin'
+
+                # Initialize session timeout
+                session['last_activity'] = time.time()
+                session['client_idle_reset'] = True
+
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT id FROM users WHERE username = %s",
+                    (user,)
+                )
+                row = cur.fetchone()
+
+                if row:
+                    session['user_id'] = row[0]
+
+                cur.close()
+                conn.close()
+
+                return redirect(url_for('admin.admin_dashboard'))
+
+            conn.close()
+
+        except Exception as e:
+            conn.close()
+            print(f"Admin login error: {e}")
+
+        flash(
+            "That admin username and password don't match. Please try again.",
+            "error"
+        )
         return render_template('admin_login.html', username=user)
 
     return render_template('admin_login.html')
