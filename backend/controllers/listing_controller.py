@@ -19,6 +19,8 @@ This layer should stay thin:
 All system rules + permission checks happen in services/listing_service.py.
 """
 
+from decimal import Decimal, InvalidOperation
+
 from flask import Blueprint, request, jsonify
 
 from services.listing_service import (
@@ -44,6 +46,12 @@ from services.listing_service import (
 from services.storefront_service import get_my_storefront_service
 
 listing_bp = Blueprint("listing_bp", __name__, url_prefix="/api")
+
+# Create-listing form limits - Nicco Hill 11/12/2026
+MAX_TITLE_LENGTH = 120                    # listings.title is VARCHAR(120)
+MAX_PRICE = Decimal("99999999.99")        # listings.price is NUMERIC(10,2)
+ALLOWED_SIZES = ("XS", "S", "M", "L", "XL", "XXL", "One Size")
+ALLOWED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".webp")
 
 
 def get_current_user():
@@ -102,40 +110,84 @@ def create_listing_from_form():
         # Get form fields
         title = request.form.get("title", "").strip()
         storefront_id = user_storefront["id"]
-        price = request.form.get("price", type=float)
+        price_raw = request.form.get("price", "").strip()
         fulfillment_type = request.form.get("fulfillment_type", "IN_STOCK").strip()
-        status = request.form.get("status", "ACTIVE").strip()
+        status = request.form.get("status", "ACTIVE").strip().upper()
         sizes_json = request.form.get("sizes_available", "[]")
         size_quantities_json = request.form.get("size_quantities", "{}")
         is_made_to_order = request.form.get("is_made_to_order", "false").lower() in ("true", "1", "yes")
 
-        # Validate required fields
+        # ── Validate EVERYTHING before uploading images, so a bad submit
+        #    doesn't leave orphaned files in S3 - Nicco Hill 11/12/2026 ──
         if not title:
             return jsonify({"error": "title is required."}), 400
+        if len(title) > MAX_TITLE_LENGTH:
+            return jsonify({"error": f"title must be {MAX_TITLE_LENGTH} characters or fewer."}), 400
+
+        if not price_raw:
+            return jsonify({"error": "price is required."}), 400
+        try:
+            price = Decimal(price_raw)
+        except InvalidOperation:
+            return jsonify({"error": "price must be a number."}), 400
+        if not price.is_finite():  # "nan", "inf"
+            return jsonify({"error": "price must be a number."}), 400
+        if price < 0:
+            return jsonify({"error": "price cannot be negative."}), 400
+        if price > MAX_PRICE:
+            return jsonify({"error": f"price cannot be more than ${MAX_PRICE:,}."}), 400
+        if price != price.quantize(Decimal("0.01")):
+            return jsonify({"error": "price can have at most 2 decimal places."}), 400
+        price = float(price)
+
+        if fulfillment_type not in ("IN_STOCK", "PREORDER"):
+            return jsonify({"error": "fulfillment_type must be IN_STOCK or PREORDER."}), 400
+        if status not in ("ACTIVE", "INACTIVE"):
+            return jsonify({"error": "status must be ACTIVE or INACTIVE."}), 400
 
         # Parse sizes
         try:
             sizes_available = json.loads(sizes_json)
-            if not isinstance(sizes_available, list) or len(sizes_available) == 0:
-                return jsonify({"error": "At least one size must be selected."}), 400
         except json.JSONDecodeError:
             return jsonify({"error": "Invalid sizes_available format."}), 400
+        if not isinstance(sizes_available, list) or len(sizes_available) == 0:
+            return jsonify({"error": "At least one size must be selected."}), 400
+        if any(size not in ALLOWED_SIZES for size in sizes_available):
+            return jsonify({"error": f"Sizes must be from: {', '.join(ALLOWED_SIZES)}."}), 400
+        if len(set(sizes_available)) != len(sizes_available):
+            return jsonify({"error": "Each size can only be listed once."}), 400
 
         # Parse per-size quantities (maps size name → quantity)
         try:
             size_quantities = json.loads(size_quantities_json) if size_quantities_json else {}
-            if not isinstance(size_quantities, dict):
-                size_quantities = {}
         except json.JSONDecodeError:
-            size_quantities = {}
+            return jsonify({"error": "Invalid size_quantities format."}), 400
+        if not isinstance(size_quantities, dict):
+            return jsonify({"error": "Invalid size_quantities format."}), 400
 
-        # Calculate total quantity as sum of all size quantities
+        cleaned_quantities = {}
+        for size, qty in size_quantities.items():
+            if size not in sizes_available:
+                return jsonify({"error": f"Quantity given for size '{size}', which wasn't selected."}), 400
+            try:
+                qty = int(qty)
+            except (TypeError, ValueError):
+                return jsonify({"error": f"Quantity for size {size} must be a whole number."}), 400
+            if isinstance(size_quantities[size], float) and size_quantities[size] != qty:
+                return jsonify({"error": f"Quantity for size {size} must be a whole number."}), 400
+            if qty < 0:
+                return jsonify({"error": f"Quantity for size {size} cannot be negative."}), 400
+            cleaned_quantities[size] = qty
+        size_quantities = cleaned_quantities
+
+        # Total quantity is the sum of the per-size quantities when given
         quantity_on_hand = request.form.get("quantity_on_hand", type=int)
         if size_quantities:
-            calculated_total = sum(int(v) for v in size_quantities.values() if str(v).isdigit() or isinstance(v, int))
-            quantity_on_hand = calculated_total if calculated_total > 0 else (quantity_on_hand or 0)
+            quantity_on_hand = sum(size_quantities.values())
         elif quantity_on_hand is None:
             quantity_on_hand = 0
+        if quantity_on_hand < 0:
+            return jsonify({"error": "quantity_on_hand cannot be negative."}), 400
 
         # Handle file upload(s) - supports multiple images, first one is primary.
         upload_files = request.files.getlist("listing_images")
@@ -149,15 +201,15 @@ def create_listing_from_form():
             return jsonify({"error": "At least one listing image is required."}), 400
         if len(upload_files) > 4:
             return jsonify({"error": "You can upload up to 4 listing images."}), 400
+        for file in upload_files:
+            if not file.filename.lower().endswith(ALLOWED_IMAGE_EXTENSIONS):
+                return jsonify({"error": "Image must be PNG, JPG, JPEG, GIF, or WebP."}), 400
 
         image_urls = []
         try:
             from utils.s3 import upload_image_to_s3
 
             for file in upload_files:
-                if not file.filename.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp")):
-                    return jsonify({"error": "Image must be PNG, JPG, JPEG, GIF, or WebP."}), 400
-
                 image_url = upload_image_to_s3(file, folder="listings")
                 if not image_url:
                     return jsonify({"error": "Failed to upload image to S3."}), 500

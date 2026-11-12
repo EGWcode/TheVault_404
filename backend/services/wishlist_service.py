@@ -1,7 +1,7 @@
 # The Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Created for Wishlist feature by Elali McNair 3/3/26
-# The frontend protion of this code is not finished or implemented yet. Therfore, this code is not oporational or properly implemented yet.
+# Finished by Nicco Hill 11/12/2026: edge cases for deleted / sold-out listings and duplicates.
 
 """
 services/wishlist_service.py
@@ -25,25 +25,29 @@ class WishlistService:
     def add_item_to_wishlist(self, user_id, listing_id):
         """
         Adds a listing to user's wishlist.
-        Validates the listing exists and is available.
-        Returns success status and message.
-        """
-        # Validate listing exists
-        listing = get_listing_by_id(listing_id)
-        if not listing:
-            return False, "Listing not found"
+        Returns (success, message, error_code). error_code is one of
+        None, "not_found", "duplicate", "error" so the controller can pick
+        the right HTTP status.
 
-        # Check if listing is active (allow wishlisting inactive items? For now yes)
-        # Users might want to wishlist items that are temporarily out of stock
+        Edge cases (Nicco Hill 11/12/2026):
+        - Deleted listings are treated as not found.
+        - Sold-out / inactive listings CAN be wishlisted, so buyers can watch
+          for a restock. GET /api/wishlist marks them "available": false.
+        - Adding the same listing twice returns "Item already in wishlist".
+        """
+        listing = get_listing_by_id(listing_id)
+        if not listing or listing["status"] == "DELETED":
+            return False, "Listing not found", "not_found"
 
         try:
             result = add_to_wishlist(user_id, listing_id)
-            if result:
-                return True, "Item added to wishlist"
-            else:
-                return False, "Item already in wishlist"
         except Exception as e:
-            return False, f"Failed to add item to wishlist: {str(e)}"
+            print(f"[wishlist] add failed for user {user_id}, listing {listing_id}: {e}")
+            return False, "Failed to add item to wishlist", "error"
+
+        if result:
+            return True, "Item added to wishlist", None
+        return False, "Item already in wishlist", "duplicate"
 
     def get_user_wishlist(self, user_id):
         """
@@ -54,7 +58,8 @@ class WishlistService:
             wishlist = get_wishlist_by_user_id(user_id)
             return True, wishlist
         except Exception as e:
-            return False, f"Failed to retrieve wishlist: {str(e)}"
+            print(f"[wishlist] {e}")
+            return False, "Failed to retrieve wishlist"
 
     def remove_item_from_wishlist(self, user_id, listing_id):
         """
@@ -68,7 +73,8 @@ class WishlistService:
             else:
                 return False, "Item not found in wishlist"
         except Exception as e:
-            return False, f"Failed to remove item from wishlist: {str(e)}"
+            print(f"[wishlist] {e}")
+            return False, "Failed to remove item from wishlist"
 
     def check_item_in_wishlist(self, user_id, listing_id):
         """
@@ -79,7 +85,8 @@ class WishlistService:
             in_wishlist = is_in_wishlist(user_id, listing_id)
             return True, in_wishlist
         except Exception as e:
-            return False, f"Failed to check wishlist status: {str(e)}"
+            print(f"[wishlist] {e}")
+            return False, "Failed to check wishlist status"
 
     def get_wishlist_item_details(self, wishlist_id):
         """
@@ -93,4 +100,5 @@ class WishlistService:
             else:
                 return False, "Wishlist item not found"
         except Exception as e:
-            return False, f"Failed to retrieve wishlist item details: {str(e)}"
+            print(f"[wishlist] {e}")
+            return False, "Failed to retrieve wishlist item details"

@@ -14,6 +14,7 @@ from services.checkout_service import (
     get_order_summary_service,
     get_user_orders_service,
 )
+from models.checkout_model import check_listing_availability
 
 checkout_bp = Blueprint("checkout", __name__)
 #Removed /checkout/complete so orders cant be created without a stripe payment - Tykeara Hammond 10/20/2026
@@ -34,6 +35,15 @@ def create_checkout_session(): # Starts a Stripe test-mode payment - Tykeara Ham
             return jsonify({"error": "All fields are required."}), 400
     session["pending_buyer"] = buyer
 
+    # Check stock BEFORE sending the buyer to Stripe. checkout_success checks again,
+    # but by then the card is already charged - Nicco Hill 11/12/2026
+    for item in session_cart:
+        if item.get("id"):
+            try:
+                check_listing_availability(int(item["id"]), int(item.get("quantity", 1)))
+            except Exception as e:
+                return jsonify({"error": str(e)}), 409
+
     line_items = []
     for item in session_cart:
         price = float(item.get("price", 0)) 
@@ -45,6 +55,12 @@ def create_checkout_session(): # Starts a Stripe test-mode payment - Tykeara Ham
             },
             "quantity": int(item.get("quantity", 1)),
         })
+
+    # No Stripe key on the server (e.g. STRIPE_SECRET_KEY missing from Elastic Beanstalk environment properties):
+    # log the real cause and show buyers a friendly message instead of Stripe's raw error
+    if not stripe.api_key:
+        print("Checkout error: STRIPE_SECRET_KEY is not set.")
+        return jsonify({"error": "Payments are temporarily unavailable. Please try again later."}), 503
 
     try:
         checkout_session = stripe.checkout.Session.create(
