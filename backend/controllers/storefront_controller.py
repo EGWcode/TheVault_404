@@ -18,7 +18,7 @@ Functions:
 - return JSON responses
 """
 
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, session
 
 from services.storefront_service import (
     create_storefront_service,
@@ -37,27 +37,33 @@ storefront_bp = Blueprint("storefront_bp", __name__, url_prefix="/api/storefront
 storefront_pages_bp = Blueprint("storefront_pages_bp", __name__)
 
 
+
+# SECURITY ENHANCEMENT: Secure Storefront Authentication
+# Added by Nicholas Smith - 11/13/2026
+
 def get_current_user():
-    """
-    Temporary user identity method (until real auth is connected):
-    Read user from headers.
+    if not session.get("user"):
+        return None
 
-    Required header for protected routes:
-      X-User-Id: <int>
+    user_id = session.get("user_id")
 
-    Optional:
-      X-User-Role: user|admin
-    """
-    user_id = request.headers.get("X-User-Id")
-    role = request.headers.get("X-User-Role", "user")
-
-    if not user_id:
+    if user_id is None:
         return None
 
     try:
-        return {"id": int(user_id), "role": role}
-    except Exception:
+        user_id = int(user_id)
+
+        if user_id <= 0:
+            return None
+
+        return {
+            "id": user_id,
+            "role": session.get("role", "user")
+        }
+
+    except (TypeError, ValueError):
         return None
+
 
 
 #_________________________________________________________

@@ -6,6 +6,31 @@ Handles database operations for marketplace return requests.
 
 from db import get_connection
 
+# SECURITY ENHANCEMENT: Verify order ownership
+# Added by Nicholas Smith - 11/13/2026
+
+def order_belongs_to_user(user_id, order_number):
+    conn = get_connection()
+
+    if conn is None:
+        raise RuntimeError("Database connection unavailable.")
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT 1
+                FROM orders
+                WHERE confirmation_number = %s
+                  AND user_id = %s
+                LIMIT 1
+            """, (order_number, user_id))
+
+            return cur.fetchone() is not None
+
+    finally:
+        conn.close()
+
+
 
 def create_return_record(user_id, order_number, reason, has_damage, damage_image_url=None, status="pending"):
     conn = get_connection()

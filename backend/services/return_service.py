@@ -4,8 +4,12 @@ return_service.py
 Business rules and validation for return requests.
 """
 
-from models.return_model import create_return_record, get_all_returns, update_return_status
-
+from models.return_model import (
+    create_return_record,
+    get_all_returns,
+    update_return_status,
+    order_belongs_to_user
+)
 VALID_RETURN_STATUSES = {"pending", "reviewed", "resolved"}
 
 
@@ -37,6 +41,17 @@ def create_return_service(current_user, data, damage_image_url=None):
         raise Exception("has_damage is required.")
 
     has_damage = _normalize_has_damage(raw_has_damage)
+
+    # Added by Nicholas Smith - 11/13/2026
+
+    if not order_belongs_to_user(current_user["id"], order_number):
+        raise ValueError(
+            "Order not found or does not belong to this account."
+        )
+
+    # SECURITY ENHANCEMENT: Verify order ownership
+    if not order_belongs_to_user(current_user["id"], order_number):
+        raise Exception("Unauthorized: You are not the owner of this order.")
 
     return create_return_record(
         user_id=current_user["id"],

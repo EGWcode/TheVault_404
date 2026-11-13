@@ -12,19 +12,29 @@ returns_bp = Blueprint("returns_bp", __name__)
 
 
 def get_current_user():
-    header_user_id = request.headers.get("X-User-Id")
-    header_role = request.headers.get("X-User-Role", session.get("role", "user"))
 
-    if header_user_id:
-        try:
-            return {"id": int(header_user_id), "role": header_role}
-        except Exception:
+    # Require a valid authenticated Flask session.
+    if not session.get("user"):
+        return None
+
+    user_id = session.get("user_id")
+
+    if user_id is None:
+        return None
+
+    try:
+        user_id = int(user_id)
+
+        if user_id <= 0:
             return None
 
-    if session.get("user_id"):
-        return {"id": int(session["user_id"]), "role": session.get("role", "user")}
+        return {
+            "id": user_id,
+            "role": session.get("role", "user")
+        }
 
-    return None
+    except (ValueError, TypeError):
+        return None
 
 
 @returns_bp.get("/returns")

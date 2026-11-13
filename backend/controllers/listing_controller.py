@@ -21,7 +21,7 @@ All system rules + permission checks happen in services/listing_service.py.
 
 from decimal import Decimal, InvalidOperation
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 
 from services.listing_service import (
     create_listing_service,
@@ -54,25 +54,34 @@ ALLOWED_SIZES = ("XS", "S", "M", "L", "XL", "XXL", "One Size")
 ALLOWED_IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".gif", ".webp")
 
 
+
+# SECURITY ENHANCEMENT: Secure Listing Authentication
+# Added by Nicholas Smith - 11/13/2026
+
 def get_current_user():
-    """
-    Temporary user identity method (until real auth is connected):
-    Read user from headers.
+    # Only trust authenticated Flask sessions
+    if not session.get("user"):
+        return None
 
-    Required header for protected routes:
-      X-User-Id: <int>
+    user_id = session.get("user_id")
 
-    """
-    user_id = request.headers.get("X-User-Id")
-    role = request.headers.get("X-User-Role", "user")
-
-    if not user_id:
+    if user_id is None:
         return None
 
     try:
-        return {"id": int(user_id), "role": role}
-    except Exception:
+        user_id = int(user_id)
+
+        if user_id <= 0:
+            return None
+
+        return {
+            "id": user_id,
+            "role": session.get("role", "user")
+        }
+
+    except (TypeError, ValueError):
         return None
+
 
 
 # __________________________________________________________

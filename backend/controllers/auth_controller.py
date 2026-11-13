@@ -5,7 +5,7 @@
 
 import time  # Added by Nicholas Smith - 10/25/2026
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash, jsonify
-from services.auth_services import AuthService 
+from services.auth_services import AuthService
 from config.db import get_connection
 # imports created by Sidney cerami 10/20/2-26
 import os
@@ -34,7 +34,7 @@ def login():
         user = request.form.get('username')
         pw = request.form.get('password')
 
-        
+
         conn = get_connection()
         if conn is None:
             # Show errors on the styled login page instead of a plain white page - Nicco Hill 10/20/2026
@@ -61,13 +61,17 @@ def login():
         success, role = service.validate_login(user, pw, conn)
 
         # conn.close()
-        
+
         # Correct password: save who they are in the session (Flask's login cookie)
         if success:
-
             reset_login_attempts(conn, user)
+
+
+            session.clear()
+
             session['user'] = user
             session['role'] = role
+
             # Session timeout initialization
             # Added by Nicholas Smith - 10/25/2026
             session['last_activity'] = time.time()
@@ -93,7 +97,7 @@ def login():
                 return redirect(url_for('admin.admin_dashboard'))
             else:
                 return redirect(url_for('auth.listings'))
-        
+
         # Wrong username or password: record the failed attempt (Nicholas Smith 10/25/2026), close the connection,
         # then show the log in page again with a red error box and the username still filled in
         try:
@@ -112,7 +116,7 @@ def login():
 
         flash(f"That username and password don't match. You have {attempts_left} attempt(s) left.", "error")
         return render_template('login.html', username=user)
-    
+
     # GET = just visiting the page, so show the empty form
     return render_template('login.html')
 
@@ -217,10 +221,10 @@ def listings():
 
 @auth_bp.route('/account')
 def account():
-    if 'user' not in session: 
+    if 'user' not in session:
         return redirect(url_for('auth.login'))
     return render_template('account.html')
-    
+
 # Log out: erase everything in the session, then go back to the log in page
 @auth_bp.route('/logout')
 def logout():
@@ -242,18 +246,27 @@ def add_to_cart():
         flash("Please login to add items to your bag.", "error")
         return redirect(url_for('auth.login'))
 
+
+    # SECURITY ENHANCEMENT: Validate cart input
+    # Added by Nicholas Smith - 11/13/2026
     item_id = request.form.get('item_id')
-    item_name = request.form.get('item_name')
-    price = request.form.get('price', 0)
-    quantity = request.form.get('quantity', 1)
     size = request.form.get('size')
+
+    try:
+        item_id = int(item_id)
+        quantity = int(request.form.get('quantity', 1))
+        if item_id <= 0 or quantity <= 0:
+            raise ValueError()
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid item or quantity."}), 400
+
 
     # Validate listing availability before adding to cart
     try:
         conn = get_connection()
         cur = conn.cursor()
         cur.execute(
-            "SELECT status, quantity_on_hand, is_made_to_order FROM listings WHERE id = %s",
+            "SELECT status, quantity_on_hand, is_made_to_order, title, price FROM listings WHERE id = %s",
             (item_id,)
         )
         listing = cur.fetchone()
@@ -261,13 +274,24 @@ def add_to_cart():
         conn.close()
         if not listing:
             return jsonify({"error": "This item is no longer available."}), 404
-        listing_status, qty_on_hand, is_made_to_order = listing
+
+        # SECURITY ENHANCEMENT: Trusted database price
+        # Added by Nicholas Smith - 11/13/2026
+        listing_status, qty_on_hand, is_made_to_order, item_name, price = listing
+
+        if listing_status != "ACTIVE":
+            return jsonify({"error": "This listing is not available."}), 409
+
+        if not is_made_to_order and qty_on_hand is not None and quantity > int(qty_on_hand):
+            return jsonify({"error": "Requested quantity exceeds available stock."}), 409
+
         if listing_status == "SOLD_OUT" or (
             not is_made_to_order and qty_on_hand is not None and int(qty_on_hand) <= 0
         ):
             return jsonify({"error": f"{item_name} is sold out and cannot be added to your bag."}), 409
     except Exception as e:
         print(f"DB Error checking listing availability: {e}")
+        return jsonify({"error": "Unable to verify product availability."}), 503
 
     # PERSIST TO DATABASE
     try:
@@ -282,11 +306,12 @@ def add_to_cart():
         conn.close()
     except Exception as e:
         print(f"DB Error adding to cart: {e}")
+        return jsonify({"error": "Unable to save item to cart."}), 503
 
     # Update session for immediate UI feedback
     if 'cart' not in session:
         session['cart'] = []
-    
+
     cart_item = {'id': item_id, 'name': item_name, 'price': float(price), 'quantity': int(quantity), 'size': size}
     temp_cart = session['cart']
     temp_cart.append(cart_item)
@@ -303,16 +328,16 @@ def remove_from_cart(index):
         temp_cart = session['cart']
         if 0 <= index < len(temp_cart):
             removed_item = temp_cart.pop(index)
-            
+
             # REMOVE FROM DATABASE
             try:
                 conn = get_connection()
                 cur = conn.cursor()
                 # We delete one instance of this item for this user
                 cur.execute("""
-                    DELETE FROM cart_items 
+                    DELETE FROM cart_items
                     WHERE id = (
-                        SELECT id FROM cart_items 
+                        SELECT id FROM cart_items
                         WHERE user_id = %s AND item_name = %s AND size = %s
                         LIMIT 1
                     )
@@ -333,7 +358,7 @@ def remove_from_cart(index):
 def get_current_session_user():
     if 'user' not in session:
         return jsonify({"error": "Not logged in"}), 401
-    
+
     try:
         conn = get_connection()
         cur = conn.cursor()
@@ -352,16 +377,13 @@ def get_current_session_user():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
 # The cart as JSON, for JavaScript on the pages
 @auth_bp.route('/cart/json')
 def get_cart_json():
     return jsonify(session.get('cart', []))
 
-# Shows everything in the session as JSON (for debugging)
-@auth_bp.route('/debug/session')
-def debug_session():
-    return jsonify(dict(session))
+
 
 # Admin login route - added by David Jackson 4/19/26
 # ---------- Admin log in ----------
