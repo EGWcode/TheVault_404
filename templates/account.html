@@ -266,6 +266,9 @@
             price: item.price ?? item.listing?.price ?? 0,
             image_url: item.listing?.image_url || item.image_url || item.storefront?.logo_url || "/static/images/logo.png",
             storefront_name: item.storefront_name || item.storefront?.brand_name || "Storefront",
+            // false when the listing is sold out or paused (added by Nicco Hill 11/12/2026)
+            available: item.available ?? item.listing?.available ?? true,
+            status: item.status || item.listing?.status || "ACTIVE",
         };
     }
 
@@ -309,11 +312,11 @@
                          onerror="this.src='/static/images/logo.png'">
                     <div>
                         <div class="wishlist-title">${item.title || "Untitled Listing"}</div>
-                        <div class="wishlist-meta">${item.storefront_name || "Storefront"} | ${formatWishlistPrice(item.price)}</div>
+                        <div class="wishlist-meta">${item.storefront_name || "Storefront"} | ${formatWishlistPrice(item.price)}${item.available ? "" : (item.status === "SOLD_OUT" ? " | <strong>Sold out</strong>" : " | <strong>Unavailable</strong>")}</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <button class="wishlist-cart-btn" type="button">+ Cart</button>
+                    <button class="wishlist-cart-btn" type="button" ${item.available ? "" : "disabled title=\"This item is sold out or unavailable\""}>+ Cart</button>
                     <button class="wishlist-remove-btn" type="button">Remove</button>
                 </div>
             `;

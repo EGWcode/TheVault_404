@@ -130,7 +130,8 @@ def test_seed_script_is_safe_to_run_twice(db):
 
     # If a demo row goes missing (an interrupted run, someone deleted it), the next run puts it back
     with db.cursor() as cur:
-        cur.execute("""DELETE FROM wishlist WHERE user_id = (SELECT id FROM users WHERE username='demo_buyer')
-                       AND listing_id = (SELECT id FROM listings WHERE title='Track Jacket' LIMIT 1)""")
+        cur.execute("""DELETE FROM wishlist WHERE user_id = (SELECT id FROM users WHERE username='demo_buyer4')
+                       AND listing_id = (SELECT id FROM listings WHERE title='Graphic Tee' LIMIT 1)""")
+        assert cur.rowcount == 1, "the demo wishlist save to delete wasn't there"
     assert seed_demo_data.main() == 0
     assert counts() == after_first

@@ -94,7 +94,10 @@ def create_checkout_session(): # Starts a Stripe test-mode payment - Tykeara Ham
 
     try:
         buyer = validate_buyer(request.get_json(silent=True) or {})
-        quoted = quote_cart(user_id, session_cart)   # database prices, not the browser's
+        # Database prices, not the browser's. This also checks stock (and deleted/paused listings)
+        # BEFORE the buyer is sent to Stripe, so a card is never charged for an item that's gone
+        # (same goal as Nicco Hill's 11/12/2026 check on main).
+        quoted = quote_cart(user_id, session_cart)
     except Exception as e:
         return _error(e)
     session["pending_buyer"] = buyer

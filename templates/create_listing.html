@@ -203,6 +203,32 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
             opacity: 0;
             transform: translateY(7px);
         }
+        /* Inline validation messages for the Create Listing form - Nicco Hill 11/12/2026 */
+        .field-error {
+            display: block;
+            color: #ff8a8a;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.4rem;
+            text-align: left;
+        }
+        [aria-invalid="true"] {
+            border-color: #ff8a8a !important;
+            box-shadow: 0 0 0 2px rgba(255, 138, 138, 0.35);
+        }
+        .form-error-summary {
+            display: none;
+            margin: 0 auto 1rem;
+            max-width: 900px;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ff8a8a;
+            border-radius: 10px;
+            background: rgba(255, 138, 138, 0.12);
+            color: #ffd6d6;
+            font-weight: 600;
+        }
+        .form-error-summary.visible { display: block; }
+        .primary-btn[disabled] { opacity: 0.6; cursor: wait; }
     </style>
 
 </head>
@@ -233,7 +259,8 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
     <!-- Main container -->
     <main class="create-page">
 
-        <form class="storefront-form" id="listingForm" enctype="multipart/form-data">
+        <form class="storefront-form" id="listingForm" enctype="multipart/form-data" novalidate>
+            <div class="form-error-summary" id="formErrorSummary" role="alert" aria-live="assertive"></div>
 
             <section class="form-card banner-card">
                 <label class="section-label">Listing Preview Images (up to 4) <span class="required">*</span></label>
@@ -261,7 +288,7 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
                     </div>
                 </div>
 
-                <p class="helper-text">The first selected image will be used as the primary listing image.</p>
+                <p class="helper-text" id="imageHelperText">The first selected image will be used as the primary listing image.</p>
             </section>
 
             <section class="middle-row">
@@ -283,6 +310,7 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
                         id="listingName"
                         name="listing_name"
                         placeholder="Enter listing name (e.g., Vintage Hoodie)"
+                        maxlength="120"
                         required
                     >
                 </div>
@@ -359,6 +387,7 @@ This file acts as the UI structure (skeleton) of the Create Listing feature.
                                     name="price"
                                     placeholder="0.00"
                                     min="0"
+                                    max="99999999.99"
                                     step="0.01"
                                     required
                                 >

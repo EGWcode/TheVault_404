@@ -6,6 +6,7 @@ CSC 405 Sp 26
 Created by Elali McNair - Iteration 4
 Updated by Day Ekoi - Iteration 5 4/9/26
 Updated by Day Ekoi - Iteration 5 4/22/26 - One Size mode, per-size quantities, Made-to-Order
+Updated by Nicco Hill 11/12/2026 - inline field errors, limits that match the server, double-submit guard
 
 Purpose:
 Handles form submission for Create Listing page. Supports:
@@ -160,7 +161,12 @@ document.addEventListener('DOMContentLoaded', function() {
       zone.classList.remove("dragover");
 
       const droppedFile = event.dataTransfer?.files?.[0];
-      if (droppedFile && droppedFile.type.startsWith("image/")) {
+      const dropError = validateImageFile(droppedFile);
+      if (dropError) {
+        showListingToast(dropError, "error");
+        return;
+      }
+      if (droppedFile) {
         selectedListingImages[slotIndex] = droppedFile;
         renderSinglePreview(previewContainer, droppedFile, zone, slotIndex);
       }
@@ -168,9 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     input.addEventListener("change", () => {
       const chosenFile = input.files?.[0];
-      selectedListingImages[slotIndex] = chosenFile && chosenFile.type.startsWith("image/")
-        ? chosenFile
-        : null;
+      const chooseError = validateImageFile(chosenFile);
+      if (chooseError) {
+        showListingToast(chooseError, "error");
+        input.value = "";
+      }
+      selectedListingImages[slotIndex] = chosenFile && !chooseError ? chosenFile : null;
       renderSinglePreview(previewContainer, selectedListingImages[slotIndex], zone, slotIndex);
     });
   }
@@ -186,89 +195,233 @@ document.addEventListener('DOMContentLoaded', function() {
     loadUserStorefronts();
   }
 
+  // ── Validation helpers (Nicco Hill 11/12/2026) ───────────────
+  // Errors show next to the field that caused them instead of in alert() popups.
+  // Limits match the server (listing_controller.py) and the database columns.
+
+  const MAX_TITLE_LENGTH = 120;          // listings.title VARCHAR(120)
+  const MAX_PRICE = 99999999.99;         // listings.price NUMERIC(10,2)
+  const MAX_QTY = 100000;
+  const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+  const ALLOWED_IMAGE_EXT = /\.(png|jpe?g|gif|webp)$/i;
+  const errorSummary = document.getElementById("formErrorSummary");
+  const submitBtn = listingForm ? listingForm.querySelector("button[type='submit']") : null;
+  let isSubmitting = false;
+
+  function clearErrors() {
+    document.querySelectorAll(".field-error").forEach((el) => el.remove());
+    document.querySelectorAll("[aria-invalid='true']").forEach((el) => el.removeAttribute("aria-invalid"));
+    if (errorSummary) {
+      errorSummary.textContent = "";
+      errorSummary.classList.remove("visible");
+    }
+  }
+
+  // Shows `message` under `anchor`. If `field` is given it's highlighted too.
+  function showFieldError(anchor, message, field = anchor) {
+    if (!anchor) return;
+    const error = document.createElement("span");
+    error.className = "field-error";
+    error.textContent = message;
+    const errorId = `err-${Math.random().toString(36).slice(2, 9)}`;
+    error.id = errorId;
+    anchor.insertAdjacentElement("afterend", error);
+    if (field) {
+      field.setAttribute("aria-invalid", "true");
+      field.setAttribute("aria-describedby", errorId);
+    }
+  }
+
+  function showSummary(message) {
+    if (!errorSummary) return;
+    errorSummary.textContent = message;
+    errorSummary.classList.add("visible");
+  }
+
+  // Number inputs: "", "abc", "2.5" and "-1" are all invalid quantities
+  function parseWholeNumber(raw) {
+    const text = String(raw ?? "").trim();
+    if (!/^\d+$/.test(text)) return NaN;
+    return Number(text);
+  }
+
+  function validateImageFile(file) {
+    if (!file) return null;
+    if (!file.type.startsWith("image/") || !ALLOWED_IMAGE_EXT.test(file.name)) {
+      return "Images must be PNG, JPG, GIF, or WebP.";
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      return `"${file.name}" is larger than 10 MB.`;
+    }
+    return null;
+  }
+
+  // Clear a field's error as soon as the user edits it
+  if (listingForm) {
+    listingForm.addEventListener("input", (event) => {
+      const field = event.target;
+      if (field.getAttribute("aria-invalid") === "true") {
+        field.removeAttribute("aria-invalid");
+        const describedBy = field.getAttribute("aria-describedby");
+        if (describedBy) document.getElementById(describedBy)?.remove();
+      }
+    });
+  }
+
+  // Returns the FormData to send, or null if anything is invalid (errors are shown).
+  function validateAndBuildFormData() {
+    clearErrors();
+    const errors = [];
+
+    const storefrontSelectEl = document.getElementById("storefrontSelect");
+    const titleInput = document.getElementById("listingName");
+    const priceInput = document.getElementById("price");
+    const imageHelper = document.getElementById("imageHelperText");
+    const sizesLabel = document.querySelector(".category-card .section-label");
+    const isOneSizeMode = oneSizeToggle && oneSizeToggle.checked;
+    const isMadeToOrder = madeToOrderToggle && madeToOrderToggle.checked;
+
+    const fail = (anchor, message, field) => {
+      showFieldError(anchor, message, field);
+      errors.push({ message, focus: field || anchor });
+    };
+
+    // Images
+    const listingImages = selectedListingImages.filter(Boolean);
+    if (listingImages.length === 0) {
+      fail(imageHelper, "Please add at least one listing image.", null);
+    } else {
+      const badImage = listingImages.map(validateImageFile).find(Boolean);
+      if (badImage) fail(imageHelper, badImage, null);
+    }
+
+    // Storefront
+    const storefrontId = storefrontSelectEl ? storefrontSelectEl.value : "";
+    if (!storefrontId) {
+      fail(storefrontSelectEl, "Please select a storefront for this listing.");
+    }
+
+    // Title
+    const listingName = titleInput.value.trim();
+    if (!listingName) {
+      fail(titleInput, "Listing name is required.");
+    } else if (listingName.length > MAX_TITLE_LENGTH) {
+      fail(titleInput, `Listing name must be ${MAX_TITLE_LENGTH} characters or fewer.`);
+    }
+
+    // Price: required, 0 or more, at most 2 decimals
+    const priceText = priceInput.value.trim();
+    const price = Number(priceText);
+    const priceAnchor = priceInput.closest(".price-wrap") || priceInput;
+    if (!priceText) {
+      fail(priceAnchor, "Price is required.", priceInput);
+    } else if (!Number.isFinite(price) || price < 0) {
+      fail(priceAnchor, "Price must be a number of $0.00 or more.", priceInput);
+    } else if (price > MAX_PRICE) {
+      fail(priceAnchor, "Price is too high.", priceInput);
+    } else if (!/^\d+(\.\d{1,2})?$/.test(priceText)) {
+      fail(priceAnchor, "Price can have at most 2 decimal places (e.g. 24.99).", priceInput);
+    }
+
+    // Sizes + quantities
+    let sizes = [];
+    const sizeQuantities = {};
+
+    if (isOneSizeMode) {
+      sizes = ["One Size"];
+      if (isMadeToOrder) {
+        sizeQuantities["One Size"] = 0;
+      } else {
+        const qty = parseWholeNumber(oneSizeQty ? oneSizeQty.value : "");
+        if (isNaN(qty) || qty > MAX_QTY) {
+          fail(oneSizeQty, "Enter a whole number quantity (0 or more).");
+        } else {
+          sizeQuantities["One Size"] = qty;
+        }
+      }
+    } else {
+      sizes = Array.from(document.querySelectorAll("input[name='sizes']:checked")).map((cb) => cb.value);
+      if (sizes.length === 0) {
+        fail(sizesLabel, "Select at least one size, or turn on One Size.", null);
+      }
+      for (const size of sizes) {
+        const qtyInput = multiSizeGrid
+          ? multiSizeGrid.querySelector(`.size-qty-input[data-size="${size}"]`)
+          : null;
+        if (isMadeToOrder) {
+          sizeQuantities[size] = 0;
+          continue;
+        }
+        const qty = parseWholeNumber(qtyInput ? qtyInput.value : "");
+        if (isNaN(qty) || qty > MAX_QTY) {
+          fail(qtyInput?.closest(".size-qty-row") || qtyInput, `Enter a whole number quantity for size ${size}.`, qtyInput);
+        } else {
+          sizeQuantities[size] = qty;
+        }
+      }
+    }
+
+    const totalQty = isMadeToOrder ? 0 : Object.values(sizeQuantities).reduce((a, b) => a + b, 0);
+
+    // A brand-new in-stock listing with 0 items would be created as SOLD OUT
+    const quantitiesAllValid = Object.keys(sizeQuantities).length === sizes.length && sizes.length > 0;
+    if (!isMadeToOrder && quantitiesAllValid && totalQty === 0) {
+      fail(sizesLabel, "Total quantity is 0, so the listing would show as sold out. Add stock or turn on Made to Order.", null);
+    }
+
+    if (errors.length > 0) {
+      showSummary(errors.length === 1
+        ? "Please fix the highlighted field."
+        : `Please fix the ${errors.length} highlighted fields.`);
+      const first = errors[0].focus;
+      if (first) {
+        first.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (typeof first.focus === "function") first.focus({ preventScroll: true });
+      }
+      return null;
+    }
+
+    const formData = new FormData();
+    formData.append("storefront_id", storefrontId);
+    formData.append("title", listingName);
+    formData.append("quantity_on_hand", totalQty);
+    formData.append("price", priceText);
+    formData.append("fulfillment_type", "IN_STOCK");
+    formData.append("status", "ACTIVE");
+    formData.append("is_made_to_order", isMadeToOrder ? "true" : "false");
+    formData.append("sizes_available", JSON.stringify(sizes));
+    formData.append("size_quantities", JSON.stringify(sizeQuantities));
+    listingImages.forEach((file) => formData.append("listing_images", file));
+    return { formData, listingName };
+  }
+
+  function setSubmitting(submitting) {
+    isSubmitting = submitting;
+    if (submitBtn) {
+      submitBtn.disabled = submitting;
+      submitBtn.textContent = submitting ? "Creating..." : "Create Listing";
+    }
+  }
+
   // ── Form submission ──────────────────────────────────────────
 
   if (listingForm) {
     listingForm.addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (isSubmitting) return; // double-click would otherwise create two listings
 
-      const userRes = await fetch("/auth/api/auth/me");
-      if (!userRes.ok) {
-        alert("You must be logged in to create a listing.");
-        window.location.href = "/auth/login";
-        return;
-      }
-      const user = await userRes.json();
+      const validated = validateAndBuildFormData();
+      if (!validated) return;
 
-      const storefrontId = document.getElementById("storefrontSelect").value;
-      const listingName = document.getElementById("listingName").value.trim();
-      const price = parseFloat(document.getElementById("price").value);
-      const isOneSizeMode = oneSizeToggle && oneSizeToggle.checked;
-      const isMadeToOrder = madeToOrderToggle && madeToOrderToggle.checked;
-
-      if (!storefrontId) {
-        alert("Please select a storefront for this listing.");
-        return;
-      }
-
-      if (!listingName || price < 0 || isNaN(price)) {
-        alert("Please fill in all required fields with valid values.");
-        return;
-      }
-
-      // Collect sizes and per-size quantities
-      let sizes = [];
-      const sizeQuantities = {};
-
-      if (isOneSizeMode) {
-        const qty = parseInt(oneSizeQty ? oneSizeQty.value : "0", 10);
-        if (!isMadeToOrder && (isNaN(qty) || qty < 0)) {
-          alert("Please enter a valid quantity for One Size.");
-          return;
-        }
-        sizes = ["One Size"];
-        sizeQuantities["One Size"] = isMadeToOrder ? 0 : (qty || 0);
-      } else {
-        const sizeCheckboxes = document.querySelectorAll("input[name='sizes']:checked");
-        sizes = Array.from(sizeCheckboxes).map(cb => cb.value);
-        if (sizes.length === 0) {
-          alert("Please select at least one size.");
-          return;
-        }
-        for (const size of sizes) {
-          const qtyInput = multiSizeGrid
-            ? multiSizeGrid.querySelector(`.size-qty-input[data-size="${size}"]`)
-            : null;
-          const qty = qtyInput ? parseInt(qtyInput.value, 10) : NaN;
-          if (!isMadeToOrder && (isNaN(qty) || qty < 0)) {
-            alert(`Please enter a valid quantity for size ${size}.`);
-            return;
-          }
-          sizeQuantities[size] = isMadeToOrder ? 0 : (isNaN(qty) ? 0 : qty);
-        }
-      }
-
-      const totalQty = isMadeToOrder ? 0 : Object.values(sizeQuantities).reduce((a, b) => a + b, 0);
-
-      const listingImages = selectedListingImages.filter(Boolean);
-      if (listingImages.length === 0) {
-        alert("Please upload at least one listing image.");
-        return;
-      }
-
+      setSubmitting(true);
       try {
-        const formData = new FormData();
-        formData.append("storefront_id", storefrontId);
-        formData.append("title", listingName);
-        formData.append("quantity_on_hand", totalQty);
-        formData.append("price", price);
-        formData.append("fulfillment_type", "IN_STOCK");
-        formData.append("status", "ACTIVE");
-        formData.append("is_made_to_order", isMadeToOrder ? "true" : "false");
-        formData.append("sizes_available", JSON.stringify(sizes));
-        formData.append("size_quantities", JSON.stringify(sizeQuantities));
-        listingImages.forEach(file => formData.append("listing_images", file));
-        formData.append("listing_image", listingImages[0]);
+        const userRes = await fetch("/auth/api/auth/me");
+        if (!userRes.ok) {
+          showSummary("Your session has ended. Redirecting you to log in...");
+          window.setTimeout(() => { window.location.href = "/auth/login"; }, 1500);
+          return;
+        }
+        const user = await userRes.json();
 
         const response = await fetch("/api/listings/create", {
           method: "POST",
@@ -276,23 +429,25 @@ document.addEventListener('DOMContentLoaded', function() {
             "X-User-Id": user.id,
             "X-User-Role": user.role
           },
-          body: formData,
+          body: validated.formData,
         });
 
-        const result = await response.json();
+        const result = await response.json().catch(() => ({}));
 
         if (response.ok) {
-          showListingToast(`Listing "${listingName}" created successfully!`);
+          showListingToast(`Listing "${validated.listingName}" created successfully!`);
           window.setTimeout(() => {
             window.location.href = "/my-storefront";
           }, 2500);
-        } else {
-          alert("Error creating listing: " + (result.error || "Unknown error"));
+          return; // keep the button disabled while we redirect
         }
+        showSummary(result.error || "Something went wrong creating the listing. Please try again.");
+        showListingToast(result.error || "Could not create listing.", "error");
       } catch (error) {
         console.error("Error submitting form:", error);
-        alert("Error creating listing: " + error.message);
+        showSummary("Couldn't reach the server. Check your connection and try again.");
       }
+      setSubmitting(false);
     });
   }
 

@@ -377,6 +377,12 @@ def check_listing_availability(listing_id, quantity_requested):
     if not row:
         raise Exception(f"Item (ID {listing_id}) is no longer available.")
     title, status, qty_on_hand, is_made_to_order = row
+    # Deleted or paused listings can't be bought, even if they were added to the
+    # cart before the seller removed them - Nicco Hill 11/12/2026
+    if status == "DELETED":
+        raise Exception(f"Item (ID {listing_id}) is no longer available.")
+    if status == "INACTIVE":
+        raise Exception(f'"{title}" is not available right now.')
     if is_made_to_order:
         return
     if status == "SOLD_OUT":

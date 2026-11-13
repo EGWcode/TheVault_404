@@ -23,6 +23,15 @@ It will:
 from db import get_connection
 
 
+def _is_available(status, quantity_on_hand, is_made_to_order, storefront_active):
+    """True when a wishlisted listing can actually be added to the cart right now."""
+    if status != "ACTIVE" or storefront_active is False:
+        return False
+    if is_made_to_order or quantity_on_hand is None:  # made-to-order / preorder
+        return True
+    return quantity_on_hand > 0
+
+
 def add_to_wishlist(user_id, listing_id):
     """
     Adds a listing to user's wishlist.
@@ -70,7 +79,8 @@ def get_wishlist_by_user_id(user_id):
                s.brand_name, s.logo_url,
                (SELECT li.image_url FROM listing_images li
                 WHERE li.listing_id = l.id AND li.is_primary = TRUE
-                LIMIT 1) AS image_url
+                LIMIT 1) AS image_url,
+               l.quantity_on_hand, l.is_made_to_order, s.is_active
         FROM wishlist w
         JOIN listings l ON w.listing_id = l.id
         JOIN storefronts s ON l.storefront_id = s.id
@@ -98,6 +108,12 @@ def get_wishlist_by_user_id(user_id):
                 "fulfillment_type": row[7],
                 "status": row[8],
                 "image_url": row[11],
+                "quantity_on_hand": row[12],
+                "is_made_to_order": bool(row[13]),
+                # Sold-out / paused items stay on the wishlist so buyers notice
+                # when they come back, but the UI should not let them be bought.
+                # - Nicco Hill 11/12/2026
+                "available": _is_available(row[8], row[12], row[13], row[14]),
             },
             "storefront": {
                 "brand_name": row[9],
@@ -140,8 +156,9 @@ def is_in_wishlist(user_id, listing_id):
     cur = conn.cursor()
 
     query = """
-        SELECT 1 FROM wishlist
-        WHERE user_id = %s AND listing_id = %s;
+        SELECT 1 FROM wishlist w
+        JOIN listings l ON l.id = w.listing_id
+        WHERE w.user_id = %s AND w.listing_id = %s AND l.status != 'DELETED';
     """
 
     cur.execute(query, (user_id, listing_id))

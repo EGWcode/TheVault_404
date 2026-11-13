@@ -1,7 +1,10 @@
 # The Pirate Cove Campus Marketplace
 # CSC 405 Sp 26'
 # Created for Purchase History feature by Elali McNair 3/3/26
-# The frontend protion of this code is not finished or implemented yet. Therfore, this code is not oporational or properly implemented yet.
+# Finished by Nicco Hill 11/12/2026:
+#   - The user now comes from the login session, not an X-User-Id header.
+#   - Status codes for edge cases: 404 deleted/missing listing,
+#     409 sold out / not enough stock / listing paused, 400 bad input.
 
 """
 controllers/purchase_controller.py
@@ -11,105 +14,97 @@ This controller handles HTTP requests related to purchase operations.
 It processes requests, calls service methods, and returns JSON responses.
 """
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from services.purchase_service import PurchaseService
 
 purchase_bp = Blueprint('purchase', __name__, url_prefix="/api")
 purchase_service = PurchaseService()
 
+UNAUTHORIZED = ({"error": "Unauthorized: please log in."}, 401)
+MAX_QUANTITY_PER_PURCHASE = 99
 
-def get_current_user():
-    """
-    Temporary user identity method (until real auth is connected):
-    Read user from headers.
+ERROR_STATUS = {
+    "not_found": 404,
+    "unavailable": 409,
+    "sold_out": 409,
+    "insufficient_stock": 409,
+    "invalid": 400,
+}
 
-    Required header for protected routes:
-      X-User-Id: <int>
-    """
-    user_id = request.headers.get("X-User-Id")
-    role = request.headers.get("X-User-Role", "user")
 
-    if not user_id:
-        return None
+def get_current_user_id():
+    """Returns the logged-in user's id (set at login), or None."""
+    return session.get("user_id")
 
-    try:
-        return {"id": int(user_id), "role": role}
-    except Exception:
-        return None
+
+def _is_positive_int(value):
+    # bool is a subclass of int in Python, so True/False would slip through isinstance(int)
+    return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
 
 @purchase_bp.route('/purchases', methods=['POST'])
 def record_purchase():
     """
-    Records a new purchase for the authenticated user.
-    Expects JSON: {"listing_id": int, "quantity": int}
+    Records a new purchase for the logged-in user.
+    Expects JSON: {"listing_id": int, "quantity": int, "size": str (optional)}
+    "size" is required when the listing tracks stock per size.
     """
-    try:
-        current_user = get_current_user()
-        if current_user is None:
-            return jsonify({"error": "Unauthorized: missing/invalid X-User-Id"}), 401
+    user_id = get_current_user_id()
+    if user_id is None:
+        return jsonify(UNAUTHORIZED[0]), UNAUTHORIZED[1]
 
-        data = request.get_json()
-        if not data or 'listing_id' not in data or 'quantity' not in data:
-            return jsonify({"error": "Missing required fields: listing_id, quantity"}), 400
+    data = request.get_json(silent=True)
+    if not data or 'listing_id' not in data or 'quantity' not in data:
+        return jsonify({"error": "Missing required fields: listing_id, quantity"}), 400
 
-        listing_id = data['listing_id']
-        quantity = data['quantity']
+    listing_id = data['listing_id']
+    quantity = data['quantity']
+    size = data.get('size')
 
-        if not isinstance(listing_id, int) or not isinstance(quantity, int) or quantity <= 0:
-            return jsonify({"error": "Invalid data types or values"}), 400
+    if not _is_positive_int(listing_id):
+        return jsonify({"error": "Invalid listing_id"}), 400
+    if not _is_positive_int(quantity) or quantity > MAX_QUANTITY_PER_PURCHASE:
+        return jsonify({"error": f"quantity must be a whole number from 1 to {MAX_QUANTITY_PER_PURCHASE}"}), 400
+    if size is not None and (not isinstance(size, str) or not size.strip()):
+        return jsonify({"error": "Invalid size"}), 400
 
-        success, result = purchase_service.record_purchase(current_user['id'], listing_id, quantity)
-
-        if success:
-            return jsonify({"message": "Purchase recorded successfully", "purchase": result}), 201
-        else:
-            return jsonify({"error": result}), 400
-
-    except Exception as e:
-        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    success, result, error_code = purchase_service.record_purchase(
+        user_id, listing_id, quantity, size.strip() if size else None
+    )
+    if success:
+        return jsonify({"message": "Purchase recorded successfully", "purchase": result}), 201
+    return jsonify({"error": result}), ERROR_STATUS.get(error_code, 500)
 
 
 @purchase_bp.route('/purchases', methods=['GET'])
 def get_purchase_history():
     """
-    Retrieves the purchase history for the authenticated user.
+    Retrieves the purchase history for the logged-in user.
     """
-    try:
-        current_user = get_current_user()
-        if current_user is None:
-            return jsonify({"error": "Unauthorized: missing/invalid X-User-Id"}), 401
+    user_id = get_current_user_id()
+    if user_id is None:
+        return jsonify(UNAUTHORIZED[0]), UNAUTHORIZED[1]
 
-        success, result = purchase_service.get_user_purchase_history(current_user['id'])
-
-        if success:
-            return jsonify({"purchases": result}), 200
-        else:
-            return jsonify({"error": result}), 500
-
-    except Exception as e:
-        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    success, result = purchase_service.get_user_purchase_history(user_id)
+    if success:
+        return jsonify({"purchases": result}), 200
+    return jsonify({"error": result}), 500
 
 
 @purchase_bp.route('/purchases/<int:purchase_id>', methods=['GET'])
 def get_purchase_details(purchase_id):
     """
-    Retrieves details of a specific purchase.
+    Retrieves details of a specific purchase owned by the logged-in user.
     """
-    try:
-        current_user = get_current_user()
-        if current_user is None:
-            return jsonify({"error": "Unauthorized: missing/invalid X-User-Id"}), 401
+    user_id = get_current_user_id()
+    if user_id is None:
+        return jsonify(UNAUTHORIZED[0]), UNAUTHORIZED[1]
 
-        success, result = purchase_service.get_purchase_details(purchase_id)
+    success, result = purchase_service.get_purchase_details(purchase_id)
+    if not success:
+        status = 404 if result == "Purchase not found" else 500
+        return jsonify({"error": result}), status
 
-        if success:
-            # Check if the purchase belongs to the current user
-            if result['user_id'] != current_user['id']:
-                return jsonify({"error": "Access denied"}), 403
-            return jsonify({"purchase": result}), 200
-        else:
-            return jsonify({"error": result}), 404
-
-    except Exception as e:
-        return jsonify({"error": f"Internal server error: {str(e)}"}), 500
+    if result['user_id'] != user_id:
+        return jsonify({"error": "Access denied"}), 403
+    return jsonify({"purchase": result}), 200

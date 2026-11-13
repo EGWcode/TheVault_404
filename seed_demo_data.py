@@ -1,286 +1,296 @@
 # seed_demo_data.py
 # Added by Anthony Jackson
-# Updated by Anthony Jackson - Iteration 4 (11/11/26): SAFE TO RUN MORE THAN ONCE
+# Expanded by Nicco Hill and Anthony Jackson 11/12/2026 - realistic demo users,
+# storefronts (with logos), listings (with photos, sizes and stock), wishlists and ratings.
 #
-# Fills a LOCAL (or Docker) database with demo users, storefronts, listings (with sizes and
-# pictures), wishlist saves, ratings and one finished order, so every page has something to
-# show in the beta demo.
+# Fills a LOCAL test database with sample data so the demo has something real to show:
+# the homepage, storefront pages, menu pages (New Drops, Hot!, All Categories, Top Rated),
+# the wishlist (including a sold-out item) and the create-listing flow.
 #
-#   py seed_demo_data.py            (Windows)
-#   python3 seed_demo_data.py       (macOS)
+# Run it after the app has been started one time (that creates the tables):
+#   py seed_demo_data.py
 #
-# The install script runs this right after backend/init_db.py.
-#
-# Running it twice never makes duplicates. Every item is looked up by a natural key first
-# (username, storefront owner, listing title, size, ...) and only added if it is missing.
-# If a run is interrupted, the next run fills in whatever is still missing.
+# Safe to run more than once: every user / storefront / listing / wishlist save / rating
+# is looked up first and only added if it is missing. Older copies of the demo data
+# (demo_seller1, demo_seller2, demo_buyer) are kept and filled in.
 #
 # Safety: it refuses to run unless the database is on your own computer or in our Docker
-# container, so it can never put demo data into the team's shared AWS RDS database.
+# container (DB_HOST=db), so it can never put sample data into the team's shared AWS database.
 #
-# Want more demo content? Add rows to the DEMO_* lists below. (Nicco + Anthony)
+# Merged by Anthony Jackson 11/12/2026: also works with Docker, creates the tables first
+# (so it runs on its own), and returns exit code 1 on failure so the installer can tell.
 
+import json
 import os
 import sys
 
 sys.path.append(os.path.join(os.path.abspath(os.path.dirname(__file__)), "backend"))
 
-from config.db import connect, current_host, is_local_host   # noqa: E402
-from init_db import create_vault_tables                       # noqa: E402
-from utils.auth_utils import hash_password                    # noqa: E402
+from config.db import get_connection, current_host, is_local_host
+from init_db import create_vault_tables
+from utils.auth_utils import hash_password
 
-# Meets the password rule (upper, lower, number, symbol, 8+ characters)
-DEMO_PASSWORD = "DemoPass123!"
+DEMO_PASSWORD = "DemoPass123"
+IMG = "/static/images/"
 
-# ---------------------------------------------------------------- demo content
-DEMO_USERS = [
-    # username,       first,     last,       class year
-    ("demo_seller1", "Jordan", "Reed", "Junior"),
-    ("demo_seller2", "Maya", "Brooks", "Senior"),
-    ("demo_seller3", "Chris", "Allen", "Sophomore"),
-    ("demo_buyer", "Taylor", "Green", "Freshman"),
+# ── Users ────────────────────────────────────────────────────────
+# (username, role in the demo)
+SELLERS = ["demo_seller1", "demo_seller2", "demo_seller3", "demo_seller4"]
+BUYERS = ["demo_buyer", "demo_buyer2", "demo_buyer3", "demo_buyer4"]
+
+# ── Storefronts ──────────────────────────────────────────────────
+STOREFRONTS = [
+    {
+        "owner": "demo_seller1",
+        "brand_name": "Von Dutch Vault",
+        "bio": "Y2K and vintage Von Dutch pieces, hand-picked and steamed. Meetups at the Student Center.",
+        "categories": "Streetwear, Vintage",
+        "logo_url": IMG + "vondutchlogo.png",
+        "contact_info": "DM me here or find me at the Student Center, weekdays 12-2.",
+    },
+    {
+        "owner": "demo_seller2",
+        "brand_name": "Essentials Co",
+        "bio": "Clean everyday basics. Hoodies, sweats and tees that go with everything.",
+        "categories": "Basics, Loungewear",
+        "logo_url": IMG + "essentialslogo.png",
+        "contact_info": "Pickups at the library steps after 3pm.",
+    },
+    {
+        "owner": "demo_seller3",
+        "brand_name": "Swoosh Swap",
+        "bio": "Gently used and deadstock Nike athleisure. Every piece is checked and washed.",
+        "categories": "Athletic, Streetwear",
+        "logo_url": IMG + "nikelogo.png",
+        "contact_info": "Meet at the gym lobby or the Student Center.",
+    },
+    {
+        "owner": "demo_seller4",
+        "brand_name": "Onyx Threads",
+        "bio": "Student-run label. Heavyweight blanks, made to order in small batches.",
+        "categories": "Streetwear, Made to Order",
+        "logo_url": IMG + "onyxlogo.jpeg",
+        "contact_info": "Orders ship to campus in 7-10 days. Message me with questions.",
+    },
 ]
 
-DEMO_STOREFRONTS = [
-    # owner,          brand name,         bio,                                   categories,            logo
-    ("demo_seller1", "Von Dutch Vault", "Streetwear and vintage pieces.", "Streetwear, Vintage", "/static/images/vondutchlogo.png"),
-    ("demo_seller2", "Essentials Co", "Everyday basics.", "Basics, Vintage", "/static/images/essentialslogo.png"),
-    ("demo_seller3", "Onyx Athletics", "Athletic wear and sneakers.", "Athletic, Sneakers", "/static/images/onyxlogo.jpeg"),
+# ── Listings ─────────────────────────────────────────────────────
+# sizes: {size: quantity}. Status is worked out from stock (0 total -> SOLD_OUT)
+# unless "status" is given. made_to_order listings ignore stock.
+LISTINGS = [
+    # Von Dutch Vault
+    {"store": "Von Dutch Vault", "title": "Vintage Hoodie", "price": 45.00,
+     "description": "Faded black pullover, early-2000s fit. Small mark on the cuff (see photos).",
+     "images": ["vondutch1.png", "vondutch2.png"], "sizes": {"M": 2, "L": 3}},
+    {"store": "Von Dutch Vault", "title": "Graphic Tee", "price": 25.00,
+     "description": "Classic logo tee, soft washed cotton.",
+     "images": ["vondutch3.png"], "sizes": {"S": 1, "M": 2, "L": 2}},
+    {"store": "Von Dutch Vault", "title": "Von Dutch Trucker Hat", "price": 30.00,
+     "description": "Mesh-back trucker in great condition. Adjustable snap.",
+     "images": ["vondutch4.png"], "sizes": {"One Size": 4}},
+    # Essentials Co
+    {"store": "Essentials Co", "title": "Cargo Pants", "price": 55.50,
+     "description": "Relaxed cargo sweats with side pockets. Worn twice.",
+     "images": ["essentials2.png"], "sizes": {"M": 2, "L": 2, "XL": 1}},
+    {"store": "Essentials Co", "title": "Plain White Tee", "price": 15.00,
+     "description": "Heavy cotton tee. New, never worn.",
+     "images": ["essentials3.png"], "sizes": {"S": 3, "M": 4, "L": 3}},
+    {"store": "Essentials Co", "title": "Essentials Pullover Hoodie", "price": 70.00,
+     "description": "Oversized fleece hoodie in oatmeal. Rubber logo on the chest.",
+     "images": ["essentials1.png", "essentials4.png"], "sizes": {"M": 1, "L": 1}},
+    # Swoosh Swap
+    {"store": "Swoosh Swap", "title": "Nike Tech Fleece Hoodie", "price": 65.00,
+     "description": "Full-zip Tech Fleece in grey. Barely worn.",
+     "images": ["nikehoodie1.png", "nikehoodie2.png"], "sizes": {"S": 1, "M": 2, "L": 1}},
+    {"store": "Swoosh Swap", "title": "Nike Windrunner Jacket", "price": 50.00,
+     "description": "Lightweight windbreaker, packs into its own pocket.",
+     "images": ["nikejacket.png"], "sizes": {"M": 1, "L": 1, "XL": 1}},
+    # Sold out on purpose, so the demo can show a sold-out item sitting on a wishlist
+    {"store": "Swoosh Swap", "title": "Nike Club Sweatpants", "price": 35.00,
+     "description": "Fleece joggers. Sold out, restocking soon!",
+     "images": ["nikepants1.png"], "sizes": {"M": 0, "L": 0}},
+    # Onyx Threads
+    {"store": "Onyx Threads", "title": "Onyx Heavyweight Hoodie", "price": 60.00,
+     "description": "400gsm cotton hoodie, made to order in your size. Ships in 7-10 days.",
+     "images": ["onyxhoodie.png"], "sizes": {"S": 0, "M": 0, "L": 0, "XL": 0}, "made_to_order": True},
 ]
 
-DEMO_LISTINGS = [
-    # owner,          title,               price,  sizes {size: qty},               picture
-    ("demo_seller1", "Vintage Hoodie", 45.00, {"S": 2, "M": 3, "L": 1}, "/static/images/vondutch1.png"),
-    ("demo_seller1", "Graphic Tee", 25.00, {"M": 4, "L": 4}, "/static/images/vondutch2.png"),
-    ("demo_seller1", "Trucker Hat", 20.00, {"One Size": 6}, "/static/images/vondutch3.png"),
-    ("demo_seller2", "Cargo Pants", 55.50, {"30": 2, "32": 2, "34": 1}, "/static/images/essentials1.png"),
-    ("demo_seller2", "Plain White Tee", 15.00, {"S": 5, "M": 5, "L": 5}, "/static/images/essentials2.png"),
-    ("demo_seller3", "Training Hoodie", 50.00, {"M": 2, "L": 2}, "/static/images/onyxhoodie.png"),
-    ("demo_seller3", "Track Jacket", 65.00, {"L": 1}, "/static/images/nikejacket.png"),
-]
+# ── Wishlist saves (buyer -> listing titles) ─────────────────────
+# More saves = higher on the Hot! page. Cargo Pants and the Tech Fleece lead.
+WISHLISTS = {
+    "demo_buyer":  ["Cargo Pants", "Vintage Hoodie", "Nike Tech Fleece Hoodie", "Nike Club Sweatpants"],
+    "demo_buyer2": ["Cargo Pants", "Nike Tech Fleece Hoodie", "Onyx Heavyweight Hoodie"],
+    "demo_buyer3": ["Nike Tech Fleece Hoodie", "Essentials Pullover Hoodie", "Von Dutch Trucker Hat"],
+    "demo_buyer4": ["Cargo Pants", "Graphic Tee"],
+    "demo_seller1": ["Cargo Pants"],
+}
 
-DEMO_WISHLIST = [
-    # who saved it,  listing title   ("Hot!" ranks by number of saves)
-    ("demo_buyer", "Cargo Pants"),
-    ("demo_seller1", "Cargo Pants"),
-    ("demo_seller3", "Cargo Pants"),
-    ("demo_buyer", "Vintage Hoodie"),
-    ("demo_seller2", "Vintage Hoodie"),
-    ("demo_buyer", "Track Jacket"),
-]
-
-DEMO_RATINGS = [
-    # rater,          storefront owner, stars
-    ("demo_buyer", "demo_seller1", 5),
-    ("demo_seller2", "demo_seller1", 4),
-    ("demo_buyer", "demo_seller1", 5),
-    ("demo_buyer", "demo_seller2", 3),
-    ("demo_seller1", "demo_seller2", 4),
-    ("demo_buyer", "demo_seller3", 4),
-]
-
-# One finished order so "My Orders" and the order confirmation page have something to show
-DEMO_ORDER = {
-    "buyer": "demo_buyer",
-    "confirmation_number": "DEMO-000001",
-    "meeting_location": "Student Center",
-    "items": [("Graphic Tee", "M", 1), ("Plain White Tee", "L", 2)],
+# ── Ratings (storefront -> [(rater, stars)]) ─────────────────────
+RATINGS = {
+    "Von Dutch Vault": [("demo_buyer", 5), ("demo_seller2", 4), ("demo_buyer2", 5)],
+    "Essentials Co": [("demo_buyer", 3), ("demo_seller1", 4), ("demo_buyer3", 4)],
+    "Swoosh Swap": [("demo_buyer", 5), ("demo_buyer2", 5), ("demo_buyer4", 4)],
+    "Onyx Threads": [("demo_buyer2", 4), ("demo_buyer3", 5)],
 }
 
 
-# ---------------------------------------------------------------- helpers
-class Counter:
-    def __init__(self):
-        self.added = {}
-
-    def add(self, what, n=1):
-        self.added[what] = self.added.get(what, 0) + n
-
-    def report(self):
-        if not self.added:
-            return "Demo data is already complete. Nothing was added."
-        parts = [f"{n} {what}" for what, n in self.added.items()]
-        return "Added: " + ", ".join(parts) + "."
-
-
-def get_or_create_user(cur, counter, username, first, last, class_year, pw_hash):
+def get_or_create_user(cur, username, password_hash):
     cur.execute("SELECT id FROM users WHERE username = %s", (username,))
     row = cur.fetchone()
     if row:
-        return row[0]
+        return row[0], False
     cur.execute(
-        """INSERT INTO users (username, password, email, role, first_name, last_name, class_year)
-           VALUES (%s, %s, %s, 'user', %s, %s, %s)
-           ON CONFLICT DO NOTHING
-           RETURNING id""",
-        (username, pw_hash, f"{username}@my.hamptonu.edu", first, last, class_year),
+        "INSERT INTO users (username, password, email, role) VALUES (%s, %s, %s, 'user') RETURNING id",
+        (username, password_hash, f"{username}@my.hamptonu.edu"),
     )
-    row = cur.fetchone()
-    if row is None:   # the email was already used by someone else; look the user up again
-        cur.execute("SELECT id FROM users WHERE username = %s", (username,))
-        row = cur.fetchone()
-        if row is None:
-            raise RuntimeError(f"Could not create demo user {username} (email already taken?)")
-        return row[0]
-    counter.add("users")
-    return row[0]
+    return cur.fetchone()[0], True
 
 
-def get_or_create_storefront(cur, counter, owner_id, brand, bio, categories, logo):
-    # owner_id is UNIQUE (one storefront per user), so it is the natural key
-    cur.execute(
-        """INSERT INTO storefronts (owner_id, brand_name, bio, categories, logo_url, is_active)
-           VALUES (%s, %s, %s, %s, %s, TRUE)
-           ON CONFLICT (owner_id) DO NOTHING
-           RETURNING id""",
-        (owner_id, brand, bio, categories, logo),
-    )
-    row = cur.fetchone()
-    if row:
-        counter.add("storefronts")
-        return row[0]
+def get_or_create_storefront(cur, owner_id, store):
+    # owner_id is UNIQUE on storefronts: one storefront per user
     cur.execute("SELECT id FROM storefronts WHERE owner_id = %s", (owner_id,))
-    return cur.fetchone()[0]
-
-
-def get_or_create_listing(cur, counter, storefront_id, title, price, sizes, picture):
-    cur.execute(
-        "SELECT id FROM listings WHERE storefront_id = %s AND title = %s AND status <> 'DELETED' ORDER BY id LIMIT 1",
-        (storefront_id, title),
-    )
     row = cur.fetchone()
     if row:
-        listing_id = row[0]
+        # Fill in details older seeds left blank, without overwriting anything a person changed
+        cur.execute(
+            """UPDATE storefronts
+               SET logo_url = COALESCE(logo_url, %s),
+                   contact_info = COALESCE(contact_info, %s),
+                   bio = CASE WHEN bio IS NULL OR bio IN ('Streetwear and vintage pieces.', 'Everyday basics.')
+                              THEN %s ELSE bio END
+               WHERE id = %s""",
+            (store["logo_url"], store["contact_info"], store["bio"], row[0]),
+        )
+        return row[0], False
+    cur.execute(
+        """INSERT INTO storefronts (owner_id, brand_name, bio, categories, logo_url, contact_info, is_active)
+           VALUES (%s, %s, %s, %s, %s, %s, TRUE) RETURNING id""",
+        (owner_id, store["brand_name"], store["bio"], store["categories"], store["logo_url"], store["contact_info"]),
+    )
+    return cur.fetchone()[0], True
+
+
+def get_or_create_listing(cur, storefront_id, listing):
+    cur.execute(
+        "SELECT id FROM listings WHERE storefront_id = %s AND title = %s AND status != 'DELETED'",
+        (storefront_id, listing["title"]),
+    )
+    row = cur.fetchone()
+    made_to_order = listing.get("made_to_order", False)
+    total = sum(listing["sizes"].values())
+    status = listing.get("status") or ("SOLD_OUT" if total == 0 and not made_to_order else "ACTIVE")
+
+    if row:
+        listing_id, created = row[0], False
+        # Older seeds used a placeholder description; replace only that
+        cur.execute(
+            "UPDATE listings SET description = %s WHERE id = %s AND description = 'Sample listing'",
+            (listing["description"], listing_id),
+        )
     else:
         cur.execute(
             """INSERT INTO listings (storefront_id, title, description, price, fulfillment_type,
-                                     quantity_on_hand, sizes_available, status)
-               VALUES (%s, %s, 'Demo listing for the Pirate Cove beta.', %s, 'IN_STOCK', %s, %s, 'ACTIVE')
-               RETURNING id""",
-            (storefront_id, title, price, sum(sizes.values()), ", ".join(sizes)),
+                                     quantity_on_hand, sizes_available, status, is_made_to_order)
+               VALUES (%s, %s, %s, %s, 'IN_STOCK', %s, %s, %s, %s) RETURNING id""",
+            (storefront_id, listing["title"], listing["description"], listing["price"], total,
+             json.dumps(list(listing["sizes"])), status, made_to_order),
         )
-        listing_id = cur.fetchone()[0]
-        counter.add("listings")
+        listing_id, created = cur.fetchone()[0], True
 
-    for size, qty in sizes.items():
-        cur.execute(
-            """INSERT INTO listing_sizes (listing_id, size, quantity) VALUES (%s, %s, %s)
-               ON CONFLICT (listing_id, size) DO NOTHING""",
-            (listing_id, size, qty),
-        )
-        if cur.rowcount:
-            counter.add("listing sizes")
-
-    cur.execute("SELECT 1 FROM listing_images WHERE listing_id = %s LIMIT 1", (listing_id,))
-    if cur.fetchone() is None:
-        cur.execute(
-            "INSERT INTO listing_images (listing_id, image_url, is_primary) VALUES (%s, %s, TRUE)",
-            (listing_id, picture),
-        )
-        counter.add("pictures")
-    return listing_id
-
-
-def seed(cur):
-    counter = Counter()
-    pw_hash = hash_password(DEMO_PASSWORD)
-
-    users = {}
-    for username, first, last, class_year in DEMO_USERS:
-        users[username] = get_or_create_user(cur, counter, username, first, last, class_year, pw_hash)
-
-    stores = {}
-    for owner, brand, bio, cats, logo in DEMO_STOREFRONTS:
-        stores[owner] = get_or_create_storefront(cur, counter, users[owner], brand, bio, cats, logo)
-
-    listings = {}
-    prices = {}
-    for owner, title, price, sizes, picture in DEMO_LISTINGS:
-        listings[title] = get_or_create_listing(cur, counter, stores[owner], title, price, sizes, picture)
-        prices[title] = price
-
-    for who, title in DEMO_WISHLIST:
-        cur.execute(
-            "INSERT INTO wishlist (user_id, listing_id) VALUES (%s, %s) ON CONFLICT (user_id, listing_id) DO NOTHING",
-            (users[who], listings[title]),
-        )
-        if cur.rowcount:
-            counter.add("wishlist saves")
-
-    # Ratings have no natural key (a user may rate a store more than once), so only add the
-    # demo ratings for a storefront if no demo user has rated it yet.
-    demo_ids = list(users.values())
-    for owner in {o for _, o, _ in DEMO_RATINGS}:
-        cur.execute(
-            "SELECT COUNT(*) FROM storefront_ratings WHERE storefront_id = %s AND user_id = ANY(%s)",
-            (stores[owner], demo_ids),
-        )
-        if cur.fetchone()[0]:
-            continue
-        for rater, rated_owner, stars in DEMO_RATINGS:
-            if rated_owner == owner:
-                cur.execute(
-                    "INSERT INTO storefront_ratings (storefront_id, user_id, stars) VALUES (%s, %s, %s)",
-                    (stores[owner], users[rater], stars),
-                )
-                counter.add("ratings")
-
-    # The demo order is keyed by its confirmation number (UNIQUE)
-    order = DEMO_ORDER
-    lines = [(title, size, qty, prices[title]) for title, size, qty in order["items"]]
-    total = round(sum(qty * price for _, _, qty, price in lines), 2)
-    cur.execute(
-        """INSERT INTO orders (user_id, confirmation_number, buyer_first_name, buyer_last_name,
-                               buyer_email, buyer_contact, buyer_meeting_location, total_amount,
-                               order_status, payment_method, payment_status)
-           VALUES (%s, %s, 'Taylor', 'Green', %s, '757-555-0100', %s, %s,
-                   'SUBMITTED', 'IN_PERSON', 'PAY_AT_MEETUP')
-           ON CONFLICT (confirmation_number) DO NOTHING
-           RETURNING id""",
-        (users[order["buyer"]], order["confirmation_number"], f"{order['buyer']}@my.hamptonu.edu",
-         order["meeting_location"], total),
-    )
-    row = cur.fetchone()
-    if row:
-        for title, size, qty, price in lines:
+    # Photos: add any that are missing; first photo is the primary one
+    cur.execute("SELECT COUNT(*) FROM listing_images WHERE listing_id = %s", (listing_id,))
+    if cur.fetchone()[0] == 0:
+        for index, filename in enumerate(listing["images"]):
             cur.execute(
-                """INSERT INTO order_items (order_id, listing_id, item_name, quantity, price_at_purchase, selected_size)
-                   VALUES (%s, %s, %s, %s, %s, %s)""",
-                (row[0], listings[title], title, qty, price, size),
+                "INSERT INTO listing_images (listing_id, image_url, is_primary) VALUES (%s, %s, %s)",
+                (listing_id, IMG + filename, index == 0),
             )
-        counter.add("orders")
 
-    return counter
+    # Per-size stock: add any sizes that are missing, then sync the listing total
+    cur.execute("SELECT COUNT(*) FROM listing_sizes WHERE listing_id = %s", (listing_id,))
+    if cur.fetchone()[0] == 0:
+        for size, qty in listing["sizes"].items():
+            cur.execute(
+                "INSERT INTO listing_sizes (listing_id, size, quantity) VALUES (%s, %s, %s)",
+                (listing_id, size, qty),
+            )
+        cur.execute(
+            "UPDATE listings SET quantity_on_hand = %s, sizes_available = %s WHERE id = %s",
+            (total, json.dumps(list(listing["sizes"])), listing_id),
+        )
+
+    return listing_id, created
 
 
 def main():
     host = current_host()
     if not is_local_host(host):
-        print(f"Stopping. The database host is '{host}', which is not your own computer or Docker.")
-        print("Demo data is only ever added to a local test database, never to AWS RDS.")
+        print(f"Stopping. DB_HOST is '{host}', not your own computer or Docker.")
+        print("This script only runs on a local test database.")
         return 1
 
-    # Make sure every table exists first, so this script also works on its own.
+    # Make sure every table exists first, so this also works before the app has ever started
     if not create_vault_tables(verbose=False):
         print("Could not set up the database tables. Is Postgres running? Check your .env file.")
         return 1
 
-    try:
-        conn = connect()
-    except Exception as e:
-        print(f"Could not connect to the database: {e}")
+    conn = get_connection()
+    if conn is None:
+        print("Could not connect to the database. Check your .env file.")
         return 1
 
+    counts = {"users": 0, "storefronts": 0, "listings": 0, "wishlist saves": 0, "ratings": 0}
     try:
-        with conn:                      # one transaction: all of it or none of it
-            with conn.cursor() as cur:
-                counter = seed(cur)
-        print(counter.report())
-        print("Demo logins: demo_buyer, demo_seller1, demo_seller2, demo_seller3")
-        print(f"Password for all of them: {DEMO_PASSWORD}")
+        cur = conn.cursor()
+        pw = hash_password(DEMO_PASSWORD)
+
+        user_ids = {}
+        for username in SELLERS + BUYERS:
+            user_ids[username], created = get_or_create_user(cur, username, pw)
+            counts["users"] += created
+
+        store_ids = {}
+        for store in STOREFRONTS:
+            store_ids[store["brand_name"]], created = get_or_create_storefront(cur, user_ids[store["owner"]], store)
+            counts["storefronts"] += created
+
+        listing_ids = {}
+        for listing in LISTINGS:
+            listing_ids[listing["title"]], created = get_or_create_listing(cur, store_ids[listing["store"]], listing)
+            counts["listings"] += created
+
+        for username, titles in WISHLISTS.items():
+            for title in titles:
+                cur.execute(
+                    """INSERT INTO wishlist (user_id, listing_id) VALUES (%s, %s)
+                       ON CONFLICT (user_id, listing_id) DO NOTHING""",
+                    (user_ids[username], listing_ids[title]),
+                )
+                counts["wishlist saves"] += cur.rowcount
+
+        for brand, ratings in RATINGS.items():
+            for rater, stars in ratings:
+                cur.execute(
+                    "SELECT 1 FROM storefront_ratings WHERE storefront_id = %s AND user_id = %s",
+                    (store_ids[brand], user_ids[rater]),
+                )
+                if cur.fetchone():
+                    continue
+                cur.execute(
+                    "INSERT INTO storefront_ratings (storefront_id, user_id, stars) VALUES (%s, %s, %s)",
+                    (store_ids[brand], user_ids[rater], stars),
+                )
+                counts["ratings"] += 1
+
+        conn.commit()
+        added = ", ".join(f"{n} {label}" for label, n in counts.items())
+        print(f"Done. Added {added}.")
+        print(f"Log in as any of: {', '.join(SELLERS + BUYERS)}")
+        print(f"Password for all demo accounts: {DEMO_PASSWORD}")
         return 0
     except Exception as e:
-        print(f"Something went wrong, so nothing was saved: {e}")
+        conn.rollback()
+        print(f"Something went wrong, nothing was saved: {e}")
         return 1
     finally:
         conn.close()

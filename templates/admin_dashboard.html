@@ -12,14 +12,14 @@
     <title>Admin Dashboard</title>
 
     <!-- Link to external CSS file for styling -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/cove.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
-<body>
+<body class="admin-dashboard-page">
 
     <!-- Main page title -->
     <h1>Admin Dashboard</h1>
 
-    <!-- Added 4/23/2026 by David Jackson -->
     <!-- Logout Button -->
     <div class="admin-toolbar">
         <span>Signed in as <strong>{{ session.get('user', 'admin') }}</strong></span>
