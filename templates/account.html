@@ -120,6 +120,15 @@
         .profile-msg { min-height: 1.3em; margin-top: 10px; font-size: 1rem; color: var(--accent); }
         .profile-msg.error { color: #ffb3b3; }
 
+        /* Settings tab - Added by Jaylen Belle 11/12/2026 - uses the styles from above */
+        .settings-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin: 14px 0 30px; }
+        .settings-item { border: 2px solid var(--soft-line); background: rgba(255, 255, 255, 0.04); padding: 12px 14px; min-width: 0; }
+        .settings-label { color: rgba(255, 255, 255, 0.65); font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+        .settings-value { font-size: 1.1rem; font-weight: 700; margin-top: 4px; word-break: break-word; }
+        .settings-hint { color: rgba(255, 255, 255, 0.65); font-size: 0.85rem; margin-top: 6px; }
+        .settings-show { color: rgba(255, 255, 255, 0.8); font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px; margin: -4px 0 16px; cursor: pointer; }
+
+
         @media (max-width: 640px) {
             .account-container { padding: 22px 18px; }
             .user-meta h1 { font-size: 2rem; }
@@ -149,6 +158,7 @@
         <button class="tab-link" onclick="openTab(event, 'purchases')">Purchases</button>
         <button class="tab-link" onclick="openTab(event, 'sales')">Sales History</button>
         <button class="tab-link" id="profileTabBtn" onclick="openTab(event, 'profile')">Profile</button> <!-- Added by Anthony Jackson 10/21/26 -->
+        <button class="tab-link" id="settingsTabBtn" onclick="openTab(event, 'settings')">Settings</button> <!-- Added by Jaylen Belle 11/12/2026 -->
     </div>
 
     <div id="listings" class="tab-content active">
@@ -212,7 +222,44 @@
             <p id="profileMsg" class="profile-msg"></p>
         </form>
     </div>
+
+    <!-- Added by Jaylen Belle 11/12/2026 - Account settings (Summary and change password) -->
+    <div id="settings" class="tab-content">
+        <h2>Account Settings</h2>
+        <p id="settingsMessage" class="profile-msg"></p>
+        <div class="settings-summary" id="settingsSummary">
+            <div class="settings-item"><div class="settings-label">Username</div><div class="settings-value" id="stUsername">-</div></div>
+            <div class="settings-item"><div class="settings-label">Email</div><div class="settings-value" id="stEmail">-</div></div>
+            <div class="settings-item"><div class="settings-label">Account type</div><div class="settings-value" id="stRole">-</div></div>
+            <div class="settings-item"><div class="settings-label">Created at</div><div class="settings-value" id="stCreatedAt">-</div></div>
+            <div class="settings-item"><div class="settings-label">Active listings</div><div class="settings-value" id="stListings">-</div></div>
+            <div class="settings-item"><div class="settings-label">Wishlist items</div><div class="settings-value" id="stWishlist">-</div></div>
+            <div class="settings-item"><div class="settings-label">Orders placed</div><div class="settings-value" id="stOrders">-</div></div>
+        </div>
+
+        <h3>Change Password</h3>
+        <form id="passwordForm" novalidate>
+            <div class="profile-row">
+                <label for="currentPassword">Current password</label>
+                <input type="password" id="currentPassword" name="current_password" autocomplete="current-password">
+            </div>
+            <div class="profile-row">
+                <label for="newPassword">New password</label>
+                <input type="password" id="newPassword" name="new_password" autocomplete="new-password">
+                <div class="settings-hint">Password must be at least 8 characters long, have a lowercase, uppercase, a number, and a special character (!@#$%^&*_-).</div>
+            </div>
+            <div class="profile-row">
+                <label for="confirmPassword">Confirm new password</label>
+                <input type="password" id="confirmPassword" name="confirm_password" autocomplete="new-password">
+            </div>
+            <label class="settings-show"><input type="checkbox" id="showPassword"> Show password</label><br>
+            <button type="submit" class="profile-save-btn" id="passwordSaveButton">Change password</button>
+            <p id="passwordMessage" class="profile-msg"></p>
+        </form>
+    </div>
 </div>
+
+
 
 <script>
     async function getCurrentUserId() {
@@ -574,6 +621,7 @@
 </script>
 <script src="{{ url_for('static', filename='js/cove_header.js') }}"></script>
 <script src="{{ url_for('static', filename='js/profile.js') }}"></script> <!-- Added by Anthony Jackson 10/21/26 -->
+<script src="{{ url_for('static', filename='js/usersettings.js') }}"></script> <!-- Added by Jaylen Belle 11/12/2026 -->
 
 </body>
 </html>
