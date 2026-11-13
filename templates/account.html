@@ -6,8 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Vault | Account Console</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront.css') }}">
-    <style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/storefront.css') }}">    <style>
         :root { --gold: #B8860B; --dark-bg: #121212; }
         
         body { background-color: #000; color: white; font-family: 'Segoe UI', sans-serif; }
@@ -124,8 +123,154 @@
         }
         .wishlist-cart-btn:hover { background: rgba(184,134,11,0.15); }
         .wishlist-cart-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /*Created by Sidney Cerami 11/13/2026: Purchase History*/
+     .purchase-items {
+        display: grid;
+        gap: 16px;
+        margin-top: 20px;
+    }
 
-        .purchase-items { display: grid; gap: 12px; margin-top: 16px; }
+    .purchase-header {
+        margin-bottom: 22px;
+    }
+
+    .purchase-header h3 {
+        color: #ffffff;
+        letter-spacing: 1.5px;
+        margin-bottom: 6px;
+    }
+
+    .purchase-subtitle {
+        color: #b8c7e6;
+        font-size: 0.9rem;
+        margin-top: 6px;
+    }
+
+    .purchase-summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .purchase-summary-card {
+        background: linear-gradient(
+            135deg,
+            rgba(0, 51, 160, 0.35),
+            rgba(10, 20, 45, 0.95)
+        );
+        border: 1px solid rgba(70, 125, 220, 0.45);
+        border-radius: 12px;
+        padding: 20px;
+        transition: 0.25s ease;
+    }
+
+    .purchase-summary-card:hover {
+        border-color: #467ddd;
+        transform: translateY(-2px);
+    }
+
+    .summary-label {
+        display: block;
+        color: #b8c7e6;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        margin-bottom: 10px;
+    }
+
+    .purchase-summary-card strong {
+        color: #ffffff;
+        font-size: 1.7rem;
+    }
+
+    .purchase-row {
+        background: linear-gradient(
+            135deg,
+            rgba(0, 51, 160, 0.2),
+            #101a30
+        );
+        border: 1px solid rgba(70, 125, 220, 0.3);
+        border-left: 4px solid #0033A0;
+        border-radius: 10px;
+        padding: 18px;
+        transition: 0.25s ease;
+    }
+
+    .purchase-row:hover {
+        border-color: #467ddd;
+        border-left-color: #467ddd;
+        transform: translateY(-2px);
+    }
+
+    .purchase-conf {
+        color: #ffffff;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        overflow-wrap: anywhere;
+    }
+
+    .purchase-meta {
+        color: #b8c7e6;
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+
+    .purchase-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 14px;
+    }
+
+    .purchase-total {
+        color: #ffffff;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .purchase-details-link {
+        color: #ffffff;
+        background: #0033A0;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid #467ddd;
+        border-radius: 6px;
+        padding: 7px 12px;
+        transition: 0.2s ease;
+    }
+
+    .purchase-details-link:hover {
+        background: #174fc0;
+        border-color: #ffffff;
+    }
+
+    #purchasesEmptyState {
+        color: #b8c7e6;
+        padding: 35px 15px;
+        text-align: center;
+    }
+
+    @media (max-width: 600px) {
+        .purchase-summary {
+            grid-template-columns: 1fr;
+        }
+
+        .purchase-row {
+            padding: 14px;
+        }
+
+        .purchase-bottom {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+       /*.purchase-items { display: grid; gap: 12px; margin-top: 16px; }
         .purchase-row {
             border: 1px solid #333;
             background: #111;
@@ -133,9 +278,20 @@
         }
         .purchase-conf { color: var(--gold); font-size: 0.8rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
         .purchase-meta { color: #aaa; font-size: 0.85rem; margin-top: 4px; }
-        .purchase-total { color: var(--gold); font-weight: bold; float: right; }
+        .purchase-total { color: var(--gold); font-weight: bold; float: right; } */
+        /*Changed by Sidney Cerami 11/13/2026: Back Button to match design*/
+        .back-btn {
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: color 0.2s ease;
+    }
 
-        .back-btn { color: var(--gold); text-decoration: none; font-size: 0.9rem; }
+    .back-btn:hover {
+        color: #467ddd;
+    }
+        /*.back-btn { color: var(--gold); text-decoration: none; font-size: 0.9rem; }*/ 
     </style>
 </head>
 <body>
@@ -172,11 +328,40 @@
         <div id="wishlistItemsContainer" class="wishlist-items"></div>
     </div>
 
+    <!--Changed By Sidney Cerami 11/13/2026: Purchase History-->
     <div id="purchases" class="tab-content">
+        <div class="purchase-header">
+            <div>
+                <h3>PURCHASE HISTORY</h3>
+                <p class="purchase-subtitle">
+                    Track your orders and view your transaction details.
+                </p>
+            </div>
+        </div>
+
+        <div class="purchase-summary">
+            <div class="purchase-summary-card">
+                <span class="summary-label">TOTAL ORDERS</span>
+                <strong id="totalOrders">0</strong>
+            </div>
+
+            <div class="purchase-summary-card">
+                <span class="summary-label">TOTAL SPENT</span>
+                <strong id="totalSpent">$0.00</strong>
+            </div>
+        </div>
+
+        <div id="purchasesEmptyState" class="empty-state">
+            Loading your orders...
+        </div>
+
+        <div id="purchasesContainer" class="purchase-items"></div>
+    </div>
+  <!--<div id="purchases" class="tab-content">
         <h3>PURCHASE HISTORY</h3>
         <p id="purchasesEmptyState" class="empty-state">Loading your orders...</p>
         <div id="purchasesContainer" class="purchase-items"></div>
-    </div>
+    </div> -->  
 
     <div id="sales" class="tab-content">
         <h3>SALES HISTORY</h3>
