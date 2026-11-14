@@ -22,6 +22,7 @@ def _normalize_has_damage(value):
         return True
     if normalized in {"false", "no", "n", "0"}:
         return False
+    # RET-28 Fix: Validation errors use ValueError - Tykeara Hammond
     raise ValueError("has_damage is required.")
 
 
