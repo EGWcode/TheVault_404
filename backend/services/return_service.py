@@ -22,23 +22,23 @@ def _normalize_has_damage(value):
         return True
     if normalized in {"false", "no", "n", "0"}:
         return False
-    raise Exception("has_damage is required.")
+    raise ValueError("has_damage is required.")
 
 
 def create_return_service(current_user, data, damage_image_url=None):
     if not current_user or not current_user.get("id"):
-        raise Exception("Unauthorized.")
+        raise ValueError("Unauthorized.")
 
     order_number = str(data.get("order_number") or "").strip()
     reason = str(data.get("reason") or "").strip()
     raw_has_damage = data.get("has_damage")
 
     if not order_number:
-        raise Exception("order_number is required.")
+        raise ValueError("order_number is required.")
     if not reason:
-        raise Exception("reason is required.")
+        raise ValueError("reason is required.")
     if raw_has_damage in (None, ""):
-        raise Exception("has_damage is required.")
+        raise ValueError("has_damage is required.")
 
     has_damage = _normalize_has_damage(raw_has_damage)
 
@@ -51,7 +51,7 @@ def create_return_service(current_user, data, damage_image_url=None):
 
     # SECURITY ENHANCEMENT: Verify order ownership
     if not order_belongs_to_user(current_user["id"], order_number):
-        raise Exception("Unauthorized: You are not the owner of this order.")
+        raise ValueError("Unauthorized: You are not the owner of this order.")
 
     return create_return_record(
         user_id=current_user["id"],
@@ -70,9 +70,9 @@ def fetch_returns_service():
 def update_return_status_service(return_id, status):
     normalized_status = str(status or "").strip().lower()
     if normalized_status not in VALID_RETURN_STATUSES:
-        raise Exception("status must be pending, reviewed, or resolved.")
+        raise ValueError("status must be pending, reviewed, or resolved.")
 
     updated = update_return_status(return_id, normalized_status)
     if updated is None:
-        raise Exception("Return not found.")
+        raise ValueError("Return not found.")
     return updated

@@ -59,6 +59,19 @@ def submit_return():
         file = request.files["damage_image"]
         if not file.filename.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp")):
             return jsonify({"error": "Damage image must be PNG, JPG, JPEG, GIF, or WebP."}), 400
+ #Tykeara H: checked the file's real type by its first bytes.
+        header = file.stream.read(12)
+        file.stream.seek(0)
+        is_image = (
+            header.startswith(b"\x89PNG\r\n\x1a\n")
+            or header.startswith(b"\xff\xd8\xff")
+            or header.startswith(b"GIF8")
+            or (header.startswith(b"RIFF") and header[8:12] == b"WEBP")
+        )
+        if not is_image:
+            return jsonify({"error": "Damage image must be PNG, JPG, JPEG, GIF, or WebP."}), 400
+
+        
 
         damage_image_url = upload_image_to_s3(file, folder="returns/damage")
         if not damage_image_url:
@@ -67,8 +80,11 @@ def submit_return():
     try:
         created = create_return_service(current_user, data, damage_image_url=damage_image_url)
         return jsonify(created), 201
-    except Exception as e:
+    except ValueError as e:
         message = str(e)
         if "unauthorized" in message.lower():
             return jsonify({"error": message}), 401
         return jsonify({"error": message}), 400
+    except Exception as e:
+        print(e)
+        return jsonify({"error": "Something went wrong. Please try again."}), 500
