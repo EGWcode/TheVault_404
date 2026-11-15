@@ -18,6 +18,7 @@ from controllers.menu_controller import menu_api_bp, menu_pages_bp  # Added by A
 from controllers.message_controller import messages_bp # Added by Ethan Williams 10/20/26 for buyer-seller messaging
 from controllers.rating_controller import ratings_bp  # Added by Anthony Jackson 10/21/26 - storefront ratings
 from controllers.profile_controller import profile_bp  # Added by Anthony Jackson 10/21/26 - optional user profile
+from controllers.usersettings import usersettings_bp  # Added by Jaylen Belle 11/12/2026 - account settings
 from init_db import create_vault_tables
 from controllers.discovery_controller import discovery_bp  # Updated by Noah Green 10/17/2026
 
@@ -190,6 +191,8 @@ def create_app():
     app.register_blueprint(discovery_bp)
     app.register_blueprint(ratings_bp)  # Added by Anthony Jackson 10/21/26 - storefront ratings
     app.register_blueprint(profile_bp)  # Added by Anthony Jackson 10/21/26 - optional user profile
+    app.register_blueprint(usersettings_bp)  # Added by Jaylen Belle 11/12/2026 - account settings
+    
 
     @app.get("/health")
     def health():
